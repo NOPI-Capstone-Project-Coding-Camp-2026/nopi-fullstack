@@ -1,0 +1,29 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Di v6, ini diperbolehkan dan sangat simpel
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String   // <--- Tambahkan ini
+  createdAt DateTime @default(now())
+  notas     Nota[]
+}
+
+model Nota {
+  id          Int      @id @default(autoincrement())
+  toko        String
+  totalHarga  Float
+  tanggal     DateTime @default(now())
+  imageUrl    String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
