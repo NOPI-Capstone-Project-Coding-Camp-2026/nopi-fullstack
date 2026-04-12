@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { useGoogleLogin } from '@react-oauth/google'; // <--- Import ini
+import { useGoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +11,6 @@ const Login = () => {
   const { setToken, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // 1. Logika Login Biasa (Email & Password)
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(''); 
@@ -38,7 +37,6 @@ const Login = () => {
     }
   };
 
-  // 2. Logika Login via Google
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -68,7 +66,6 @@ const Login = () => {
   return (
     <div className="min-h-screen flex bg-gray-50">
       
-      {/* BAGIAN KIRI: Background Orange dengan Teks Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#E27C3E] flex-col justify-center px-16 xl:px-24">
         <h1 className="text-5xl xl:text-6xl font-bold text-white leading-tight">
           Kelola Keuangan <br />
@@ -77,11 +74,8 @@ const Login = () => {
         </h1>
       </div>
 
-      {/* BAGIAN KANAN: Form Card */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-[#E27C3E] lg:bg-transparent">
-        
         <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-md">
-          
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang Kembali</h2>
             <p className="text-gray-500">Silakan masuk ke akun NOPI Anda</p>
@@ -119,9 +113,12 @@ const Login = () => {
             </div>
 
             <div className="flex justify-end">
-              <a href="#" className="text-sm font-bold text-[#E27C3E] hover:text-[#c7652c] transition-colors">
+              <Link
+                to="/forgot-password"
+                className="text-sm font-bold text-[#E27C3E] hover:text-[#c7652c] transition-colors"
+              >
                 Lupa Password?
-              </a>
+              </Link>
             </div>
 
             <button 
@@ -132,18 +129,24 @@ const Login = () => {
             </button>
           </form>
 
-          {/* --- DIVIDER (Garis Pemisah) --- */}
           <div className="mt-6 flex items-center justify-between">
-            <span className="border-b w-1/5 lg:w-1/4"></span>
-            <span className="text-xs text-center text-gray-500 uppercase">Atau masuk dengan</span>
-            <span className="border-b w-1/5 lg:w-1/4"></span>
+            <span className="border-b w-1/3 lg:w-[38%]"></span>
+            <span className="text-xs text-center text-gray-500">Atau</span>
+            <span className="border-b w-1/3 lg:w-[38%]"></span>
           </div>
 
-          {/* --- TOMBOL LOGIN GOOGLE --- */}
+          <button 
+            onClick={() => navigate('/register')}
+            type="button" 
+            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#9a9a9a] text-white font-bold text-lg py-4 px-4 rounded-xl hover:bg-[#888] active:scale-95 transition-all duration-200 shadow-sm"
+          >
+            Belum punya akun
+          </button>
+
           <button 
             onClick={() => loginWithGoogle()}
             type="button" 
-            className="mt-6 w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-bold text-lg py-3 px-4 rounded-xl hover:bg-gray-50 active:scale-95 transition-all duration-200 shadow-sm"
+            className="mt-4 w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-bold text-lg py-3 px-4 rounded-xl hover:bg-gray-50 active:scale-95 transition-all duration-200 shadow-sm"
           >
             <svg className="w-6 h-6" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -154,19 +157,11 @@ const Login = () => {
             Google
           </button>
 
-          {/* Tombol Register */}
           <div className="mt-6 text-center">
-            <span className="text-gray-600">Belum punya akun? </span>
             <Link to="/register" className="text-[#E27C3E] font-bold hover:underline">
               Daftar sekarang
             </Link>
           </div>
-
-          <div className="mt-8 text-center text-xs text-gray-500">
-            By continue, you agree to the <br />
-            <a href="#" className="text-blue-500 hover:underline">Terms of Service</a> and <a href="#" className="text-blue-500 hover:underline">Privacy Policy</a>.
-          </div>
-
         </div>
       </div>
     </div>

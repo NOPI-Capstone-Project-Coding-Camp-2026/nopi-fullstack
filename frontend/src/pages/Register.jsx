@@ -10,9 +10,8 @@ const Register = () => {
   const [error, setError] = useState('');
   
   const navigate = useNavigate();
-  const { setToken, setUser } = useContext(AuthContext); // Untuk Auto-login Google
+  const { setToken, setUser } = useContext(AuthContext);
 
-  // 1. Logika Register Biasa
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(''); 
@@ -37,7 +36,6 @@ const Register = () => {
     }
   };
 
-  // 2. Logika Register / Login via Google
   const registerWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -68,7 +66,6 @@ const Register = () => {
   return (
     <div className="min-h-screen flex bg-gray-50">
       
-      {/* BAGIAN KIRI: Background Orange dengan Teks Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#E27C3E] flex-col justify-center px-16 xl:px-24">
         <h1 className="text-5xl xl:text-6xl font-bold text-white leading-tight">
           Kelola Keuangan <br />
@@ -77,11 +74,8 @@ const Register = () => {
         </h1>
       </div>
 
-      {/* BAGIAN KANAN: Form Card */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-[#E27C3E] lg:bg-transparent">
-        
         <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-md">
-          
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Buat Akun Baru</h2>
             <p className="text-gray-500">Mulai perjalanan bisnis Anda dengan NOPI hari ini.</p>
@@ -94,7 +88,6 @@ const Register = () => {
           )}
 
           <form onSubmit={handleRegister} className="space-y-5">
-            {/* Input Nama */}
             <div>
               <label className="block text-gray-900 text-sm font-bold mb-2">Nama</label>
               <input 
@@ -107,7 +100,6 @@ const Register = () => {
               />
             </div>
 
-            {/* Input Email */}
             <div>
               <label className="block text-gray-900 text-sm font-bold mb-2">Email</label>
               <input 
@@ -120,7 +112,6 @@ const Register = () => {
               />
             </div>
 
-            {/* Input Password */}
             <div>
               <label className="block text-gray-900 text-sm font-bold mb-2">Password</label>
               <input 
@@ -133,7 +124,6 @@ const Register = () => {
               />
             </div>
 
-            {/* Tombol Daftar */}
             <button 
               type="submit" 
               className="w-full mt-2 bg-[#3CC360] text-white font-bold text-lg py-3.5 px-4 rounded-xl hover:bg-[#34AD54] active:scale-95 transition-all duration-200 shadow-sm"
@@ -142,11 +132,16 @@ const Register = () => {
             </button>
           </form>
 
-          {/* Tombol Google Auth */}
+          <div className="mt-6 flex items-center justify-between">
+            <span className="border-b w-[38%]"></span>
+            <span className="text-xs text-center text-gray-500">Atau</span>
+            <span className="border-b w-[38%]"></span>
+          </div>
+
           <button 
             onClick={() => registerWithGoogle()}
             type="button" 
-            className="mt-4 w-full flex items-center justify-center gap-3 bg-[#F1F3F5] text-gray-700 font-medium text-lg py-3.5 px-4 rounded-xl hover:bg-[#E5E7EB] active:scale-95 transition-all duration-200"
+            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#F1F3F5] text-gray-700 font-medium text-lg py-3.5 px-4 rounded-xl hover:bg-[#E5E7EB] active:scale-95 transition-all duration-200"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -157,7 +152,6 @@ const Register = () => {
             Google
           </button>
 
-          {/* Navigasi kembali ke Login */}
           <div className="mt-8 text-center">
             <span className="text-gray-600">Sudah punya akun? </span>
             <Link to="/login" className="text-[#E27C3E] font-bold hover:underline">

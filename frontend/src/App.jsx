@@ -1,64 +1,31 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import LandingPage from './pages/LandingPage'; // <--- Import Landing Page
-
-// Komponen Pembatas (Hanya bisa akses jika sudah login)
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
+import Dashboard from './pages/Dashboard';
+import UploadPage from './pages/UploadPage';
+import History from './pages/History';
+import ProfilePage from './pages/ProfilePage';
+import FaqPage from './pages/FaqPage';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        {/* Wrapper utama aplikasi */}
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          
-          {/* Catatan Senior: Jika Navbar global ini dirasa "bertabrakan" 
-            dengan desain Landing Page, kamu bisa memindahkannya ke 
-            dalam masing-masing komponen (Dashboard/Login/Register) nantinya. 
-            Untuk sekarang kita biarkan di sini agar rapi.
-          */}
-          
-          {/* Area Konten Utama */}
-          <div className="flex-grow">
-            <Routes>
-              
-              {/* --- HALAMAN PUBLIK --- */}
-              {/* Landing Page sekarang jadi halaman paling depan */}
-              <Route path="/" element={<LandingPage />} />
-              
-              {/* Alur Auth */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-
-              {/* --- HALAMAN MEMBER (DIPROTEKSI) --- */}
-              {/* Dashboard kita pindah ke /dashboard */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <div className="p-8 text-center">
-                      <h1 className="text-3xl font-bold">Dashboard NOPI</h1>
-                      <p className="text-gray-600 mt-2">Selamat datang kembali! Nota Pintar siap kelola keuanganmu.</p>
-                      {/* Nanti fitur Upload Nota ditaruh di sini */}
-                    </div>
-                  </ProtectedRoute>
-                } 
-              />
-
-              {/* Jika user nyasar ke URL salah, arahkan ke halaman utama (Landing Page) */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-              
-            </Routes>
-          </div>
-        </div>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/upload" element={<UploadPage />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/faq" element={<FaqPage />} />
+        </Routes>
       </Router>
     </AuthProvider>
   );
