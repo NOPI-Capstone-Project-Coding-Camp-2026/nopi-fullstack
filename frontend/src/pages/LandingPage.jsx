@@ -1,9 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // <--- 1. Wajib import Link dari react-router-dom
-
-// Pastikan untuk mengganti placeholder ini dengan path gambar/ikon asli Anda
-const NOPI_LOGO = "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"; 
-const HERO_IMAGE_PLACEHOLDER = "/path/to/your/receipt-illustration.png"; 
+import { Link } from 'react-router-dom';
+import NopiLogo from '../components/ui/NopiLogo';
+import receiptHero from '../assets/receipt-hero.png';
 
 const LandingPage = () => {
   return (
@@ -15,23 +13,8 @@ const LandingPage = () => {
         {/* BAGIAN KIRI: Teks & Tombol */}
         <div className="flex-1 w-full max-w-2xl text-center lg:text-left flex flex-col gap-8">
           
-          {/* Header: Logo & Slogan */}
           <header className="flex flex-col items-center lg:items-start gap-1">
-            <div className="flex items-center gap-3">
-              <svg 
-                className="w-8 h-8 text-[#ff8c00]" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={NOPI_LOGO} />
-              </svg>
-              <span className="text-3xl font-bold text-[#ff8c00] tracking-tight">NOPI</span>
-            </div>
-            <p className="text-sm font-medium tracking-widest text-gray-500 uppercase">
-              Bisnis Makin Lancar.
-            </p>
+            <NopiLogo />
           </header>
 
           {/* Headline & Deskripsi Utama */}
@@ -47,7 +30,6 @@ const LandingPage = () => {
               laba secara real-time.
             </p>
 
-            {/* --- 2. TOMBOL AKSI DIPERBAIKI DI SINI --- */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mt-4">
               
               <Link 
@@ -71,16 +53,13 @@ const LandingPage = () => {
 
         {/* BAGIAN KANAN: Visual Ilustrasi */}
         <div className="flex-1 w-full flex justify-center items-center lg:pl-12">
-          {/* Placeholder Kotak */}
-          <div className="w-full max-w-[400px] aspect-[4/5] bg-gradient-to-br from-[#ffb86c] to-[#ff9f43] rounded-3xl shadow-xl flex flex-col items-center justify-center p-8 text-white relative overflow-hidden">
-            <div className="absolute top-0 w-full h-8 flex justify-between px-4">
-               {[...Array(8)].map((_, i) => (
-                 <div key={i} className="w-6 h-6 bg-[#f7f9fc] rounded-full -mt-3"></div>
-               ))}
-            </div>
-            <span className="text-7xl font-bold mb-4 text-[#ffe6cc]">$</span>
-            <div className="w-3/4 h-3 bg-[#ffe6cc] rounded-full mb-3 opacity-80"></div>
-            <div className="w-1/2 h-3 bg-[#ffe6cc] rounded-full opacity-80"></div>
+          <div className="relative flex w-full max-w-[520px] items-center justify-center">
+            <div className="absolute inset-0 rounded-[48px] bg-[radial-gradient(circle_at_center,rgba(240,138,42,0.12),transparent_70%)] blur-2xl" />
+            <img
+              src={receiptHero}
+              alt="Ilustrasi nota NOPI"
+              className="relative w-full max-w-[430px] object-contain drop-shadow-[0_28px_36px_rgba(240,138,42,0.18)]"
+            />
           </div>
         </div>
 

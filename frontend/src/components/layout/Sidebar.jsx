@@ -1,40 +1,59 @@
-import { NavLink } from 'react-router-dom';
-import NopiLogo from '../ui/NopiLogo';
-import { BarsIcon, GridIcon, InfoIcon, ReceiptIcon } from '../ui/AppIcons';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { CircleHelp, House, ReceiptText, Upload, UserRound } from 'lucide-react';
 
 const menuItems = [
-  { to: '/dashboard', label: 'Beranda', icon: GridIcon },
-  { to: '/history', label: 'Riwayat Transaksi', icon: BarsIcon },
-  { to: '/upload', label: 'Scan/Upload', icon: ReceiptIcon },
-  { to: '/faq', label: 'FAQ', icon: InfoIcon },
+  { name: 'Dashboard', path: '/dashboard', icon: House },
+  { name: 'Upload Nota', path: '/upload', icon: Upload },
+  { name: 'History', path: '/history', icon: ReceiptText },
+  { name: 'Profile', path: '/profile', icon: UserRound },
+  { name: 'FAQ', path: '/faq', icon: CircleHelp },
 ];
 
 const Sidebar = () => {
-  return (
-    <aside className="hidden min-h-screen w-[280px] border-r border-[#f3ece2] bg-[#fffaf4] px-10 py-12 lg:fixed lg:inset-y-0 lg:left-0 lg:block">
-      <NopiLogo />
+  const navigate = useNavigate();
 
-      <nav className="mt-16 space-y-4">
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  return (
+    <aside className="hidden lg:flex fixed left-0 top-0 z-30 h-screen w-72 flex-col border-r border-gray-200 bg-white px-6 py-8">
+      <div className="mb-10">
+        <h1 className="text-3xl font-extrabold tracking-tight text-[#E27C3E]">NOPI</h1>
+        <p className="mt-1 text-sm text-gray-500">Nota Pintar untuk UMKM</p>
+      </div>
+
+      <nav className="flex-1 space-y-2">
         {menuItems.map((item) => {
           const Icon = item.icon;
 
           return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                [
-                  'flex items-center gap-3 rounded-2xl px-5 py-3 text-[1.05rem] font-medium transition',
-                  isActive ? 'bg-[#ffe1c5] text-[#ff922f]' : 'text-[#ff922f] hover:bg-[#fff0df]',
-                ].join(' ')
-              }
-            >
-              <Icon className="h-6 w-6 shrink-0" />
-              <span>{item.label}</span>
-            </NavLink>
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                isActive
+                  ? 'bg-[#FFF3EC] text-[#E27C3E]'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              }`
+            }
+          >
+            <Icon className="h-5 w-5 shrink-0" strokeWidth={2.2} />
+            <span>{item.name}</span>
+          </NavLink>
           );
         })}
       </nav>
+
+      <button
+        onClick={handleLogout}
+        className="mt-6 rounded-xl bg-[#3CC360] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#34AD54]"
+      >
+        Logout
+      </button>
     </aside>
   );
 };

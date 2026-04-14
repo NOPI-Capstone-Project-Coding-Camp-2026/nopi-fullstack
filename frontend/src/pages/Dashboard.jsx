@@ -2,19 +2,13 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { BookmarkIcon, ChartIcon, PieIcon, PlusIcon } from '../components/ui/AppIcons';
 
-const recentActivities = [
-  { id: 1, store: 'Warung Kopi Alex', date: '12 Jan 2026 | 14.20 WIB', total: 'Rp 450.000.000', label: 'Harga Beli' },
-  { id: 2, store: 'Warung Kopi Alex', date: '12 Jan 2026 | 14.20 WIB', total: 'Rp 450.000.000', label: 'Harga Beli' },
-  { id: 3, store: 'Warung Kopi Alex', date: '12 Jan 2026 | 14.20 WIB', total: 'Rp 450.000.000', label: 'Harga Beli' },
-];
-
 const Dashboard = () => {
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="text-[3.35rem] font-semibold tracking-[-0.06em] text-[#ea8327]">
-            Selamat datang kembali, Alleta
+            Selamat datang kembali, Nama User
           </h1>
           <p className="mt-3 text-[1.15rem] text-[#2d2d2d]">
             Inilah ringkasan keuangan bisnis anda Hari ini.
@@ -40,10 +34,8 @@ const Dashboard = () => {
           <p className="mt-8 text-[1.15rem] uppercase tracking-[0.12em] text-[#8d8d8d]">
             Total Pendapatan
           </p>
-          <div className="mt-3 text-[4rem] font-semibold tracking-[-0.06em] text-[#3b9b52]">
-            Rp 250.000.000
-          </div>
-          <p className="mt-5 text-xl text-[#35c759]">+15% dari Bulan Lalu</p>
+          <div className="mt-3 text-[4rem] font-semibold tracking-[-0.06em] text-[#3b9b52]">Rp 0</div>
+          <p className="mt-5 text-xl text-[#8d8d8d]">Belum ada data transaksi</p>
         </div>
 
         <div className="space-y-8">
@@ -52,17 +44,15 @@ const Dashboard = () => {
             <p className="mt-10 text-[1rem] uppercase tracking-[0.14em] text-[#8d8d8d]">
               Nota Terproses
             </p>
-            <div className="mt-3 text-[3.1rem] font-semibold tracking-[-0.04em] text-[#222]">250</div>
+            <div className="mt-3 text-[3.1rem] font-semibold tracking-[-0.04em] text-[#222]">0</div>
           </div>
 
           <div className="rounded-[28px] bg-white p-10 shadow-[0_16px_34px_rgba(15,23,42,0.08)]">
             <PieIcon className="h-8 w-8 text-[#d96f0a]" />
             <p className="mt-10 text-[1rem] uppercase tracking-[0.14em] text-[#8d8d8d]">Laba Bersih</p>
-            <div className="mt-3 text-[3rem] font-semibold tracking-[-0.04em] text-[#222]">
-              Rp.250.000.000
-            </div>
+            <div className="mt-3 text-[3rem] font-semibold tracking-[-0.04em] text-[#222]">Rp 0</div>
             <p className="mt-14 max-w-[14rem] text-lg leading-8 text-[#f1781c]">
-              Total laba bersih yang terkumpul di bulan ini.
+              Laba bersih akan muncul setelah nota berhasil diproses dan disimpan.
             </p>
           </div>
         </div>
@@ -79,24 +69,10 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          <div className="space-y-6">
-            {recentActivities.map((activity) => (
-              <article
-                key={activity.id}
-                className="rounded-[24px] bg-white px-7 py-6 shadow-[0_12px_28px_rgba(15,23,42,0.06)]"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <h3 className="text-[1.45rem] font-semibold text-[#262626]">{activity.store}</h3>
-                    <p className="mt-2 text-base text-[#8d8d8d]">{activity.date}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[1.45rem] font-semibold text-[#262626]">{activity.total}</div>
-                    <div className="mt-1 text-base text-[#8d8d8d]">{activity.label}</div>
-                  </div>
-                </div>
-              </article>
-            ))}
+          <div className="rounded-[24px] bg-white px-7 py-10 shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
+            <p className="text-lg text-[#8d8d8d]">
+              Belum ada riwayat transaksi. Mulai dengan upload nota pertama Anda.
+            </p>
           </div>
         </div>
 

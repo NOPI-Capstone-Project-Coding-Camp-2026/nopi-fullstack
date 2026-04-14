@@ -1,18 +1,17 @@
-import { createContext, useState, useEffect } from 'react';
-
-export const AuthContext = createContext();
+import { useState } from 'react';
+import { AuthContext } from './AuthContext';
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [user, setUser] = useState(() => {
+    const savedToken = localStorage.getItem('token');
 
-  useEffect(() => {
-    if (token) {
-      // Decode token atau ambil data user dari localStorage
-      const savedUser = JSON.parse(localStorage.getItem('user'));
-      setUser(savedUser);
+    if (!savedToken) {
+      return null;
     }
-  }, [token]);
+
+    return JSON.parse(localStorage.getItem('user') || 'null');
+  });
 
   const logout = () => {
     localStorage.removeItem('token');
