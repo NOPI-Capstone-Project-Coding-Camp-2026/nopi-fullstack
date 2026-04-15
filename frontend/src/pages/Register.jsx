@@ -2,12 +2,13 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
+import Swal from 'sweetalert2'; // <-- IMPORT SWEETALERT DI SINI
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); // Tetap kita pakai untuk error form ringan
   
   const navigate = useNavigate();
   const { setToken, setUser } = useContext(AuthContext);
@@ -16,6 +17,22 @@ const Register = () => {
     e.preventDefault();
     setError(''); 
     
+    // Validasi Password
+    if (password.length < 8) {
+      setError('Password harus memiliki minimal 8 karakter.');
+      return; 
+    }
+
+    // Tampilkan animasi loading saat sedang mengirim data
+    Swal.fire({
+      title: 'Memproses...',
+      text: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const res = await fetch('http://localhost:5000/api/auth/signup', {
         method: 'POST',
@@ -26,18 +43,50 @@ const Register = () => {
       const data = await res.json();
       
       if (res.ok) {
-        alert("Pendaftaran Berhasil! Silakan Login.");
-        navigate('/login'); 
+        // Pop-up Sukses yang Cantik
+        Swal.fire({
+          icon: 'success',
+          title: 'Pendaftaran Berhasil!',
+          text: 'Silakan cek kotak masuk email Anda untuk melakukan verifikasi akun.',
+          confirmButtonText: 'Menuju Login',
+          confirmButtonColor: '#3CC360', // Warna hijau NOPI
+          iconColor: '#3CC360',
+          backdrop: `rgba(0,0,0,0.4)`
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate('/login'); 
+          }
+        });
       } else {
-        setError(data.message || 'Pendaftaran gagal. Pastikan email belum terdaftar.');
+        // Pop-up Gagal dari Server
+        Swal.fire({
+          icon: 'error',
+          title: 'Pendaftaran Gagal',
+          text: data.message || 'Pastikan email belum terdaftar.',
+          confirmButtonText: 'Coba Lagi',
+          confirmButtonColor: '#E27C3E', // Warna oranye NOPI
+        });
       }
     } catch {
-      setError('Tidak dapat terhubung ke server. Pastikan backend menyala.');
+      // Pop-up Gagal Koneksi
+      Swal.fire({
+        icon: 'error',
+        title: 'Koneksi Terputus',
+        text: 'Tidak dapat terhubung ke server. Pastikan backend sudah menyala.',
+        confirmButtonText: 'Oke',
+        confirmButtonColor: '#E27C3E',
+      });
     }
   };
 
   const registerWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
+      Swal.fire({
+        title: 'Verifikasi Google...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
       try {
         const res = await fetch('http://localhost:5000/api/auth/google', {
           method: 'POST',
@@ -47,20 +96,45 @@ const Register = () => {
         
         const data = await res.json();
         if (res.ok) {
-          // Jika pakai Google, kita anggap langsung sukses login
           setToken(data.token);
           setUser(data.data);
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.data));
-          navigate('/dashboard');
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Login Google Berhasil!',
+            showConfirmButton: false,
+            timer: 1500,
+            iconColor: '#3CC360'
+          }).then(() => {
+            navigate('/dashboard');
+          });
         } else {
-          setError(data.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'Akses Ditolak',
+            text: data.message,
+            confirmButtonColor: '#E27C3E'
+          });
         }
       } catch {
-        setError('Gagal terhubung ke server saat verifikasi Google.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Koneksi Terputus',
+          text: 'Gagal terhubung ke server saat verifikasi Google.',
+          confirmButtonColor: '#E27C3E'
+        });
       }
     },
-    onError: () => setError('Pendaftaran Google dibatalkan atau gagal.'),
+    onError: () => {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Dibatalkan',
+        text: 'Pendaftaran via Google dibatalkan atau gagal.',
+        confirmButtonColor: '#E27C3E'
+      });
+    },
   });
 
   return (
@@ -81,8 +155,9 @@ const Register = () => {
             <p className="text-gray-500">Mulai perjalanan bisnis Anda dengan NOPI hari ini.</p>
           </div>
 
+          {/* Error inline ringan tetap dipertahankan untuk validasi form */}
           {error && (
-            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-6 rounded text-sm">
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-6 rounded text-sm transition-all">
               {error}
             </div>
           )}
@@ -119,8 +194,9 @@ const Register = () => {
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 className="w-full px-4 py-3 bg-gray-100 border-transparent focus:bg-white focus:border-[#E27C3E] focus:ring-2 focus:ring-[#E27C3E] rounded-xl outline-none transition-all" 
-                placeholder="Enter your password" 
+                placeholder="Minimal 8 karakter" 
                 required 
+                minLength={8} 
               />
             </div>
 

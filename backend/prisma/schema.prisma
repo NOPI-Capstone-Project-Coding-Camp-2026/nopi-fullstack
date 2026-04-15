@@ -6,16 +6,20 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Di v6, ini diperbolehkan dan sangat simpel
+  url      = env("DATABASE_URL") 
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  password  String   // <--- Tambahkan ini
-  createdAt DateTime @default(now())
-  notas     Nota[]
+  id                   String    @id @default(uuid())
+  name                 String   
+  email                String    @unique
+  password             String   
+  isVerified           Boolean   @default(false)
+  verificationToken    String?
+  resetPasswordToken   String?   // <--- LACI BARU UNTUK TOKEN RESET
+  resetPasswordExpires DateTime? // <--- LACI BARU UNTUK BATAS WAKTU
+  createdAt            DateTime  @default(now())
+  notas                Nota[]
 }
 
 model Nota {

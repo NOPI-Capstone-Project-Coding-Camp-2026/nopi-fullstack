@@ -9,6 +9,7 @@ import History from './pages/History';
 import ProfilePage from './pages/ProfilePage';
 import FaqPage from './pages/FaqPage';
 import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/history" element={<History />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
       </Router>
     </AuthProvider>
