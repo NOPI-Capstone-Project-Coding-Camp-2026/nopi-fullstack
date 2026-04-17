@@ -7,6 +7,7 @@ export {
   ChartNoAxesColumn as ChartIcon,
   ChartPie as PieIcon,
   LayoutGrid as GridIcon,
+  Menu as MenuIcon,
   Plus as PlusIcon,
   ReceiptText as ReceiptIcon,
   Search as SearchIcon,

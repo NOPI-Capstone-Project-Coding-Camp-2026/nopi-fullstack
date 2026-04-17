@@ -32,23 +32,23 @@ const FaqPage = () => {
   return (
     <DashboardLayout>
       <div>
-        <h1 className="text-[3.2rem] font-semibold tracking-[-0.06em] text-[#ea8327]">FAQ</h1>
-        <p className="mt-3 text-[1.15rem] text-[#2d2d2d]">
+        <h1 className="text-3xl font-semibold tracking-[-0.06em] text-[#ea8327] sm:text-4xl lg:text-[3.2rem]">FAQ</h1>
+        <p className="mt-3 text-base text-[#2d2d2d] sm:text-[1.05rem] lg:text-[1.15rem]">
           Temukan jawaban cepat seputar penggunaan fitur AI dan manajemen nota di NOPI.
         </p>
       </div>
 
-      <div className="mt-8 rounded-[26px] bg-white p-10 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
+      <div className="mt-8 rounded-[26px] bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)] sm:p-8 lg:p-10">
         {faqItems.map((item, index) => (
           <div key={index} className={index === faqItems.length - 1 ? '' : 'mb-8'}>
             <div className="flex items-center gap-4">
               <div className="h-7 w-1 rounded-full bg-[#ff9735]" />
-              <h3 className="text-[1.9rem] font-medium tracking-[-0.04em] text-[#2d2d2d]">
+              <h3 className="text-2xl font-medium tracking-[-0.04em] text-[#2d2d2d] sm:text-[1.9rem]">
                 {item.category}
               </h3>
             </div>
-            <p className="mt-4 text-lg font-semibold text-[#2d2d2d]">{item.question}</p>
-            <p className="mt-2 text-[1.05rem] leading-9 text-[#8d8d8d]">{item.answer}</p>
+            <p className="mt-4 text-base font-semibold text-[#2d2d2d] sm:text-lg">{item.question}</p>
+            <p className="mt-2 text-base leading-7 text-[#8d8d8d] sm:text-[1.05rem] sm:leading-9">{item.answer}</p>
           </div>
         ))}
       </div>

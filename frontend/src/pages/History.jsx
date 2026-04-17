@@ -40,16 +40,16 @@ const History = () => {
   return (
     <DashboardLayout>
       <div>
-        <h1 className="text-[3.2rem] font-semibold tracking-[-0.06em] text-[#ea8327]">
+        <h1 className="text-3xl font-semibold tracking-[-0.06em] text-[#ea8327] sm:text-4xl lg:text-[3.2rem]">
           Riwayat Transaksi
         </h1>
-        <p className="mt-3 text-[1.15rem] text-[#2d2d2d]">
+        <p className="mt-3 text-base text-[#2d2d2d] sm:text-[1.05rem] lg:text-[1.15rem]">
           Manajemen data seluruh riwayat transaksi nota Anda.
         </p>
       </div>
 
-      <div className="mt-10 grid gap-6 xl:grid-cols-3">
-        <label className="flex items-center gap-4 rounded-[20px] bg-white px-6 py-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
+      <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-6 xl:grid-cols-3">
+        <label className="flex items-center gap-4 rounded-[20px] bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-6 sm:py-5">
           <CalendarIcon className="h-6 w-6 text-[#909090]" />
           <div className="flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b0b0b0]">Dari tanggal</p>
@@ -62,7 +62,7 @@ const History = () => {
           </div>
         </label>
 
-        <label className="flex items-center gap-4 rounded-[20px] bg-white px-6 py-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
+        <label className="flex items-center gap-4 rounded-[20px] bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-6 sm:py-5">
           <CalendarIcon className="h-6 w-6 text-[#909090]" />
           <div className="flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b0b0b0]">Sampai tanggal</p>
@@ -75,7 +75,7 @@ const History = () => {
           </div>
         </label>
 
-        <label className="flex items-center gap-4 rounded-[20px] bg-white px-6 py-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
+        <label className="flex items-center gap-4 rounded-[20px] bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-6 sm:py-5">
           <SearchIcon className="h-6 w-6 text-[#909090]" />
           <div className="flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b0b0b0]">Kata kunci</p>
@@ -91,7 +91,7 @@ const History = () => {
       </div>
 
       <div className="mt-6">
-        <label className="flex items-center gap-4 rounded-[20px] bg-white px-6 py-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] xl:max-w-[420px]">
+        <label className="flex items-center gap-4 rounded-[20px] bg-white px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-6 sm:py-5 xl:max-w-[420px]">
           <SearchIcon className="h-6 w-6 text-[#909090]" />
           <div className="flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#b0b0b0]">Tipe merchant</p>

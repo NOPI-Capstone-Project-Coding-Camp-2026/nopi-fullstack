@@ -148,10 +148,10 @@ const Register = () => {
         </h1>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-[#E27C3E] lg:bg-transparent">
-        <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Buat Akun Baru</h2>
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-[#E27C3E] lg:bg-transparent">
+        <div className="bg-white p-6 sm:p-8 lg:p-12 rounded-2xl shadow-2xl w-full max-w-md">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2 sm:text-3xl">Buat Akun Baru</h2>
             <p className="text-gray-500">Mulai perjalanan bisnis Anda dengan NOPI hari ini.</p>
           </div>
 
@@ -162,7 +162,7 @@ const Register = () => {
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
             <div>
               <label className="block text-gray-900 text-sm font-bold mb-2">Nama</label>
               <input 
@@ -202,7 +202,7 @@ const Register = () => {
 
             <button 
               type="submit" 
-              className="w-full mt-2 bg-[#3CC360] text-white font-bold text-lg py-3.5 px-4 rounded-xl hover:bg-[#34AD54] active:scale-95 transition-all duration-200 shadow-sm"
+              className="w-full mt-2 bg-[#3CC360] text-white font-bold text-base sm:text-lg py-3.5 px-4 rounded-xl hover:bg-[#34AD54] active:scale-95 transition-all duration-200 shadow-sm"
             >
               Daftar akun
             </button>
@@ -217,7 +217,7 @@ const Register = () => {
           <button 
             onClick={() => registerWithGoogle()}
             type="button" 
-            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#F1F3F5] text-gray-700 font-medium text-lg py-3.5 px-4 rounded-xl hover:bg-[#E5E7EB] active:scale-95 transition-all duration-200"
+            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#F1F3F5] text-gray-700 font-medium text-base sm:text-lg py-3.5 px-4 rounded-xl hover:bg-[#E5E7EB] active:scale-95 transition-all duration-200"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />

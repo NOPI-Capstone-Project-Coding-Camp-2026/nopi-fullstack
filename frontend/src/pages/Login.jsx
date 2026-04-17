@@ -90,10 +90,10 @@ const Login = () => {
         </h1>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-[#E27C3E] lg:bg-transparent">
-        <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang Kembali</h2>
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-12 bg-[#E27C3E] lg:bg-transparent">
+        <div className="bg-white p-6 sm:p-8 lg:p-12 rounded-2xl shadow-2xl w-full max-w-md">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2 sm:text-3xl">Selamat Datang Kembali</h2>
             <p className="text-gray-500">Silakan masuk ke akun NOPI Anda</p>
           </div>
 
@@ -103,7 +103,7 @@ const Login = () => {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
             <div>
               <label className="block text-gray-900 text-sm font-bold mb-2">Email</label>
               <input 
@@ -139,7 +139,7 @@ const Login = () => {
 
             <button 
               type="submit" 
-              className="w-full bg-[#3CC360] text-white font-bold text-lg py-3.5 px-4 rounded-xl hover:bg-[#34AD54] active:scale-95 transition-all duration-200 shadow-sm"
+              className="w-full bg-[#3CC360] text-white font-bold text-base sm:text-lg py-3.5 px-4 rounded-xl hover:bg-[#34AD54] active:scale-95 transition-all duration-200 shadow-sm"
             >
               Masuk
             </button>
@@ -154,7 +154,7 @@ const Login = () => {
           <button 
             onClick={() => navigate('/register')}
             type="button" 
-            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#9a9a9a] text-white font-bold text-lg py-4 px-4 rounded-xl hover:bg-[#888] active:scale-95 transition-all duration-200 shadow-sm"
+            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#9a9a9a] text-white font-bold text-base sm:text-lg py-3.5 sm:py-4 px-4 rounded-xl hover:bg-[#888] active:scale-95 transition-all duration-200 shadow-sm"
           >
             Belum punya akun
           </button>
@@ -162,7 +162,7 @@ const Login = () => {
           <button
             onClick={handleDemoLogin}
             type="button"
-            className="mt-4 w-full flex items-center justify-center gap-3 rounded-xl border border-[#35c759] bg-[#f3fff6] px-4 py-3 text-lg font-bold text-[#28a745] transition-all duration-200 hover:bg-[#e8ffed] active:scale-95 shadow-sm"
+            className="mt-4 w-full flex items-center justify-center gap-3 rounded-xl border border-[#35c759] bg-[#f3fff6] px-4 py-3 text-base sm:text-lg font-bold text-[#28a745] transition-all duration-200 hover:bg-[#e8ffed] active:scale-95 shadow-sm"
           >
             Masuk dengan akun demo
           </button>
@@ -170,7 +170,7 @@ const Login = () => {
           <button 
             onClick={() => loginWithGoogle()}
             type="button" 
-            className="mt-4 w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-bold text-lg py-3 px-4 rounded-xl hover:bg-gray-50 active:scale-95 transition-all duration-200 shadow-sm"
+            className="mt-4 w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-bold text-base sm:text-lg py-3 px-4 rounded-xl hover:bg-gray-50 active:scale-95 transition-all duration-200 shadow-sm"
           >
             <svg className="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -181,11 +181,6 @@ const Login = () => {
             Google
           </button>
 
-          <div className="mt-6 text-center">
-            <Link to="/register" className="text-[#E27C3E] font-bold hover:underline">
-              Daftar sekarang
-            </Link>
-          </div>
         </div>
       </div>
     </div>

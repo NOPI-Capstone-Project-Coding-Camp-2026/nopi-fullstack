@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CircleHelp, House, ReceiptText, Upload, UserRound } from 'lucide-react';
+import NopiLogo from '../ui/NopiLogo';
 
 const menuItems = [
   { name: 'Dashboard', path: '/dashboard', icon: House },
@@ -21,8 +22,8 @@ const Sidebar = () => {
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 z-30 h-screen w-72 flex-col border-r border-gray-200 bg-white px-6 py-8">
       <div className="mb-10">
-        <h1 className="text-3xl font-extrabold tracking-tight text-[#E27C3E]">NOPI</h1>
-        <p className="mt-1 text-sm text-gray-500">Nota Pintar untuk UMKM</p>
+        <NopiLogo className="max-w-[180px]" compact />
+        <p className="mt-2 text-sm text-gray-500">Nota Pintar untuk UMKM</p>
       </div>
 
       <nav className="flex-1 space-y-2">
@@ -30,20 +31,20 @@ const Sidebar = () => {
           const Icon = item.icon;
 
           return (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                isActive
-                  ? 'bg-[#FFF3EC] text-[#E27C3E]'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-              }`
-            }
-          >
-            <Icon className="h-5 w-5 shrink-0" strokeWidth={2.2} />
-            <span>{item.name}</span>
-          </NavLink>
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                  isActive
+                    ? 'bg-[#FFF3EC] text-[#E27C3E]'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`
+              }
+            >
+              <Icon className="h-5 w-5 shrink-0" strokeWidth={2.2} />
+              <span>{item.name}</span>
+            </NavLink>
           );
         })}
       </nav>
