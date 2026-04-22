@@ -80,49 +80,49 @@ const Login = () => {
   });
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="flex min-h-screen overflow-x-hidden bg-gray-50">
       
-      <div className="hidden lg:flex lg:w-1/2 bg-[#E27C3E] flex-col justify-center px-16 xl:px-24">
-        <h1 className="text-5xl xl:text-6xl font-bold text-white leading-tight">
+      <div className="hidden bg-[#E27C3E] lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-14 xl:px-20">
+        <h1 className="text-[3rem] font-bold leading-tight text-white xl:text-[3.6rem]">
           Kelola Keuangan <br />
           bisnis Anda dengan <br />
           cerdas hari ini!
         </h1>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-[#E27C3E] lg:bg-transparent">
-        <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Selamat Datang Kembali</h2>
-            <p className="text-gray-500">Silakan masuk ke akun NOPI Anda</p>
+      <div className="flex w-full items-center justify-center bg-[#E27C3E] p-4 sm:p-6 lg:w-1/2 lg:bg-transparent lg:p-10">
+        <div className="w-full max-w-[25rem] rounded-[8px] bg-white p-5 shadow-2xl sm:p-7 lg:p-8">
+          <div className="mb-5 sm:mb-6">
+            <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Selamat Datang Kembali</h2>
+            <p className="text-[0.94rem] text-gray-500">Silakan masuk ke akun NOPI Anda</p>
           </div>
 
           {error && (
-            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-6 rounded text-sm">
+            <div className="mb-5 rounded border-l-4 border-red-500 bg-red-100 p-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-gray-900 text-sm font-bold mb-2">Email</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Email</label>
               <input 
                 type="email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
-                className="w-full px-4 py-3 bg-gray-100 border-transparent focus:bg-white focus:border-[#E27C3E] focus:ring-2 focus:ring-[#E27C3E] rounded-xl outline-none transition-all" 
+                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
                 placeholder="Enter your business email" 
                 required 
               />
             </div>
 
             <div>
-              <label className="block text-gray-900 text-sm font-bold mb-2">Password</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Password</label>
               <input 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
-                className="w-full px-4 py-3 bg-gray-100 border-transparent focus:bg-white focus:border-[#E27C3E] focus:ring-2 focus:ring-[#E27C3E] rounded-xl outline-none transition-all" 
+                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
                 placeholder="Enter your password" 
                 required 
               />
@@ -131,7 +131,7 @@ const Login = () => {
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
-                className="text-sm font-bold text-[#E27C3E] hover:text-[#c7652c] transition-colors"
+                className="text-[0.83rem] font-bold text-[#E27C3E] transition-colors hover:text-[#c7652c]"
               >
                 Lupa Password?
               </Link>
@@ -139,13 +139,13 @@ const Login = () => {
 
             <button 
               type="submit" 
-              className="w-full bg-[#3CC360] text-white font-bold text-lg py-3.5 px-4 rounded-xl hover:bg-[#34AD54] active:scale-95 transition-all duration-200 shadow-sm"
+              className="w-full rounded-[8px] bg-[#3CC360] px-4 py-3.5 text-[0.98rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#34AD54] active:scale-95"
             >
               Masuk
             </button>
           </form>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-5 flex items-center justify-between">
             <span className="border-b w-1/3 lg:w-[38%]"></span>
             <span className="text-xs text-center text-gray-500">Atau</span>
             <span className="border-b w-1/3 lg:w-[38%]"></span>
@@ -154,7 +154,7 @@ const Login = () => {
           <button 
             onClick={() => navigate('/register')}
             type="button" 
-            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#9a9a9a] text-white font-bold text-lg py-4 px-4 rounded-xl hover:bg-[#888] active:scale-95 transition-all duration-200 shadow-sm"
+            className="mt-5 flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#9a9a9a] px-4 py-3.5 text-[0.96rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#888] active:scale-95"
           >
             Belum punya akun
           </button>
@@ -162,7 +162,7 @@ const Login = () => {
           <button
             onClick={handleDemoLogin}
             type="button"
-            className="mt-4 w-full flex items-center justify-center gap-3 rounded-xl border border-[#35c759] bg-[#f3fff6] px-4 py-3 text-lg font-bold text-[#28a745] transition-all duration-200 hover:bg-[#e8ffed] active:scale-95 shadow-sm"
+            className="mt-3.5 flex w-full items-center justify-center gap-3 rounded-[8px] border border-[#35c759] bg-[#f3fff6] px-4 py-3 text-[0.96rem] font-bold text-[#28a745] shadow-sm transition-all duration-200 hover:bg-[#e8ffed] active:scale-95"
           >
             Masuk dengan akun demo
           </button>
@@ -170,7 +170,7 @@ const Login = () => {
           <button 
             onClick={() => loginWithGoogle()}
             type="button" 
-            className="mt-4 w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-bold text-lg py-3 px-4 rounded-xl hover:bg-gray-50 active:scale-95 transition-all duration-200 shadow-sm"
+            className="mt-3.5 flex w-full items-center justify-center gap-3 rounded-[8px] border border-gray-300 bg-white px-4 py-3 text-[0.96rem] font-bold text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 active:scale-95"
           >
             <svg className="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -181,11 +181,6 @@ const Login = () => {
             Google
           </button>
 
-          <div className="mt-6 text-center">
-            <Link to="/register" className="text-[#E27C3E] font-bold hover:underline">
-              Daftar sekarang
-            </Link>
-          </div>
         </div>
       </div>
     </div>

@@ -138,62 +138,62 @@ const Register = () => {
   });
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="flex min-h-screen overflow-x-hidden bg-gray-50">
       
-      <div className="hidden lg:flex lg:w-1/2 bg-[#E27C3E] flex-col justify-center px-16 xl:px-24">
-        <h1 className="text-5xl xl:text-6xl font-bold text-white leading-tight">
+      <div className="hidden bg-[#E27C3E] lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-14 xl:px-20">
+        <h1 className="text-[3rem] font-bold leading-tight text-white xl:text-[3.6rem]">
           Kelola Keuangan <br />
           bisnis Anda dengan <br />
           cerdas hari ini!
         </h1>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-[#E27C3E] lg:bg-transparent">
-        <div className="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Buat Akun Baru</h2>
-            <p className="text-gray-500">Mulai perjalanan bisnis Anda dengan NOPI hari ini.</p>
+      <div className="flex w-full items-center justify-center bg-[#E27C3E] p-4 sm:p-6 lg:w-1/2 lg:bg-transparent lg:p-10">
+        <div className="w-full max-w-[25rem] rounded-[8px] bg-white p-5 shadow-2xl sm:p-7 lg:p-8">
+          <div className="mb-5 sm:mb-6">
+            <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Buat Akun Baru</h2>
+            <p className="text-[0.94rem] text-gray-500">Mulai perjalanan bisnis Anda dengan NOPI hari ini.</p>
           </div>
 
           {/* Error inline ringan tetap dipertahankan untuk validasi form */}
           {error && (
-            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-6 rounded text-sm transition-all">
+            <div className="mb-5 rounded border-l-4 border-red-500 bg-red-100 p-3 text-sm text-red-700 transition-all">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block text-gray-900 text-sm font-bold mb-2">Nama</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Nama</label>
               <input 
                 type="text" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
-                className="w-full px-4 py-3 bg-gray-100 border-transparent focus:bg-white focus:border-[#E27C3E] focus:ring-2 focus:ring-[#E27C3E] rounded-xl outline-none transition-all" 
+                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
                 placeholder="Enter your full name" 
                 required 
               />
             </div>
 
             <div>
-              <label className="block text-gray-900 text-sm font-bold mb-2">Email</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Email</label>
               <input 
                 type="email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
-                className="w-full px-4 py-3 bg-gray-100 border-transparent focus:bg-white focus:border-[#E27C3E] focus:ring-2 focus:ring-[#E27C3E] rounded-xl outline-none transition-all" 
+                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
                 placeholder="Enter your business email" 
                 required 
               />
             </div>
 
             <div>
-              <label className="block text-gray-900 text-sm font-bold mb-2">Password</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Password</label>
               <input 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
-                className="w-full px-4 py-3 bg-gray-100 border-transparent focus:bg-white focus:border-[#E27C3E] focus:ring-2 focus:ring-[#E27C3E] rounded-xl outline-none transition-all" 
+                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
                 placeholder="Minimal 8 karakter" 
                 required 
                 minLength={8} 
@@ -202,13 +202,13 @@ const Register = () => {
 
             <button 
               type="submit" 
-              className="w-full mt-2 bg-[#3CC360] text-white font-bold text-lg py-3.5 px-4 rounded-xl hover:bg-[#34AD54] active:scale-95 transition-all duration-200 shadow-sm"
+              className="mt-1.5 w-full rounded-[8px] bg-[#3CC360] px-4 py-3.5 text-[0.98rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#34AD54] active:scale-95"
             >
               Daftar akun
             </button>
           </form>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-5 flex items-center justify-between">
             <span className="border-b w-[38%]"></span>
             <span className="text-xs text-center text-gray-500">Atau</span>
             <span className="border-b w-[38%]"></span>
@@ -217,7 +217,7 @@ const Register = () => {
           <button 
             onClick={() => registerWithGoogle()}
             type="button" 
-            className="mt-6 w-full flex items-center justify-center gap-3 bg-[#F1F3F5] text-gray-700 font-medium text-lg py-3.5 px-4 rounded-xl hover:bg-[#E5E7EB] active:scale-95 transition-all duration-200"
+            className="mt-5 flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#F1F3F5] px-4 py-3.5 text-[0.96rem] font-medium text-gray-700 transition-all duration-200 hover:bg-[#E5E7EB] active:scale-95"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -228,7 +228,7 @@ const Register = () => {
             Google
           </button>
 
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center text-[0.94rem]">
             <span className="text-gray-600">Sudah punya akun? </span>
             <Link to="/login" className="text-[#E27C3E] font-bold hover:underline">
               Masuk di sini
