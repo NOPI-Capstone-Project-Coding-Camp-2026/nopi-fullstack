@@ -16,8 +16,16 @@ model User {
   password             String   
   isVerified           Boolean   @default(false)
   verificationToken    String?
-  resetPasswordToken   String?   // <--- LACI BARU UNTUK TOKEN RESET
-  resetPasswordExpires DateTime? // <--- LACI BARU UNTUK BATAS WAKTU
+  resetPasswordToken   String?   
+  resetPasswordExpires DateTime? 
+  
+  // --- LACI BARU UNTUK PROFIL BISNIS ---
+  profileImage         String?   // Tipe String karena kamu mengirimkan Base64 dari FileReader
+  businessName         String?
+  businessCategory     String?
+  businessAddress      String?
+  // -------------------------------------
+
   createdAt            DateTime  @default(now())
   notas                Nota[]
 }

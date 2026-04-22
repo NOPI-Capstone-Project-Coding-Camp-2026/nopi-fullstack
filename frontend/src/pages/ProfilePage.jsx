@@ -3,6 +3,7 @@ import { CircleAlert, CircleCheckBig } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { CloseIcon, UserIcon } from '../components/ui/AppIcons';
 import { AuthContext } from '../context/AuthContext';
+import Swal from 'sweetalert2'; // <-- IMPORT SWEETALERT DITAMBAHKAN DI SINI
 
 const StatusBadge = ({ filled }) => (
   <span
@@ -37,18 +38,64 @@ const ProfilePage = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
-    const updatedUser = {
-      ...currentUser,
-      profileImage,
-      businessName: storeName,
-      businessCategory,
-      businessAddress,
-    };
+  // --- FUNGSI HANDLESAVE YANG BARU (GABUNGAN DENGAN BACKEND & SWAL) ---
+  const handleSave = async () => {
+    // Animasi loading
+    Swal.fire({
+      title: 'Menyimpan Perubahan...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
 
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
+    try {
+      // Ambil token dari localStorage untuk dikirim ke backend
+      const token = localStorage.getItem('token');
+
+      const res = await fetch('http://localhost:5000/api/user/profile', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Wajib disertakan agar authMiddleware tidak menolak
+        },
+        body: JSON.stringify({ 
+          profileImage,
+          businessName: storeName,
+          businessCategory,
+          businessAddress
+        }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        // Update Context dan LocalStorage dengan data terbaru dari backend
+        localStorage.setItem('user', JSON.stringify(result.data));
+        setUser(result.data);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: result.message,
+          confirmButtonColor: '#35c759'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Menyimpan',
+          text: result.message,
+          confirmButtonColor: '#ea8327'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Koneksi Terputus',
+        text: 'Tidak dapat terhubung ke server.',
+        confirmButtonColor: '#ea8327'
+      });
+    }
   };
+  // --------------------------------------------------------------------
 
   const handleReset = () => {
     setProfileImage(currentUser?.profileImage || '');
