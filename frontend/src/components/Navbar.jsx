@@ -15,7 +15,7 @@ const Navbar = () => {
             <span className="text-gray-700 font-medium">Halo, {user.name}</span>
             <button 
               onClick={logout} 
-              className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition-all shadow-sm"
+              className="bg-red-500 text-white px-4 py-2 rounded-[8px] hover:bg-red-600 transition-all shadow-sm"
             >
               Logout
             </button>
@@ -23,7 +23,7 @@ const Navbar = () => {
         ) : (
           <div className="space-x-4">
             <Link to="/login" className="text-blue-600 font-semibold hover:text-blue-800">Login</Link>
-            <Link to="/register" className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700">Daftar</Link>
+            <Link to="/register" className="bg-blue-600 text-white px-4 py-2 rounded-[8px] hover:bg-blue-700">Daftar</Link>
           </div>
         )}
       </div>

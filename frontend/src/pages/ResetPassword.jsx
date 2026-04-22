@@ -57,7 +57,7 @@ const ResetPassword = () => {
           confirmButtonColor: '#E27C3E'
         });
       }
-    } catch (error) {
+    } catch {
       Swal.fire({
         icon: 'error',
         title: 'Koneksi Terputus',
@@ -69,7 +69,7 @@ const ResetPassword = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#ee872d] px-6 py-10">
-      <div className="w-full max-w-xl rounded-[26px] bg-[#fffaf5] px-10 py-12 shadow-[0_26px_46px_rgba(128,72,20,0.18)]">
+      <div className="w-full max-w-xl rounded-[8px] bg-[#fffaf5] px-10 py-12 shadow-[0_26px_46px_rgba(128,72,20,0.18)]">
         <h1 className="text-[2.8rem] font-semibold tracking-[-0.05em] text-[#2b2b2b]">
           Buat Kata Sandi Baru
         </h1>
@@ -84,14 +84,14 @@ const ResetPassword = () => {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Masukkan kata sandi baru"
-            className="w-full rounded-2xl bg-[#ededed] px-6 py-6 text-lg text-[#2b2b2b] outline-none focus:ring-2 focus:ring-[#ee872d] placeholder:text-[#9b9b9b] transition-all"
+            className="w-full rounded-[8px] bg-[#ededed] px-6 py-6 text-lg text-[#2b2b2b] outline-none focus:ring-2 focus:ring-[#ee872d] placeholder:text-[#9b9b9b] transition-all"
             required
             minLength={8}
           />
 
           <button
             type="submit"
-            className="mt-10 w-full rounded-2xl bg-[#3CC360] px-6 py-6 text-[1.15rem] font-semibold text-white transition hover:bg-[#34AD54]"
+            className="mt-10 w-full rounded-[8px] bg-[#3CC360] px-6 py-6 text-[1.15rem] font-semibold text-white transition hover:bg-[#34AD54]"
           >
             Simpan Kata Sandi →
           </button>

@@ -29,7 +29,7 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fffaf4] lg:bg-[linear-gradient(90deg,#fffaf4_0,#fffaf4_18rem,#ffffff_18rem,#ffffff_100%)]">
+    <div className="min-h-screen bg-[#fffaf4] lg:bg-[linear-gradient(90deg,#fffaf4_0,#fffaf4_16rem,#ffffff_16rem,#ffffff_100%)]">
       <div
         className={`fixed inset-0 z-40 bg-[#1f1f1f]/40 transition-opacity duration-200 lg:hidden ${
           isMobileMenuOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
@@ -39,7 +39,7 @@ const DashboardLayout = ({ children }) => {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[86vw] max-w-[320px] flex-col border-r border-[#efe3d8] bg-white px-5 py-6 shadow-[0_20px_45px_rgba(15,23,42,0.14)] transition-transform duration-200 lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[84vw] max-w-[300px] flex-col border-r border-[#efe3d8] bg-white px-5 py-5 shadow-[0_20px_45px_rgba(15,23,42,0.14)] transition-transform duration-200 lg:hidden ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-hidden={!isMobileMenuOpen}
@@ -53,7 +53,7 @@ const DashboardLayout = ({ children }) => {
           <button
             type="button"
             onClick={closeMobileMenu}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#f0e5d8] bg-[#fff8f0] text-[#e27c3e]"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#f0e5d8] bg-[#fff8f0] text-[#e27c3e]"
             aria-label="Tutup menu navigasi"
           >
             <CloseIcon className="h-5 w-5" />
@@ -71,7 +71,7 @@ const DashboardLayout = ({ children }) => {
                 onClick={closeMobileMenu}
                 className={({ isActive }) =>
                   [
-                    'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition',
+                    'flex items-center gap-3 rounded-[8px] px-4 py-3 text-sm font-semibold transition',
                     isActive
                       ? 'bg-[#fff1e4] text-[#e27c3e]'
                       : 'text-[#5f5f5f] hover:bg-[#faf6f1] hover:text-[#1f1f1f]',
@@ -88,7 +88,7 @@ const DashboardLayout = ({ children }) => {
         <button
           type="button"
           onClick={handleLogout}
-          className="mt-6 rounded-2xl bg-[#3CC360] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#34AD54]"
+          className="mt-6 rounded-[8px] bg-[#3CC360] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#34AD54]"
         >
           Logout
         </button>
@@ -97,9 +97,9 @@ const DashboardLayout = ({ children }) => {
       <div className="flex">
         <Sidebar />
 
-        <div className="flex-1 min-h-screen lg:ml-[280px]">
+        <div className="flex-1 min-h-screen lg:ml-[256px]">
           <Topbar onMenuOpen={() => setIsMobileMenuOpen(true)} />
-          <main className="px-4 pt-5 pb-10 sm:px-6 sm:pt-6 lg:px-14 lg:pt-10 lg:pb-12">{children}</main>
+          <main className="px-4 pt-4 pb-8 sm:px-5 sm:pt-5 lg:px-10 lg:pt-8 lg:pb-10">{children}</main>
         </div>
       </div>
     </div>

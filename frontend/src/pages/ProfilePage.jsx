@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const StatusBadge = ({ filled }) => (
   <span
-    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+    className={`inline-flex items-center gap-2 rounded-[8px] px-3 py-1 text-xs font-semibold ${
       filled ? 'bg-[#e9f9ee] text-[#249a43]' : 'bg-[#fff4e8] text-[#ea8327]'
     }`}
   >
@@ -71,9 +71,9 @@ const ProfilePage = () => {
       </div>
 
       <div className="mt-10">
-        <div className="rounded-[26px] bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.07)] sm:p-8">
+        <div className="rounded-[8px] bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.07)] sm:p-8">
           <div className="flex items-center gap-3 text-[#9d9d9d]">
-            <div className="h-6 w-1 rounded-full bg-[#ff9735]" />
+            <div className="h-6 w-1 rounded-[8px] bg-[#ff9735]" />
             <h2 className="text-2xl font-medium tracking-[-0.04em] sm:text-[1.9rem]">Identitas Bisnis</h2>
           </div>
 
@@ -88,15 +88,15 @@ const ProfilePage = () => {
                   <img
                     src={profileImage}
                     alt="Preview foto profil"
-                    className="h-20 w-20 rounded-full object-cover ring-4 ring-[#fff1e1] sm:h-24 sm:w-24"
+                    className="h-20 w-20 rounded-[8px] object-cover ring-4 ring-[#fff1e1] sm:h-24 sm:w-24"
                   />
                 ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#fff1e1] text-xl font-semibold text-[#ea8327] sm:h-24 sm:w-24 sm:text-2xl">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-[8px] bg-[#fff1e1] text-xl font-semibold text-[#ea8327] sm:h-24 sm:w-24 sm:text-2xl">
                     {currentUser?.name?.charAt(0)?.toUpperCase() || 'U'}
                   </div>
                 )}
 
-                <label className="inline-flex w-full cursor-pointer items-center justify-center rounded-2xl bg-[#fff1e1] px-5 py-3 text-sm font-semibold text-[#ea8327] transition hover:bg-[#ffe6ca] sm:w-auto">
+                <label className="inline-flex w-full cursor-pointer items-center justify-center rounded-[8px] bg-[#fff1e1] px-5 py-3 text-sm font-semibold text-[#ea8327] transition hover:bg-[#ffe6ca] sm:w-auto">
                   Pilih Foto
                   <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
                 </label>
@@ -112,7 +112,7 @@ const ProfilePage = () => {
                 type="text"
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
-                className="w-full rounded-2xl border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
+                className="w-full rounded-[8px] border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
               />
             </div>
 
@@ -125,7 +125,7 @@ const ProfilePage = () => {
                 type="text"
                 value={businessCategory}
                 onChange={(e) => setBusinessCategory(e.target.value)}
-                className="w-full rounded-2xl border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
+                className="w-full rounded-[8px] border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
               />
             </div>
 
@@ -138,7 +138,7 @@ const ProfilePage = () => {
                 rows="4"
                 value={businessAddress}
                 onChange={(e) => setBusinessAddress(e.target.value)}
-                className="w-full rounded-2xl border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
+                className="w-full rounded-[8px] border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
               />
             </div>
           </div>
@@ -149,7 +149,7 @@ const ProfilePage = () => {
         <button
           type="button"
           onClick={handleSave}
-          className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#35c759] px-6 py-4 text-base font-semibold tracking-[0.08em] text-white shadow-[0_14px_28px_rgba(53,199,89,0.2)] transition hover:bg-[#2db44f] sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
+          className="inline-flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#35c759] px-6 py-4 text-base font-semibold tracking-[0.08em] text-white shadow-[0_14px_28px_rgba(53,199,89,0.2)] transition hover:bg-[#2db44f] sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
         >
           <UserIcon className="h-5 w-5" />
           SIMPAN PERUBAHAN
@@ -158,7 +158,7 @@ const ProfilePage = () => {
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-[#a5a5a5] bg-white px-6 py-4 text-base font-medium tracking-[0.08em] text-[#8c8c8c] transition hover:bg-[#fafafa] sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
+          className="inline-flex w-full items-center justify-center gap-3 rounded-[8px] border border-[#a5a5a5] bg-white px-6 py-4 text-base font-medium tracking-[0.08em] text-[#8c8c8c] transition hover:bg-[#fafafa] sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
         >
           <CloseIcon className="h-5 w-5" />
           BATAL
