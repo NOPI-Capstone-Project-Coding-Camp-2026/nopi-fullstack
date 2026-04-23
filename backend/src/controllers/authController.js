@@ -91,7 +91,7 @@ export const signIn = async (req, res) => {
     );
     
     res.status(200).json({ 
-      message: 'Login berhasil', 
+      message: 'Login berhasil!', 
       token, 
       data: { id: user.id, name: user.name, email: user.email }
     });
@@ -104,6 +104,9 @@ export const signIn = async (req, res) => {
 // ==========================================
 // 3. GOOGLE SIGN IN / SIGN UP (OTOMATIS VERIFIKASI)
 // ==========================================
+
+// NANTI JANGAN LUPA DAFTARIN URI BARU KALAU UDAH DEPLOY!!!!!!!!!!!!!!!!!!
+
 export const googleSignIn = async (req, res) => {
   try {
     const { token: googleAccessToken } = req.body;

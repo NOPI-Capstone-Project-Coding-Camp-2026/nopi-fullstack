@@ -135,7 +135,7 @@ const ProfilePage = () => {
                   <img
                     src={profileImage}
                     alt="Preview foto profil"
-                    className="h-20 w-20 rounded-[8px] object-cover ring-4 ring-[#fff1e1] sm:h-24 sm:w-24"
+                    className="h-20 w-20 rounded-8px object-cover ring-4 ring-[#fff1e1] sm:h-24 sm:w-24"
                   />
                 ) : (
                   <div className="flex h-20 w-20 items-center justify-center rounded-[8px] bg-[#fff1e1] text-xl font-semibold text-[#ea8327] sm:h-24 sm:w-24 sm:text-2xl">

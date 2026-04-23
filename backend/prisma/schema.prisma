@@ -19,7 +19,7 @@ model User {
   resetPasswordToken   String?   
   resetPasswordExpires DateTime? 
   
-  // --- LACI BARU UNTUK PROFIL BISNIS ---
+  // --- PROFIL BISNIS ---
   profileImage         String?   // Tipe String karena kamu mengirimkan Base64 dari FileReader
   businessName         String?
   businessCategory     String?
