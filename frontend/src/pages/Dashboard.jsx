@@ -9,10 +9,11 @@ import {
   getMonthOptions,
   normalizedHistoryItems,
 } from '../data/transactions';
+import { getBusinessProfile } from '../utils/businessProfile';
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
-  const userName = user?.name || 'User';
+  const { user, isProfileComplete } = useContext(AuthContext);
+  const { displayBusinessName, businessCategory, businessAddress } = getBusinessProfile(user);
   const monthOptions = useMemo(() => getMonthOptions(normalizedHistoryItems), []);
   const activeMonthKey = monthOptions[0]?.value || '';
   const dashboardMetrics = useMemo(
@@ -20,27 +21,44 @@ const Dashboard = () => {
     [activeMonthKey]
   );
   const recentItems = useMemo(() => normalizedHistoryItems.slice(0, 5), []);
+  const primaryActionPath = isProfileComplete ? '/upload' : '/profile';
+  const historyPath = isProfileComplete ? '/history' : '/profile';
 
   return (
     <DashboardLayout>
       <section className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl">
           <h1 className="text-[1.7rem] font-semibold leading-[1.08] tracking-[-0.05em] text-[#ea8327] sm:text-[2.2rem] lg:text-[2.8rem]">
-            Selamat datang kembali, {userName}
+            Selamat datang kembali, {displayBusinessName}
           </h1>
           <p className="mt-2.5 max-w-2xl text-[0.92rem] leading-6 text-[#2d2d2d] sm:text-[0.98rem] lg:text-[1.02rem]">
             Inilah ringkasan keuangan bisnis Anda untuk {dashboardMetrics.activeMonthLabel}.
           </p>
+          <p className="mt-2 text-[0.82rem] text-[#8d8d8d] sm:text-[0.88rem]">
+            {businessCategory ? `${businessCategory}` : 'Profil bisnis Anda akan tampil di sini'}
+            {businessAddress ? ` • ${businessAddress}` : ''}
+          </p>
         </div>
 
         <Link
-          to="/upload"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#35c759] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(53,199,89,0.18)] transition hover:bg-[#2db44f] sm:w-auto sm:px-6 sm:text-[0.96rem]"
+          to={primaryActionPath}
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-[8px] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(53,199,89,0.18)] transition sm:w-auto sm:px-6 sm:text-[0.96rem] ${
+            isProfileComplete ? 'bg-[#35c759] hover:bg-[#2db44f]' : 'bg-[#ea8327] hover:bg-[#d96f0a]'
+          }`}
         >
           <PlusIcon className="h-4 w-4" />
-          Tambah Nota
+          {isProfileComplete ? 'Tambah Nota' : 'Isi Profile Sekarang'}
         </Link>
       </section>
+
+      {!isProfileComplete ? (
+        <section className="mt-5 rounded-[8px] border border-[#f2e4d7] bg-[#fff7ee] px-5 py-4 shadow-[0_10px_20px_rgba(234,131,39,0.08)]">
+          <p className="text-sm font-semibold text-[#8a561d]">Akses fitur lanjutan masih dikunci sementara.</p>
+          <p className="mt-1.5 text-[0.92rem] leading-6 text-[#7a5a39]">
+            Lengkapi profil bisnis Anda terlebih dahulu agar upload nota, history, dan fitur lainnya aktif normal.
+          </p>
+        </section>
+      ) : null}
 
       <section className="mt-6 grid gap-4 lg:mt-7 xl:grid-cols-[1.55fr_0.85fr]">
         <div className="rounded-[8px] bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.07)] sm:p-6">
@@ -82,8 +100,13 @@ const Dashboard = () => {
             <h2 className="text-[1.45rem] font-semibold tracking-[-0.05em] text-[#ea8327] sm:text-[1.8rem]">
               Aktivitas Riwayat
             </h2>
-            <Link to="/history" className="text-sm font-semibold text-[#262626] sm:text-[0.95rem]">
-              Lihat Semua Riwayat
+            <Link
+              to={historyPath}
+              className={`text-sm font-semibold sm:text-[0.95rem] ${
+                isProfileComplete ? 'text-[#262626]' : 'text-[#c07f47]'
+              }`}
+            >
+              {isProfileComplete ? 'Lihat Semua Riwayat' : 'Lengkapi Profile untuk Membuka Riwayat'}
             </Link>
           </div>
 

@@ -1,11 +1,11 @@
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { MenuIcon } from '../ui/AppIcons';
+import { getBusinessProfile } from '../../utils/businessProfile';
 
 const Topbar = ({ onMenuOpen }) => {
   const { user } = useContext(AuthContext);
-  const userName = user?.name || 'User';
-  const profileImage = user?.profileImage;
+  const { displayBusinessName, storeLogo, businessCategory } = getBusinessProfile(user);
 
   return (
     <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur">
@@ -21,27 +21,31 @@ const Topbar = ({ onMenuOpen }) => {
           </button>
 
           <div className="min-w-0">
-            <p className="text-[0.72rem] font-medium text-gray-500 sm:text-xs">Halo, selamat datang</p>
-            <p className="truncate text-sm font-semibold text-gray-900 sm:text-[0.95rem] lg:text-base">{userName}</p>
+            <p className="text-[0.72rem] font-medium text-gray-500 sm:text-xs">Identitas bisnis aktif</p>
+            <p className="truncate text-sm font-semibold text-gray-900 sm:text-[0.95rem] lg:text-base">
+              {displayBusinessName}
+            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          {profileImage ? (
+          {storeLogo ? (
             <img
-              src={profileImage}
-              alt={`Foto profil ${userName}`}
+              src={storeLogo}
+              alt={`Logo ${displayBusinessName}`}
               className="h-9 w-9 rounded-[8px] object-cover ring-2 ring-[#f5c7a4] sm:h-10 sm:w-10"
             />
           ) : (
             <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[#E27C3E] text-[0.82rem] font-bold text-white sm:h-10 sm:w-10">
-              {userName?.charAt(0)?.toUpperCase() || 'U'}
+              {displayBusinessName?.charAt(0)?.toUpperCase() || 'U'}
             </div>
           )}
 
           <div className="hidden text-right sm:block">
-            <p className="text-[0.9rem] font-semibold text-gray-900">{userName}</p>
-            <p className="text-[0.72rem] text-gray-500">Frontend Team</p>
+            <p className="text-[0.9rem] font-semibold text-gray-900">{displayBusinessName}</p>
+            <p className="text-[0.72rem] text-gray-500">
+              {businessCategory || 'Lengkapi profil bisnis Anda'}
+            </p>
           </div>
         </div>
       </div>

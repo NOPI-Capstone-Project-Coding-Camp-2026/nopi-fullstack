@@ -1,9 +1,11 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { getBusinessProfile } from '../utils/businessProfile';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
+  const { displayBusinessName } = getBusinessProfile(user);
 
   return (
     <nav className="bg-white shadow-md p-4 flex justify-between items-center px-8">
@@ -12,7 +14,7 @@ const Navbar = () => {
       <div className="flex items-center gap-6">
         {user ? (
           <>
-            <span className="text-gray-700 font-medium">Halo, {user.name}</span>
+            <span className="text-gray-700 font-medium">{displayBusinessName}</span>
             <button 
               onClick={logout} 
               className="bg-red-500 text-white px-4 py-2 rounded-[8px] hover:bg-red-600 transition-all shadow-sm"

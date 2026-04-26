@@ -1,6 +1,8 @@
+import { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { CircleHelp, House, ReceiptText, Upload, UserRound } from 'lucide-react';
 import NopiLogo from '../ui/NopiLogo';
+import { AuthContext } from '../../context/AuthContext';
 
 const menuItems = [
   { name: 'Dashboard', path: '/dashboard', icon: House },
@@ -10,12 +12,17 @@ const menuItems = [
   { name: 'FAQ', path: '/faq', icon: CircleHelp },
 ];
 
-const Sidebar = () => {
+const unlockedPaths = ['/dashboard', '/profile'];
+
+const Sidebar = ({ onLockedNavigation }) => {
+  const { isProfileComplete } = useContext(AuthContext);
   const navigate = useNavigate();
+  const isRestrictedMode = !isProfileComplete;
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('nopi-profile-awareness-dismissed');
     navigate('/login');
   };
 
@@ -29,6 +36,21 @@ const Sidebar = () => {
       <nav className="flex-1 space-y-2">
         {menuItems.map((item) => {
           const Icon = item.icon;
+          const isDisabled = isRestrictedMode && !unlockedPaths.includes(item.path);
+
+          if (isDisabled) {
+            return (
+              <button
+                key={item.path}
+                type="button"
+                onClick={onLockedNavigation}
+                className="flex w-full items-center gap-3 rounded-[8px] px-4 py-2.5 text-left text-[0.92rem] font-semibold text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+              >
+                <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2.2} />
+                <span>{item.name}</span>
+              </button>
+            );
+          }
 
           return (
             <NavLink

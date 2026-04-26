@@ -2,6 +2,9 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
+import { canUseMockAuth, findMockUserByEmail, loginMockUser } from '../utils/mockAuth';
+
+const isMockAuthEnabled = canUseMockAuth();
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,15 +16,17 @@ const Login = () => {
 
   const handleDemoLogin = () => {
     const demoUser = {
-      name: 'Alleta',
-      email: 'alleta@nopi.demo',
-      businessName: 'Warung Kopi Alex',
+      name: 'Toko Demo NOPI',
+      email: 'admin@nopi.demo',
+      storeName: 'Toko Demo NOPI',
+      businessName: 'Toko Demo NOPI',
     };
 
     const demoToken = 'demo-token-nopi';
 
     localStorage.setItem('token', demoToken);
     localStorage.setItem('user', JSON.stringify(demoUser));
+    sessionStorage.removeItem('nopi-profile-awareness-dismissed');
     setToken(demoToken);
     setUser(demoUser);
     navigate('/dashboard');
@@ -29,9 +34,26 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); 
-    
+    setError('');
+
     try {
+      if (isMockAuthEnabled && findMockUserByEmail(email)) {
+        const mockLoginResult = loginMockUser({ email, password });
+
+        if (mockLoginResult.ok) {
+          setToken(mockLoginResult.token);
+          setUser(mockLoginResult.user);
+          localStorage.setItem('token', mockLoginResult.token);
+          localStorage.setItem('user', JSON.stringify(mockLoginResult.user));
+          sessionStorage.removeItem('nopi-profile-awareness-dismissed');
+          navigate('/dashboard');
+          return;
+        }
+
+        setError(mockLoginResult.message);
+        return;
+      }
+
       const res = await fetch('http://localhost:5000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,6 +66,7 @@ const Login = () => {
         setUser(data.data);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.data));
+        sessionStorage.removeItem('nopi-profile-awareness-dismissed');
         navigate('/dashboard'); 
       } else {
         setError(data.message || 'Login gagal. Periksa kembali email dan password Anda.');
@@ -68,6 +91,7 @@ const Login = () => {
           setUser(data.data);
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.data));
+          sessionStorage.removeItem('nopi-profile-awareness-dismissed');
           navigate('/dashboard');
         } else {
           setError(data.message);
@@ -95,6 +119,11 @@ const Login = () => {
           <div className="mb-5 sm:mb-6">
             <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Selamat Datang Kembali</h2>
             <p className="text-[0.94rem] text-gray-500">Silakan masuk ke akun NOPI Anda</p>
+            {isMockAuthEnabled ? (
+              <p className="mt-2 rounded-[8px] bg-[#fff8f2] px-3 py-2 text-[0.8rem] leading-6 text-[#9a6232]">
+                Mode testing aktif. Login akan membaca akun dummy yang terdaftar di browser ini sebelum mencoba backend.
+              </p>
+            ) : null}
           </div>
 
           {error && (
@@ -111,19 +140,19 @@ const Login = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Enter your business email" 
+                placeholder="Masukkan email bisnis Anda" 
                 required 
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Password</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Kata Sandi</label>
               <input 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Enter your password" 
+                placeholder="Masukkan kata sandi Anda" 
                 required 
               />
             </div>
@@ -156,7 +185,7 @@ const Login = () => {
             type="button" 
             className="mt-5 flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#9a9a9a] px-4 py-3.5 text-[0.96rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#888] active:scale-95"
           >
-            Belum punya akun
+            Daftar akun baru
           </button>
 
           <button
@@ -178,7 +207,7 @@ const Login = () => {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
-            Google
+            Masuk dengan Google
           </button>
 
         </div>
