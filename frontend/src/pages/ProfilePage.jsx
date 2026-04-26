@@ -95,6 +95,7 @@ const ProfilePage = () => {
 
     setUser(updatedUser);
   };
+  // --------------------------------------------------------------------
 
   const handleReset = () => {
     setStoreLogo(businessProfile.storeLogo);

@@ -3,16 +3,16 @@ import { signUp, signIn, googleSignIn, verifyEmail, forgotPassword, resetPasswor
 
 const router = express.Router();
 
-// Rute pendaftaran manual
+// daftar manual tanpa otomatis google, tapi tetap harus verifikasi email
 router.post('/signup', signUp);
 
-// Rute login manual
+// login manual
 router.post('/signin', signIn);
 
-// Rute login otomatis via Google
+// login via google
 router.post('/google', googleSignIn);
 
-// Rute verifikasi email (Diakses langsung via klik dari email)
+// vrif email 
 router.get('/verify/:token', verifyEmail);
 
 

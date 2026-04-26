@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors'; // Import cors-nya
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const app = express(); // <--- BARIS INI WAJIB DI ATAS!
 
@@ -10,6 +11,8 @@ app.use(express.json());
 
 // Baru routes
 app.use('/api/auth', authRoutes);
+
+app.use('/api/user', userRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {
