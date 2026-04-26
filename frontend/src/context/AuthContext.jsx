@@ -1,5 +1,32 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AuthContext } from './AuthContext';
+import { getBusinessProfileCompleteness } from '../utils/businessProfile';
+
+const normalizeUserIdentity = (savedUser) => {
+  if (!savedUser) {
+    return null;
+  }
+
+  const normalizedUser = { ...savedUser };
+
+  if (!normalizedUser.storeName && normalizedUser.businessName) {
+    normalizedUser.storeName = normalizedUser.businessName;
+  }
+
+  if (!normalizedUser.businessName && normalizedUser.storeName) {
+    normalizedUser.businessName = normalizedUser.storeName;
+  }
+
+  if (!normalizedUser.storeName && normalizedUser.name) {
+    normalizedUser.storeName = normalizedUser.name;
+  }
+
+  if (!normalizedUser.businessName && normalizedUser.name) {
+    normalizedUser.businessName = normalizedUser.name;
+  }
+
+  return normalizedUser;
+};
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -10,19 +37,40 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
 
-    return JSON.parse(localStorage.getItem('user') || 'null');
+    const parsedUser = JSON.parse(localStorage.getItem('user') || 'null');
+    const normalizedUser = normalizeUserIdentity(parsedUser);
+
+    if (normalizedUser) {
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
+    }
+
+    return normalizedUser;
   });
 
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('nopi-profile-awareness-dismissed');
     setToken(null);
     setUser(null);
     window.location.href = '/login';
   };
 
+  const profileCompleteness = useMemo(() => getBusinessProfileCompleteness(user), [user]);
+
   return (
-    <AuthContext.Provider value={{ user, token, setToken, setUser, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        setToken,
+        setUser,
+        logout,
+        isProfileComplete: profileCompleteness.isComplete,
+        missingProfileFields: profileCompleteness.missingFields,
+        businessProfile: profileCompleteness.profile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

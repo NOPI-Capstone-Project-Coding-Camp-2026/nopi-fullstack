@@ -6,7 +6,7 @@ const NopiLogo = ({ className = '', compact = false }) => {
       <img
         src={nopiLogoOrange}
         alt="Logo NOPI"
-        className={compact ? 'w-[160px] max-w-full object-contain' : 'w-[280px] max-w-full object-contain'}
+        className={compact ? 'h-12 w-auto object-contain' : 'h-16 w-auto object-contain'}
       />
     </div>
   );
