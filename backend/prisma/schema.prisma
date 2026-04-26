@@ -1,0 +1,33 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") 
+}
+
+model User {
+  id                   String    @id @default(uuid())
+  name                 String   
+  email                String    @unique
+  password             String   
+  isVerified           Boolean   @default(false)
+  verificationToken    String?
+  resetPasswordToken   String?   // <--- LACI BARU UNTUK TOKEN RESET
+  resetPasswordExpires DateTime? // <--- LACI BARU UNTUK BATAS WAKTU
+  createdAt            DateTime  @default(now())
+  notas                Nota[]
+}
+
+model Nota {
+  id          Int      @id @default(autoincrement())
+  toko        String
+  totalHarga  Float
+  tanggal     DateTime @default(now())
+  imageUrl    String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
