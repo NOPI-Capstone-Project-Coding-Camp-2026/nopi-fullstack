@@ -1,8 +1,10 @@
 import express from 'express';
-import { signUp, signIn, googleSignIn, verifyEmail, forgotPassword, resetPassword } from '../controllers/authController.js';
+// Mengambil dari 3 file berbeda
+import { signUp, signIn, googleSignIn } from '../controllers/authController.js';
+import { verifyEmail } from '../controllers/verificationController.js';
+import { forgotPassword, resetPassword } from '../controllers/passwordController.js';
 
 const router = express.Router();
-
 // daftar manual tanpa otomatis google, tapi tetap harus verifikasi email
 router.post('/signup', signUp);
 
