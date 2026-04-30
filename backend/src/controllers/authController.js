@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../utils/sendEmail.js';
 
-
 const prisma = new PrismaClient();
 
 // ==========================================
@@ -90,10 +89,13 @@ export const signIn = async (req, res) => {
       { expiresIn: '1d' } // Berlaku 1 hari
     );
     
+    // PERBAIKAN: Pisahkan password agar aman, lalu kirim sisa datanya secara utuh
+    const { password: userPassword, ...safeUserData } = user;
+    
     res.status(200).json({ 
       message: 'Login berhasil!', 
       token, 
-      data: { id: user.id, name: user.name, email: user.email }
+      data: safeUserData
     });
   } catch (error) {
     console.log("🚨 ERROR SAAT SIGNIN:", error);
@@ -152,10 +154,13 @@ export const googleSignIn = async (req, res) => {
       { expiresIn: '1d' }
     );
 
+    // PERBAIKAN: Pisahkan password agar aman, lalu kirim sisa datanya secara utuh
+    const { password: userPassword, ...safeUserData } = user;
+
     res.status(200).json({ 
       message: 'Google Login berhasil', 
       token: jwtToken, 
-      data: { id: user.id, name: user.name, email: user.email }
+      data: safeUserData
     });
   } catch (error) {
     console.log("🚨 ERROR SAAT GOOGLE AUTH:", error);

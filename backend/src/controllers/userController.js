@@ -6,7 +6,7 @@ export const updateProfile = async (req, res) => {
   try {
     // req.user didapat dari authMiddleware yang memverifikasi token JWT
     const userId = req.user.userId; 
-    const { profileImage, businessName, businessCategory, businessAddress } = req.body;
+    const { profileImage, businessName, businessCategory, businessAddress, phoneNumber } = req.body;
 
     // Update data user di database
     const updatedUser = await prisma.user.update({
@@ -16,6 +16,7 @@ export const updateProfile = async (req, res) => {
         businessName,
         businessCategory,
         businessAddress,
+        phoneNumber, // <--- Sekarang variabel ini sudah dikenal oleh sistem
       },
     });
 

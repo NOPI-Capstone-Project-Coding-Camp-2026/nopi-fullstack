@@ -4,6 +4,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { CloseIcon, UserIcon } from '../components/ui/AppIcons';
 import { AuthContext } from '../context/AuthContext';
 import { getBusinessProfile, getBusinessProfileCompleteness } from '../utils/businessProfile';
+import Swal from 'sweetalert2'; // <--- IMPORT SWEETALERT DITAMBAHKAN DI SINI
 
 const businessCategoryOptions = [
   'Toko Kelontong / Sembako',
@@ -40,6 +41,7 @@ const ProfilePage = () => {
   const [businessCategory, setBusinessCategory] = useState(businessProfile.businessCategory);
   const [businessAddress, setBusinessAddress] = useState(businessProfile.businessAddress);
   const [phoneNumber, setPhoneNumber] = useState(businessProfile.phoneNumber);
+  
   const profilePreview = getBusinessProfileCompleteness({
     ...currentUser,
     storeLogo,
@@ -70,7 +72,9 @@ const ProfilePage = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
+  // --- FUNGSI HANDLESAVE YANG SUDAH TERHUBUNG KE BACKEND ---
+  const handleSave = async () => {
+    // 1. Siapkan struktur data
     const updatedUser = {
       ...currentUser,
       storeLogo,
@@ -87,13 +91,68 @@ const ProfilePage = () => {
       phoneNumber,
     };
 
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    // Tampilkan animasi loading
+    Swal.fire({
+      title: 'Menyimpan Perubahan...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
 
-    if (getBusinessProfileCompleteness(updatedUser).isComplete) {
-      sessionStorage.removeItem('nopi-profile-awareness-dismissed');
+    try {
+      const token = localStorage.getItem('token');
+
+      // 2. Tembak API ke backend
+      const res = await fetch('http://localhost:5000/api/user/profile', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        // Pastikan nama key sesuai dengan schema Prisma
+        body: JSON.stringify({ 
+          profileImage: storeLogo,
+          businessName: storeName,
+          businessCategory,
+          businessAddress,
+          phoneNumber
+        }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        // 3. Gabungkan kembalian dari backend dengan data lokal
+        const finalUserData = { ...updatedUser, ...result.data };
+
+        localStorage.setItem('user', JSON.stringify(finalUserData));
+        setUser(finalUserData);
+
+        if (getBusinessProfileCompleteness(finalUserData).isComplete) {
+          sessionStorage.removeItem('nopi-profile-awareness-dismissed');
+        }
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Profil bisnis berhasil disimpan di database.',
+          confirmButtonColor: '#35c759'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Menyimpan',
+          text: result.message,
+          confirmButtonColor: '#ea8327'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Koneksi Terputus',
+        text: 'Tidak dapat terhubung ke server.',
+        confirmButtonColor: '#ea8327'
+      });
     }
-
-    setUser(updatedUser);
   };
   // --------------------------------------------------------------------
 
