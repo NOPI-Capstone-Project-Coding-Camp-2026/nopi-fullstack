@@ -32,23 +32,28 @@ const HistoryTable = ({ items = [], hasActiveFilters = false }) => {
               {items.map((item) => (
                 <tr key={item.id} className="border-t border-[#f4f0ea] align-top">
                   <td className="px-4 py-3.5 whitespace-nowrap sm:px-5">
-                    <div className="font-semibold">{item.dateLabel}</div>
-                    <div className="mt-1 text-[0.8rem] text-[#909090]">{item.timeLabel}</div>
+                    {/* Menggunakan date (dari formatter backend) atau dateLabel */}
+                    <div className="font-semibold">{item.dateLabel || item.date}</div>
+                    <div className="mt-1 text-[0.8rem] text-[#909090]">{item.timeLabel || ''}</div>
                   </td>
                   <td className="px-4 py-3.5 sm:px-5">
                     <div className="font-semibold">{item.merchant}</div>
                   </td>
                   <td className="px-4 py-3.5 whitespace-nowrap sm:px-5">{item.cost}</td>
                   <td className="px-4 py-3.5 whitespace-nowrap sm:px-5">{item.sellPrice}</td>
-                  <td className="px-4 py-3.5 whitespace-nowrap sm:px-5">{item.margin}</td>
+                  <td className="px-4 py-3.5 whitespace-nowrap sm:px-5">{item.margin || '-'}</td>
                   <td className="px-4 py-3.5 whitespace-nowrap capitalize sm:px-5">{item.type}</td>
+                  
+                  {/* BAGIAN FOTO YANG SUDAH DIPERBAIKI */}
                   <td className="px-4 py-3.5 sm:px-5">
-                    {item.receiptPhotoUrl ? (
-                      <img
-                        src={item.receiptPhotoUrl}
-                        alt={`Nota ${item.merchant}`}
-                        className="h-12 w-12 rounded-[8px] border border-[#f0e5d8] object-cover"
-                      />
+                    {item.imageUrl ? (
+                      <a href={item.imageUrl} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={item.imageUrl}
+                          alt={`Nota ${item.merchant}`}
+                          className="h-12 w-12 rounded-[8px] border border-[#f0e5d8] object-cover hover:opacity-80 transition cursor-pointer"
+                        />
+                      </a>
                     ) : (
                       <div className="inline-flex h-12 min-w-12 items-center justify-center rounded-[8px] border border-dashed border-[#e8ddd2] bg-[#fcfaf7] px-2 text-center text-[0.7rem] font-medium leading-4 text-[#b0b0b0]">
                         Belum ada foto

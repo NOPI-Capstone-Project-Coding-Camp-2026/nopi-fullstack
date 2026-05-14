@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors'; // Import cors-nya
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import notaRoutes from './routes/notaRoutes.js';
 
 const app = express(); // <--- BARIS INI WAJIB DI ATAS!
 
@@ -17,6 +18,8 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/api/auth', authRoutes);
 
 app.use('/api/user', userRoutes);
+
+app.use('/api/nota', notaRoutes); /* rute AI */
 
 const PORT = 5000;
 app.listen(PORT, () => {

@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -33,11 +31,36 @@ model User {
 }
 
 model Nota {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   toko        String
   totalHarga  Float
-  tanggal     DateTime @default(now())
-  imageUrl    String?
+  tanggal     DateTime   @default(now())
+  imageUrl    String?    // Untuk menyimpan link foto nota di cloud (Supabase Storage dll)
+  
+  // Relasi ke User
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+  
+  // Relasi ke Item Barang (Satu nota bisa punya banyak barang)
+  items       NotaItem[] 
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// BUAT TABEL BARU INI
+model NotaItem {
+  id          Int      @id @default(autoincrement())
+  namaBarang  String
+  kuantitas   Int      @default(1)
+  hargaSatuan Float?   // Opsional: Harga per 1 pcs
+  hargaTotal  Float    // Harga total untuk item ini (kuantitas * hargaSatuan)
+  
+  // Fitur Masa Depan: Untuk perhitungan Margin Laba
+  hargaJual   Float?   // Harga rencana jual kamu
+  marginLaba  Float?   // Selisih laba
+  
+  // Relasi balik ke Nota
+  notaId      Int
+  nota        Nota     @relation(fields: [notaId], references: [id], onDelete: Cascade)
 }
