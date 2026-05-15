@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import UploadBox from '../components/upload/UploadBox';
 import ReceiptPreview from '../components/upload/ReceiptPreview';
+import Swal from 'sweetalert2'; // <--- Jangan lupa import Swal
 
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  
+  // (Opsional) State baru untuk menyimpan hasil teks dari AI jika ingin ditampilkan
+  const [scanResult, setScanResult] = useState(null); 
 
   useEffect(() => {
     return () => {
@@ -24,6 +28,7 @@ const UploadPage = () => {
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     setIsScanning(false);
+    setScanResult(null); // Kosongkan hasil scan jika user mengganti foto
   };
 
   const handleClearFile = () => {
@@ -34,15 +39,71 @@ const UploadPage = () => {
     setSelectedFile(null);
     setPreviewUrl('');
     setIsScanning(false);
+    setScanResult(null);
   };
 
-  const handleScanReceipt = () => {
+  // --- MESIN UTAMA SCAN AI ---
+  const handleScanReceipt = async () => {
     if (!selectedFile) {
       return;
     }
 
+    // 1. Nyalakan animasi loading di komponen ReceiptPreview-mu
     setIsScanning(true);
+
+    try {
+      // 2. Bungkus foto ke dalam format yang bisa dikirim melalui jaringan
+      const formData = new FormData();
+      formData.append('image', selectedFile); // 'image' wajib sama dengan multer di backend
+
+      // 3. Ambil "Surat Izin" (Token) user yang sedang login
+      const token = localStorage.getItem('token');
+
+      // 4. Tembak foto ke Backend NOPI
+      const res = await fetch('http://localhost:5000/api/nota/scan', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        // 5. Jika sukses, simpan datanya dan beritahu user
+        setScanResult(result.data);
+        console.log("Data hasil ekstrak:", result.data); // Bisa dicek di Inspect Element (Console)
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Scan Selesai!',
+          text: 'AI berhasil membaca nota Anda.',
+          confirmButtonColor: '#35c759'
+        });
+      } else {
+        // 6. Jika backend/AI error
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal Membaca Nota',
+          text: result.message,
+          confirmButtonColor: '#ea8327'
+        });
+      }
+    } catch (error) {
+      // 7. Jika server backend mati atau koneksi putus
+      Swal.fire({
+        icon: 'error',
+        title: 'Koneksi Terputus',
+        text: 'Tidak dapat terhubung ke server.',
+        confirmButtonColor: '#ea8327'
+      });
+    } finally {
+      // 8. Apapun yang terjadi (sukses/gagal), matikan animasi loading
+      setIsScanning(false);
+    }
   };
+  // ---------------------------
 
   return (
     <DashboardLayout>
@@ -64,9 +125,11 @@ const UploadPage = () => {
         <ReceiptPreview
           file={selectedFile}
           previewUrl={previewUrl}
-          isScanning={isScanning}
-          onScan={handleScanReceipt}
+          isScanning={isScanning} // Akan trigger animasi loading di komponenmu
+          onScan={handleScanReceipt} // Fungsi baru kita dipanggil di sini!
           onClear={handleClearFile}
+          // Opsional: Kamu bisa melempar scanResult ke ReceiptPreview kalau butuh ditampilkan
+          scanData={scanResult} 
         />
       </div>
     </DashboardLayout>

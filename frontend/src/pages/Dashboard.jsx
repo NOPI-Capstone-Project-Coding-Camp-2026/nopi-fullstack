@@ -1,26 +1,94 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { BookmarkIcon, ChartIcon, PlusIcon } from '../components/ui/AppIcons';
 import { AuthContext } from '../context/AuthContext';
-import {
-  calculateDashboardMetrics,
-  formatCurrency,
-  getMonthOptions,
-  normalizedHistoryItems,
-} from '../data/transactions';
 import { getBusinessProfile } from '../utils/businessProfile';
 
 const Dashboard = () => {
   const { user, isProfileComplete } = useContext(AuthContext);
   const { displayBusinessName, businessCategory, businessAddress } = getBusinessProfile(user);
-  const monthOptions = useMemo(() => getMonthOptions(normalizedHistoryItems), []);
-  const activeMonthKey = monthOptions[0]?.value || '';
-  const dashboardMetrics = useMemo(
-    () => calculateDashboardMetrics(normalizedHistoryItems, activeMonthKey),
-    [activeMonthKey]
-  );
-  const recentItems = useMemo(() => normalizedHistoryItems.slice(0, 5), []);
+  
+  // State untuk menyimpan data asli dari database
+  const [historyItems, setHistoryItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fungsi formatter angka ke Rupiah
+  const formatRupiah = (number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }).format(number);
+  };
+
+  // Mengambil data dari Backend
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5000/api/nota/history', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const result = await res.json();
+        
+        if (res.ok) {
+          const formattedData = result.data.map(nota => {
+            const dateObj = new Date(nota.tanggal);
+            const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+            
+            return {
+              id: nota.id,
+              merchant: nota.toko,
+              cost: formatRupiah(nota.totalHarga), // Untuk ditampilkan di teks (Rp 100.000)
+              costRaw: nota.totalHarga, // Untuk perhitungan matematika (100000)
+              sellPrice: "Rp 0",
+              dateLabel: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+              timeLabel: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+              monthKey: monthKey,
+            };
+          });
+          
+          setHistoryItems(formattedData);
+        }
+      } catch (error) {
+        console.error("Gagal menarik data dashboard:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Hanya fetch data jika profile sudah lengkap (sesuai logika aplikasi kamu)
+    if (isProfileComplete) {
+      fetchDashboardData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isProfileComplete]);
+
+  // Hitung Metrik Dashboard secara dinamis untuk bulan ini
+  const { totalCapital, processedReceipts, activeMonthLabel } = useMemo(() => {
+    const currentDate = new Date();
+    const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    const label = currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+    // Saring transaksi hanya untuk bulan ini
+    const currentMonthData = historyItems.filter(item => item.monthKey === currentMonthKey);
+    
+    // Jumlahkan semua harga beli
+    const total = currentMonthData.reduce((sum, item) => sum + item.costRaw, 0);
+
+    return {
+      totalCapital: total,
+      processedReceipts: currentMonthData.length,
+      activeMonthLabel: label
+    };
+  }, [historyItems]);
+
+  // Ambil 5 transaksi terbaru untuk preview
+  const recentItems = useMemo(() => historyItems.slice(0, 5), [historyItems]);
+  
   const primaryActionPath = isProfileComplete ? '/upload' : '/profile';
   const historyPath = isProfileComplete ? '/history' : '/profile';
 
@@ -32,7 +100,7 @@ const Dashboard = () => {
             Selamat datang kembali, {displayBusinessName}
           </h1>
           <p className="mt-2.5 max-w-2xl text-[0.92rem] leading-6 text-[#2d2d2d] sm:text-[0.98rem] lg:text-[1.02rem]">
-            Inilah ringkasan keuangan bisnis Anda untuk {dashboardMetrics.activeMonthLabel}.
+            Inilah ringkasan keuangan bisnis Anda untuk {activeMonthLabel}.
           </p>
           <p className="mt-2 text-[0.82rem] text-[#8d8d8d] sm:text-[0.88rem]">
             {businessCategory ? `${businessCategory}` : 'Profil bisnis Anda akan tampil di sini'}
@@ -65,7 +133,7 @@ const Dashboard = () => {
           <div className="flex items-start justify-between gap-4">
             <ChartIcon className="h-5 w-5 text-[#d96f0a] sm:h-6 sm:w-6" />
             <span className="rounded-[8px] bg-[#7e7e7e] px-3 py-1 text-[0.65rem] font-medium uppercase tracking-[0.12em] text-white sm:text-[0.68rem]">
-              {dashboardMetrics.activeMonthLabel}
+              {activeMonthLabel}
             </span>
           </div>
 
@@ -73,7 +141,7 @@ const Dashboard = () => {
             Total Modal
           </p>
           <div className="mt-2 text-[2rem] font-semibold tracking-[-0.06em] text-[#3b9b52] sm:text-[2.8rem]">
-            {formatCurrency(dashboardMetrics.totalCapital)}
+            {isLoading ? "Menghitung..." : formatRupiah(totalCapital)}
           </div>
           <p className="mt-3 text-[0.88rem] leading-6 text-[#8d8d8d] sm:text-[0.94rem]">
             Total modal dihitung dari penjumlahan seluruh harga beli dalam satu bulan.
@@ -86,10 +154,10 @@ const Dashboard = () => {
               Nota Terproses
           </p>
           <div className="mt-2 text-[1.9rem] font-semibold tracking-[-0.04em] text-[#222] sm:text-[2.5rem]">
-            {dashboardMetrics.processedReceipts}
+            {isLoading ? "..." : processedReceipts}
           </div>
           <p className="mt-3 max-w-[18rem] text-[0.88rem] leading-6 text-[#8d8d8d] sm:text-[0.94rem]">
-            Jumlah nota yang tercatat pada bulan terpilih akan tampil di sini, termasuk saat data masih kosong.
+            Jumlah nota yang tercatat pada bulan terpilih akan tampil di sini.
           </p>
         </div>
       </section>
@@ -111,7 +179,9 @@ const Dashboard = () => {
           </div>
 
           <div className="rounded-[8px] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
-            {recentItems.length === 0 ? (
+            {isLoading ? (
+               <div className="px-5 py-8 text-center sm:px-6 sm:py-9 text-[#8d8d8d]">Memuat aktivitas...</div>
+            ) : recentItems.length === 0 ? (
               <div className="px-5 py-8 sm:px-6 sm:py-9">
                 <p className="text-[0.92rem] leading-6 text-[#8d8d8d] sm:text-[0.96rem]">
                   Belum ada riwayat transaksi. Mulai dengan upload nota pertama Anda.

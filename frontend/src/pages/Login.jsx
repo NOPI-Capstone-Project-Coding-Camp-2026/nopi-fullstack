@@ -119,11 +119,6 @@ const Login = () => {
           <div className="mb-5 sm:mb-6">
             <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Selamat Datang Kembali</h2>
             <p className="text-[0.94rem] text-gray-500">Silakan masuk ke akun NOPI Anda</p>
-            {isMockAuthEnabled ? (
-              <p className="mt-2 rounded-[8px] bg-[#fff8f2] px-3 py-2 text-[0.8rem] leading-6 text-[#9a6232]">
-                Mode testing aktif. Login akan membaca akun dummy yang terdaftar di browser ini sebelum mencoba backend.
-              </p>
-            ) : null}
           </div>
 
           {error && (

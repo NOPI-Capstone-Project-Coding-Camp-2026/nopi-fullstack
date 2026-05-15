@@ -2,13 +2,10 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
-import Swal from 'sweetalert2';
-import { canUseMockAuth, registerMockUser, verifyMockUser } from '../utils/mockAuth';
-
-const isMockAuthEnabled = canUseMockAuth();
+import Swal from 'sweetalert2'; // <-- IMPORT SWEETALERT DI SINI
 
 const Register = () => {
-  const [storeName, setStoreName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(''); // Tetap kita pakai untuk error form ringan
@@ -18,99 +15,60 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
-
+    setError(''); 
+    
+    // Validasi Password
     if (password.length < 8) {
       setError('Password harus memiliki minimal 8 karakter.');
-      return;
+      return; 
     }
 
+    // Tampilkan animasi loading saat sedang mengirim data
     Swal.fire({
       title: 'Memproses...',
       text: 'Mohon tunggu sebentar',
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-      },
+      }
     });
 
     try {
-      let registrationResult;
-
-      if (isMockAuthEnabled) {
-        registrationResult = registerMockUser({ storeName, email, password });
-      } else {
-        const res = await fetch('http://localhost:5000/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: storeName,
-            storeName,
-            businessName: storeName,
-            email,
-            password,
-          }),
-        });
-
-        const data = await res.json();
-        registrationResult = {
-          ok: res.ok,
-          message: data.message,
-        };
-      }
-
-      if (registrationResult.ok) {
-        const result = await Swal.fire({
+      const res = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        // Pop-up Sukses yang Cantik
+        Swal.fire({
           icon: 'success',
           title: 'Pendaftaran Berhasil!',
-          text: 'Pendaftaran berhasil. Silakan cek email Anda untuk melakukan verifikasi akun sebelum login.',
-          confirmButtonText: 'Ke Halaman Login',
-          confirmButtonColor: '#3CC360',
+          text: 'Silakan cek kotak masuk email Anda untuk melakukan verifikasi akun.',
+          confirmButtonText: 'Menuju Login',
+          confirmButtonColor: '#3CC360', // Warna hijau NOPI
           iconColor: '#3CC360',
-          backdrop: 'rgba(0,0,0,0.4)',
-          showDenyButton: isMockAuthEnabled,
-          denyButtonText: 'Saya Sudah Verifikasi (Testing)',
-          denyButtonColor: '#E27C3E',
-          footer:
-            '<div style="text-align:left;font-size:0.95rem;color:#6b7280;line-height:1.6;">' +
-            '<strong style="display:block;color:#2d2d2d;margin-bottom:6px;">Langkah selanjutnya:</strong>' +
-            '1. Buka email yang Anda daftarkan.<br />' +
-            '2. Klik tautan verifikasi akun dari NOPI.<br />' +
-            '3. Setelah verifikasi berhasil, Anda baru dapat login ke aplikasi.' +
-            (isMockAuthEnabled
-              ? '<br /><br /><strong style="color:#b45309;">Mode testing aktif:</strong> gunakan tombol "Saya Sudah Verifikasi (Testing)" untuk menandai verifikasi email secara lokal.'
-              : '') +
-            '</div>',
-        });
-
-        if (result.isDenied && isMockAuthEnabled) {
-          const verificationResult = verifyMockUser(email);
-
-          if (verificationResult.ok) {
-            await Swal.fire({
-              icon: 'success',
-              title: 'Verifikasi Testing Berhasil',
-              text: 'Akun testing sudah ditandai sebagai terverifikasi. Anda sekarang dapat login.',
-              confirmButtonText: 'Ke Halaman Login',
-              confirmButtonColor: '#3CC360',
-              iconColor: '#3CC360',
-            });
+          backdrop: `rgba(0,0,0,0.4)`
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate('/login'); 
           }
-        }
-
-        if (result.isConfirmed || result.isDenied) {
-          navigate('/login');
-        }
+        });
       } else {
+        // Pop-up Gagal dari Server
         Swal.fire({
           icon: 'error',
           title: 'Pendaftaran Gagal',
-          text: registrationResult.message || 'Pastikan email belum terdaftar.',
+          text: data.message || 'Pastikan email belum terdaftar.',
           confirmButtonText: 'Coba Lagi',
-          confirmButtonColor: '#E27C3E',
+          confirmButtonColor: '#E27C3E', // Warna oranye NOPI
         });
       }
     } catch {
+      // Pop-up Gagal Koneksi
       Swal.fire({
         icon: 'error',
         title: 'Koneksi Terputus',
@@ -142,7 +100,6 @@ const Register = () => {
           setUser(data.data);
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.data));
-          sessionStorage.removeItem('nopi-profile-awareness-dismissed');
           
           Swal.fire({
             icon: 'success',
@@ -196,11 +153,6 @@ const Register = () => {
           <div className="mb-5 sm:mb-6">
             <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Buat Akun Baru</h2>
             <p className="text-[0.94rem] text-gray-500">Mulai perjalanan bisnis Anda dengan NOPI hari ini.</p>
-            {isMockAuthEnabled ? (
-              <p className="mt-2 rounded-[8px] bg-[#fff8f2] px-3 py-2 text-[0.8rem] leading-6 text-[#9a6232]">
-                Mode testing aktif. Register dapat disimulasikan secara lokal tanpa koneksi backend.
-              </p>
-            ) : null}
           </div>
 
           {/* Error inline ringan tetap dipertahankan untuk validasi form */}
@@ -212,13 +164,13 @@ const Register = () => {
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Nama Toko</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Nama</label>
               <input 
                 type="text" 
-                value={storeName} 
-                onChange={(e) => setStoreName(e.target.value)} 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Masukkan nama toko Anda" 
+                placeholder="Enter your full name" 
                 required 
               />
             </div>
@@ -230,13 +182,13 @@ const Register = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Masukkan email bisnis Anda" 
+                placeholder="Enter your business email" 
                 required 
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Kata Sandi</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Password</label>
               <input 
                 type="password" 
                 value={password} 
@@ -273,7 +225,7 @@ const Register = () => {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
-            Daftar dengan Google
+            Google
           </button>
 
           <div className="mt-6 text-center text-[0.94rem]">
