@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL") 
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -16,18 +15,52 @@ model User {
   password             String   
   isVerified           Boolean   @default(false)
   verificationToken    String?
-  resetPasswordToken   String?   // <--- LACI BARU UNTUK TOKEN RESET
-  resetPasswordExpires DateTime? // <--- LACI BARU UNTUK BATAS WAKTU
+  resetPasswordToken   String?   
+  resetPasswordExpires DateTime? 
+  
+  // --- PROFIL BISNIS ---
+  profileImage         String?   // Tipe String karena kamu mengirimkan Base64 dari FileReader
+  businessName         String?
+  businessCategory     String?
+  businessAddress      String?
+  phoneNumber          String?
+  // -------------------------------------
+
   createdAt            DateTime  @default(now())
   notas                Nota[]
 }
 
 model Nota {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   toko        String
   totalHarga  Float
-  tanggal     DateTime @default(now())
-  imageUrl    String?
+  tanggal     DateTime   @default(now())
+  imageUrl    String?    // Untuk menyimpan link foto nota di cloud (Supabase Storage dll)
+  
+  // Relasi ke User
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+  
+  // Relasi ke Item Barang (Satu nota bisa punya banyak barang)
+  items       NotaItem[] 
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// BUAT TABEL BARU INI
+model NotaItem {
+  id          Int      @id @default(autoincrement())
+  namaBarang  String
+  kuantitas   Int      @default(1)
+  hargaSatuan Float?   // Opsional: Harga per 1 pcs
+  hargaTotal  Float    // Harga total untuk item ini (kuantitas * hargaSatuan)
+  
+  // Fitur Masa Depan: Untuk perhitungan Margin Laba
+  hargaJual   Float?   // Harga rencana jual kamu
+  marginLaba  Float?   // Selisih laba
+  
+  // Relasi balik ke Nota
+  notaId      Int
+  nota        Nota     @relation(fields: [notaId], references: [id], onDelete: Cascade)
 }
