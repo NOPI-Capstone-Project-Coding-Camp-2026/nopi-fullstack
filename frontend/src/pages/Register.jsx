@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
+import { apiUrl } from '../utils/api';
 import Swal from 'sweetalert2'; // <-- IMPORT SWEETALERT DI SINI
 
 const Register = () => {
@@ -34,7 +35,7 @@ const Register = () => {
     });
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/signup', {
+      const res = await fetch(apiUrl('/api/auth/signup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
@@ -88,7 +89,7 @@ const Register = () => {
       });
 
       try {
-        const res = await fetch('http://localhost:5000/api/auth/google', {
+        const res = await fetch(apiUrl('/api/auth/google'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { apiUrl } from '../utils/api';
 import Swal from 'sweetalert2';
 
 const ResetPassword = () => {
@@ -30,7 +31,7 @@ const ResetPassword = () => {
 
     try {
       // Menembak rute backend dengan membawa token di URL dan password baru di body
-      const res = await fetch(`http://localhost:5000/api/auth/reset-password/${token}`, {
+      const res = await fetch(apiUrl(`/api/auth/reset-password/${token}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword }),

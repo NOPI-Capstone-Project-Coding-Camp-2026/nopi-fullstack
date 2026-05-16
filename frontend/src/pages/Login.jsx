@@ -2,14 +2,23 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
+import { apiUrl } from '../utils/api';
 import { canUseMockAuth, findMockUserByEmail, loginMockUser } from '../utils/mockAuth';
 
 const isMockAuthEnabled = canUseMockAuth();
+
+const LoadingSpinner = () => (
+  <span
+    className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+    aria-hidden="true"
+  />
+);
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   
   const { setToken, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -34,7 +43,13 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (isLoggingIn) {
+      return;
+    }
+
     setError('');
+    setIsLoggingIn(true);
 
     try {
       if (isMockAuthEnabled && findMockUserByEmail(email)) {
@@ -54,7 +69,7 @@ const Login = () => {
         return;
       }
 
-      const res = await fetch('http://localhost:5000/api/auth/signin', {
+      const res = await fetch(apiUrl('/api/auth/signin'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -73,13 +88,15 @@ const Login = () => {
       }
     } catch {
       setError('Tidak dapat terhubung ke server. Pastikan backend menyala.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await fetch('http://localhost:5000/api/auth/google', {
+        const res = await fetch(apiUrl('/api/auth/google'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),
@@ -162,10 +179,18 @@ const Login = () => {
             </div>
 
             <button 
-              type="submit" 
-              className="w-full rounded-[8px] bg-[#3CC360] px-4 py-3.5 text-[0.98rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#34AD54] active:scale-95"
+              type="submit"
+              disabled={isLoggingIn}
+              className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#3CC360] px-4 py-3.5 text-[0.98rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#34AD54] active:scale-95 disabled:cursor-not-allowed disabled:opacity-75 disabled:active:scale-100"
             >
-              Masuk
+              {isLoggingIn ? (
+                <>
+                  <LoadingSpinner />
+                  Memproses...
+                </>
+              ) : (
+                'Masuk'
+              )}
             </button>
           </form>
 

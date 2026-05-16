@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import UploadBox from '../components/upload/UploadBox';
 import ReceiptPreview from '../components/upload/ReceiptPreview';
+import { apiUrl } from '../utils/api';
 import Swal from 'sweetalert2'; // <--- Jangan lupa import Swal
 
 const UploadPage = () => {
@@ -60,7 +61,7 @@ const UploadPage = () => {
       const token = localStorage.getItem('token');
 
       // 4. Tembak foto ke Backend NOPI
-      const res = await fetch('http://localhost:5000/api/nota/scan', {
+      const res = await fetch(apiUrl('/api/nota/scan'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -90,7 +91,7 @@ const UploadPage = () => {
           confirmButtonColor: '#ea8327'
         });
       }
-    } catch (error) {
+    } catch {
       // 7. Jika server backend mati atau koneksi putus
       Swal.fire({
         icon: 'error',
@@ -116,7 +117,7 @@ const UploadPage = () => {
         </p>
       </div>
 
-      <div className="mt-7 grid min-w-0 gap-5 overflow-hidden xl:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.72fr)] xl:items-center xl:gap-6">
+      <div className="mt-7 grid min-w-0 gap-5 overflow-hidden xl:grid-cols-[minmax(280px,0.58fr)_minmax(0,1.42fr)] xl:items-start xl:gap-6">
         <UploadBox
           selectedFile={selectedFile}
           onFileSelect={handleFileSelect}

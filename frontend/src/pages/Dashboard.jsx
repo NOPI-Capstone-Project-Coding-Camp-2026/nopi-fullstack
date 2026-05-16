@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { BookmarkIcon, ChartIcon, PlusIcon } from '../components/ui/AppIcons';
 import { AuthContext } from '../context/AuthContext';
+import { apiUrl } from '../utils/api';
 import { getBusinessProfile } from '../utils/businessProfile';
 
 const Dashboard = () => {
@@ -27,7 +28,7 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/nota/history', {
+        const res = await fetch(apiUrl('/api/nota/history'), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         

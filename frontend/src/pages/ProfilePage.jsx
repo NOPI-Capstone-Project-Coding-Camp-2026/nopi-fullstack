@@ -3,6 +3,7 @@ import { CircleAlert, CircleCheckBig } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { CloseIcon, UserIcon } from '../components/ui/AppIcons';
 import { AuthContext } from '../context/AuthContext';
+import { apiUrl } from '../utils/api';
 import { getBusinessProfile, getBusinessProfileCompleteness } from '../utils/businessProfile';
 import Swal from 'sweetalert2'; // <--- IMPORT SWEETALERT DITAMBAHKAN DI SINI
 
@@ -32,6 +33,13 @@ const StatusBadge = ({ filled }) => (
   </span>
 );
 
+const LoadingSpinner = () => (
+  <span
+    className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+    aria-hidden="true"
+  />
+);
+
 const ProfilePage = () => {
   const { user, setUser, missingProfileFields, isProfileComplete } = useContext(AuthContext);
   const currentUser = user || JSON.parse(localStorage.getItem('user') || '{}');
@@ -41,6 +49,7 @@ const ProfilePage = () => {
   const [businessCategory, setBusinessCategory] = useState(businessProfile.businessCategory);
   const [businessAddress, setBusinessAddress] = useState(businessProfile.businessAddress);
   const [phoneNumber, setPhoneNumber] = useState(businessProfile.phoneNumber);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   
   const profilePreview = getBusinessProfileCompleteness({
     ...currentUser,
@@ -74,6 +83,12 @@ const ProfilePage = () => {
 
   // --- FUNGSI HANDLESAVE YANG SUDAH TERHUBUNG KE BACKEND ---
   const handleSave = async () => {
+    if (isSavingProfile) {
+      return;
+    }
+
+    setIsSavingProfile(true);
+
     // 1. Siapkan struktur data
     const updatedUser = {
       ...currentUser,
@@ -102,7 +117,7 @@ const ProfilePage = () => {
       const token = localStorage.getItem('token');
 
       // 2. Tembak API ke backend
-      const res = await fetch('http://localhost:5000/api/user/profile', {
+      const res = await fetch(apiUrl('/api/user/profile'), {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -145,13 +160,15 @@ const ProfilePage = () => {
           confirmButtonColor: '#ea8327'
         });
       }
-    } catch (error) {
+    } catch {
       Swal.fire({
         icon: 'error',
         title: 'Koneksi Terputus',
         text: 'Tidak dapat terhubung ke server.',
         confirmButtonColor: '#ea8327'
       });
+    } finally {
+      setIsSavingProfile(false);
     }
   };
   // --------------------------------------------------------------------
@@ -335,16 +352,27 @@ const ProfilePage = () => {
         <button
           type="button"
           onClick={handleSave}
-          className="inline-flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#35c759] px-6 py-4 text-base font-semibold tracking-[0.08em] text-white shadow-[0_14px_28px_rgba(53,199,89,0.2)] transition hover:bg-[#2db44f] sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
+          disabled={isSavingProfile}
+          className="inline-flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#35c759] px-6 py-4 text-base font-semibold tracking-[0.08em] text-white shadow-[0_14px_28px_rgba(53,199,89,0.2)] transition hover:bg-[#2db44f] disabled:cursor-not-allowed disabled:opacity-75 sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
         >
-          <UserIcon className="h-5 w-5" />
-          {profilePreview.isComplete ? 'SIMPAN PERUBAHAN' : 'SIMPAN & AKTIFKAN FITUR'}
+          {isSavingProfile ? (
+            <>
+              <LoadingSpinner />
+              MENYIMPAN...
+            </>
+          ) : (
+            <>
+              <UserIcon className="h-5 w-5" />
+              {profilePreview.isComplete ? 'SIMPAN PERUBAHAN' : 'SIMPAN & AKTIFKAN FITUR'}
+            </>
+          )}
         </button>
 
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex w-full items-center justify-center gap-3 rounded-[8px] border border-[#a5a5a5] bg-white px-6 py-4 text-base font-medium tracking-[0.08em] text-[#8c8c8c] transition hover:bg-[#fafafa] sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
+          disabled={isSavingProfile}
+          className="inline-flex w-full items-center justify-center gap-3 rounded-[8px] border border-[#a5a5a5] bg-white px-6 py-4 text-base font-medium tracking-[0.08em] text-[#8c8c8c] transition hover:bg-[#fafafa] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-8 sm:py-5 sm:text-lg"
         >
           <CloseIcon className="h-5 w-5" />
           BATAL

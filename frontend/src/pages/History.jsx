@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import HistoryTable from '../components/history/HistoryTable';
 import { CalendarIcon, SearchIcon } from '../components/ui/AppIcons';
+import { apiUrl } from '../utils/api';
 // Kita tidak pakai normalizedHistoryItems lagi, tapi getMonthOptions mungkin masih bisa dipakai jika bentuknya umum
 // import { getMonthOptions } from '../data/transactions'; 
 
@@ -27,7 +28,7 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5000/api/nota/history', {
+        const res = await fetch(apiUrl('/api/nota/history'), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
