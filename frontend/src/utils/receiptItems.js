@@ -364,6 +364,8 @@ export const calculateReceiptSummary = (items) => {
     (accumulator, item) => {
       const totalItemCostNumber = parseNumber(item.totalItemCost);
       const marginNumber = parseNumber(item.marginPercent);
+      const unitPriceNumber = parseNumber(item.unitPrice);
+      const sellingPriceNumber = parseNumber(item.sellingPrice);
 
       if (totalItemCostNumber !== null && totalItemCostNumber >= 0) {
         accumulator.totalModal += totalItemCostNumber;
@@ -380,7 +382,7 @@ export const calculateReceiptSummary = (items) => {
         accumulator.hasTotalProfit = true;
       }
 
-      if (marginNumber !== null) {
+      if (marginNumber !== null && unitPriceNumber !== null && sellingPriceNumber !== null) {
         accumulator.marginTotal += marginNumber;
         accumulator.marginCount += 1;
       }

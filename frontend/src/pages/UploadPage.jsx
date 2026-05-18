@@ -5,6 +5,17 @@ import ReceiptPreview from '../components/upload/ReceiptPreview';
 import { apiUrl } from '../utils/api';
 import Swal from 'sweetalert2'; // <--- Jangan lupa import Swal
 
+const isRejectedScanResult = (result) =>
+  result?.status === 'rejected' ||
+  result?.data?.status === 'rejected' ||
+  result?.result?.status === 'rejected';
+
+const getRejectedScanReason = (result) =>
+  result?.reason ||
+  result?.data?.reason ||
+  result?.result?.reason ||
+  'Gambar belum dikenali sebagai nota. Gunakan foto struk atau nota yang lebih jelas.';
+
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -72,9 +83,22 @@ const UploadPage = () => {
       const result = await res.json();
 
       if (res.ok) {
+        if (isRejectedScanResult(result)) {
+          setScanResult(null);
+
+          Swal.fire({
+            icon: 'warning',
+            title: 'Scan Ditolak',
+            text: getRejectedScanReason(result),
+            confirmButtonColor: '#ea8327'
+          });
+          return;
+        }
+
         // 5. Jika sukses, simpan datanya dan beritahu user
-        setScanResult(result.data);
-        console.log("Data hasil ekstrak:", result.data); // Bisa dicek di Inspect Element (Console)
+        const extractedData = result.data || result.result || result;
+        setScanResult(extractedData);
+        console.log("Data hasil ekstrak:", extractedData); // Bisa dicek di Inspect Element (Console)
         
         Swal.fire({
           icon: 'success',

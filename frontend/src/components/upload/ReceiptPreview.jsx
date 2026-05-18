@@ -34,9 +34,9 @@ const formatCurrency = (value, fallback = 'Belum diisi') => {
   }).format(Number(value));
 };
 
-const formatPercent = (value) => {
+const formatPercent = (value, fallback = 'Belum diisi') => {
   if (!receiptItemHasValue(value)) {
-    return 'Belum diisi';
+    return fallback;
   }
 
   return `${Number(value).toLocaleString('id-ID', {
@@ -544,6 +544,18 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
               <SectionHeader
                 title="Item Hasil Scan"
                 description="Koreksi data item, isi margin atau harga jual, lalu simpan final."
+                action={
+                  receiptItems.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={addManualItem}
+                      className="inline-flex items-center justify-center gap-2 rounded-[8px] bg-[#ea8327] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#d57421]"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Tambah Item
+                    </button>
+                  ) : null
+                }
               />
 
               {receiptItems.length === 0 ? (
@@ -716,25 +728,25 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
                 <div className="rounded-[8px] border border-[#f0e2d5] bg-white p-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#a99a8a]">Total Modal</p>
                   <p className="mt-1 text-base font-bold text-[#2d2d2d]">
-                    {receiptSummary.hasTotalModal ? formatCurrency(receiptSummary.totalModal) : 'Belum diisi'}
+                    {receiptSummary.hasTotalModal ? formatCurrency(receiptSummary.totalModal) : 'Belum terdeteksi'}
                   </p>
                 </div>
                 <div className="rounded-[8px] border border-[#f0e2d5] bg-white p-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#a99a8a]">Total Harga Jual</p>
                   <p className="mt-1 text-base font-bold text-[#2d2d2d]">
-                    {receiptSummary.hasTotalHargaJual ? formatCurrency(receiptSummary.totalHargaJual) : 'Belum diisi'}
+                    {receiptSummary.hasTotalHargaJual ? formatCurrency(receiptSummary.totalHargaJual) : 'Belum dihitung'}
                   </p>
                 </div>
                 <div className="rounded-[8px] border border-[#f0e2d5] bg-white p-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#a99a8a]">Total Profit</p>
                   <p className="mt-1 text-base font-bold text-[#249a43]">
-                    {receiptSummary.hasTotalProfit ? formatCurrency(receiptSummary.totalProfit) : 'Belum diisi'}
+                    {receiptSummary.hasTotalProfit ? formatCurrency(receiptSummary.totalProfit) : 'Belum dihitung'}
                   </p>
                 </div>
                 <div className="rounded-[8px] border border-[#f0e2d5] bg-white p-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#a99a8a]">Rata-rata Margin</p>
                   <p className="mt-1 text-base font-bold text-[#2d2d2d]">
-                    {formatPercent(receiptSummary.averageMargin)}
+                    {formatPercent(receiptSummary.averageMargin, 'Belum dihitung')}
                   </p>
                 </div>
               </div>
