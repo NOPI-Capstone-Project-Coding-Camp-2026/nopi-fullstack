@@ -3,14 +3,13 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import UploadBox from '../components/upload/UploadBox';
 import ReceiptPreview from '../components/upload/ReceiptPreview';
 import { apiUrl } from '../utils/api';
-import Swal from 'sweetalert2'; // <--- Jangan lupa import Swal
+import Swal from 'sweetalert2';
 
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   
-  // (Opsional) State baru untuk menyimpan hasil teks dari AI jika ingin ditampilkan
   const [scanResult, setScanResult] = useState(null); 
 
   useEffect(() => {
@@ -29,7 +28,7 @@ const UploadPage = () => {
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     setIsScanning(false);
-    setScanResult(null); // Kosongkan hasil scan jika user mengganti foto
+    setScanResult(null); 
   };
 
   const handleClearFile = () => {
@@ -49,18 +48,14 @@ const UploadPage = () => {
       return;
     }
 
-    // 1. Nyalakan animasi loading di komponen ReceiptPreview-mu
     setIsScanning(true);
 
     try {
-      // 2. Bungkus foto ke dalam format yang bisa dikirim melalui jaringan
       const formData = new FormData();
-      formData.append('image', selectedFile); // 'image' wajib sama dengan multer di backend
+      formData.append('image', selectedFile); 
 
-      // 3. Ambil "Surat Izin" (Token) user yang sedang login
       const token = localStorage.getItem('token');
 
-      // 4. Tembak foto ke Backend NOPI
       const res = await fetch(apiUrl('/api/nota/scan'), {
         method: 'POST',
         headers: {
@@ -71,10 +66,22 @@ const UploadPage = () => {
 
       const result = await res.json();
 
-      if (res.ok) {
-        // 5. Jika sukses, simpan datanya dan beritahu user
+      // 1. Bongkar isi laporan dari AI
+      console.log("🔍 Laporan Mentah AI:", result);
+      const aiData = result.data?.data || result.data || {};
+      const rawText = aiData.raw_text || '';
+      const parsedItems = aiData.parsed_items || [];
+
+      // 2. FILTER CERDAS: Syarat disebut nota
+      // Teks harus lebih dari 15 karakter ATAU memiliki daftar barang
+      const isNotaValid = rawText.trim().length > 15 || parsedItems.length > 0;
+
+      // 3. Gabungkan semua syarat kesuksesan
+      const isActuallySuccess = res.ok && result.status !== 'error' && isNotaValid;
+
+      if (isActuallySuccess) {
+        // JIKA BENAR-BENAR SUKSES DAN ITU ADALAH NOTA
         setScanResult(result.data);
-        console.log("Data hasil ekstrak:", result.data); // Bisa dicek di Inspect Element (Console)
         
         Swal.fire({
           icon: 'success',
@@ -83,24 +90,34 @@ const UploadPage = () => {
           confirmButtonColor: '#35c759'
         });
       } else {
-        // 6. Jika backend/AI error
+        // 🚨 PERBAIKAN DI SINI: Tentukan pesan error yang tepat
+        // Jika statusnya bukan error dari backend (tapi digagalkan oleh filter kita), 
+        // jangan pakai pesan sukses dari backend.
+        const errorMessage = (result.status === 'error' && result.message) 
+          ? result.message 
+          : 'Gambar tidak memiliki teks nota yang cukup jelas. Silakan foto ulang.';
+
+        // JIKA GAGAL / BUKAN NOTA / TEKS KOSONG
         Swal.fire({
           icon: 'error',
-          title: 'Gagal Membaca Nota',
-          text: result.message,
+          title: 'Bukan Nota',
+          text: errorMessage, // <--- Menggunakan variabel di atas
           confirmButtonColor: '#ea8327'
+        }).then(() => {
+          // Bersihkan layar dari gambar yang salah setelah user klik OK
+          handleClearFile();
         });
       }
     } catch {
-      // 7. Jika server backend mati atau koneksi putus
       Swal.fire({
         icon: 'error',
         title: 'Koneksi Terputus',
         text: 'Tidak dapat terhubung ke server.',
         confirmButtonColor: '#ea8327'
+      }).then(() => {
+        handleClearFile();
       });
     } finally {
-      // 8. Apapun yang terjadi (sukses/gagal), matikan animasi loading
       setIsScanning(false);
     }
   };
@@ -126,10 +143,9 @@ const UploadPage = () => {
         <ReceiptPreview
           file={selectedFile}
           previewUrl={previewUrl}
-          isScanning={isScanning} // Akan trigger animasi loading di komponenmu
-          onScan={handleScanReceipt} // Fungsi baru kita dipanggil di sini!
+          isScanning={isScanning} 
+          onScan={handleScanReceipt} 
           onClear={handleClearFile}
-          // Opsional: Kamu bisa melempar scanResult ke ReceiptPreview kalau butuh ditampilkan
           scanData={scanResult} 
         />
       </div>

@@ -170,81 +170,73 @@ const buildScanPreviewState = (scanData) => {
   let extractedToko = '';
   let extractedTanggal = '';
   let extractedTotal = '';
+  
   const aiContent = getNestedAiContent(scanData);
   const nestedReceipt = aiContent.receipt || aiContent.nota || aiContent.result || {};
+  
+  // 🚨 PERBAIKAN 1: Deteksi jika parsed_items berbentuk objek yang berisi metadata toko/tanggal
+  const parsedItemsObj = aiContent.parsed_items && !Array.isArray(aiContent.parsed_items) 
+    ? aiContent.parsed_items 
+    : {};
+    
   const receiptItems = normalizeExtractedItems(scanData);
   const itemSummary = calculateReceiptSummary(receiptItems);
 
+  // Ambil Nama Toko (Cari di semua kemungkinan tempat, termasuk parsed_items)
   extractedToko = getFirstValue(aiContent, [
-    'nama_toko',
-    'namaToko',
-    'nama_supplier',
-    'namaSupplier',
-    'supplier',
-    'vendor',
-    'merchant',
-    'merchant_name',
-    'merchantName',
-    'store',
-    'store_name',
-    'storeName',
-    'toko',
-    'outlet',
+    'nama_toko', 'namaToko', 'nama_supplier', 'namaSupplier', 'supplier', 'vendor', 
+    'merchant', 'merchant_name', 'merchantName', 'store', 'store_name', 'storeName', 'toko', 'outlet'
   ]) || getFirstValue(nestedReceipt, [
-    'nama_toko',
-    'namaToko',
-    'supplier',
-    'vendor',
-    'merchant',
-    'store_name',
-    'storeName',
-    'toko',
-  ]);
-  extractedTanggal = getFirstValue(aiContent, [
-    'tanggal',
-    'tgl',
-    'date',
-    'transaction_date',
-    'transactionDate',
-    'receipt_date',
-    'receiptDate',
-  ]) || getFirstValue(nestedReceipt, [
-    'tanggal',
-    'tgl',
-    'date',
-    'transaction_date',
-    'transactionDate',
-  ]);
-  extractedTotal = getFirstValue(aiContent, [
-    'total_harga',
-    'totalHarga',
-    'total_transaksi',
-    'totalTransaksi',
-    'grand_total',
-    'grandTotal',
-    'total_amount',
-    'totalAmount',
-    'total',
-    'amount',
-    'subtotal',
-  ]) || getFirstValue(nestedReceipt, [
-    'total_harga',
-    'totalHarga',
-    'total_transaksi',
-    'grand_total',
-    'grandTotal',
-    'total',
+    'nama_toko', 'namaToko', 'supplier', 'vendor', 'merchant', 'store_name', 'storeName', 'toko'
+  ]) || getFirstValue(parsedItemsObj, [
+    'nama_toko', 'namaToko', 'toko', 'merchant', 'merchantName'
   ]);
 
+  // Ambil Tanggal
+  extractedTanggal = getFirstValue(aiContent, [
+    'tanggal', 'tgl', 'date', 'transaction_date', 'transactionDate', 'receipt_date', 'receiptDate'
+  ]) || getFirstValue(nestedReceipt, [
+    'tanggal', 'tgl', 'date', 'transaction_date', 'transactionDate'
+  ]) || getFirstValue(parsedItemsObj, [
+    'tanggal', 'tgl', 'date'
+  ]);
+
+  // Ambil Total Harga
+  extractedTotal = getFirstValue(aiContent, [
+    'total_harga', 'totalHarga', 'total_transaksi', 'totalTransaksi', 'grand_total', 
+    'grandTotal', 'total_amount', 'totalAmount', 'total', 'amount', 'subtotal'
+  ]) || getFirstValue(nestedReceipt, [
+    'total_harga', 'totalHarga', 'total_transaksi', 'grand_total', 'grandTotal', 'total'
+  ]) || getFirstValue(parsedItemsObj, [
+    'total_harga', 'totalHarga', 'total', 'total_amount'
+  ]);
+
+  // 🚨 PERBAIKAN 2: REGEX FALLBACK SUPER FLEKSIBEL (Jika data JSON dari AI masih kosong)
   if ((!extractedToko || !extractedTanggal || !extractedTotal) && aiContent.raw_text) {
     const text = aiContent.raw_text;
-    const dateMatch = text.match(/TANGGAL\s*:\s*(\d{4}-\d{2}-\d{2})/i);
-    const totalMatch = text.match(/TOTAL\s*[;:]\s*Rp\s*([\d,.]+)/i);
-    const tokoMatch = text.match(/KIOS\s+[A-Z\s]+/i);
 
-    if (!extractedTanggal && dateMatch) extractedTanggal = dateMatch[1];
-    if (!extractedTotal && totalMatch) extractedTotal = totalMatch[1];
-    if (!extractedToko && tokoMatch) extractedToko = tokoMatch[0].split(',')[0].trim();
+    // Regex Tanggal: Mendukung format YYYY-MM-DD maupun DD.MM.YY (seperti 21.01.22)
+    if (!extractedTanggal) {
+      const dateMatch = text.match(/(\d{2})[\.\/-](\d{2})[\.\/-](\d{2,4})/);
+      if (dateMatch) extractedTanggal = dateMatch[0];
+    }
+
+    // Regex Total Harga: Mendukung format "TOTAL:" diikuti baris baru atau spasi, dengan/tanpa "Rp"
+    if (!extractedTotal) {
+      const totalMatch = text.match(/TOTAL\s*[;:\n]*\s*(?:Rp\s*)?([\d,.]+)/i);
+      if (totalMatch) extractedTotal = totalMatch[1];
+    }
+
+    // Regex Nama Toko: Mengambil baris pertama teks struk jika tidak ada kata kunci "KIOS"
+    if (!extractedToko) {
+      const tokoMatch = text.match(/KIOS\s+[A-Z\s]+/i);
+      if (tokoMatch) {
+        extractedToko = tokoMatch[0].split(',')[0].trim();
+      } else {
+        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+        if (lines.length > 0) extractedToko = lines[0]; // Ambil baris teratas (contoh: TLOGOMAS 44 MALANG)
+      }
+    }
   }
 
   const fallbackTotal = itemSummary.hasTotalModal ? itemSummary.totalModal : '';

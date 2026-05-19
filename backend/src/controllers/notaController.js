@@ -12,16 +12,14 @@ export const scanNota = async (req, res) => {
   try {
     // 1. Pastikan user mengirim file gambar
     if (!req.file) {
-      return res.status(400).json({ message: 'Gambar nota tidak ditemukan!' });
+      return res.status(400).json({ status: 'error', message: 'Gambar nota tidak ditemukan!' });
     }
 
-    // 2. Ubah file gambar dari Multer menjadi format Blob agar bisa dikirim via Fetch
+    // 2. Ubah file gambar dari Multer menjadi format Blob
     const imageBlob = new Blob([req.file.buffer], { type: req.file.mimetype });
     
-    // 3. Bungkus ke dalam FormData (Format standar pengiriman file API AI)
+    // 3. Bungkus ke dalam FormData
     const formData = new FormData();
-    // Catatan: Pastikan kata "file" di bawah ini sama dengan yang diminta di Swagger UI tim AI.
-    // Kadang AI minta namanya "image" atau "upload". Kita asumsikan standar: "file".
     formData.append('file', imageBlob, req.file.originalname);
 
     console.log("⏳ Sedang mengirim ke AI Engine...");
@@ -36,14 +34,29 @@ export const scanNota = async (req, res) => {
       throw new Error(`AI API merespons dengan status: ${aiResponse.status}`);
     }
 
-    // 5. Ambil hasil ekstrak data (Total Harga, Tanggal, dll) dari AI
+    // 5. Ambil hasil ekstrak data
     const extractedData = await aiResponse.json();
-    console.log("✅ Hasil dari AI:", extractedData);
+    console.log("✅ Hasil dari AI:", JSON.stringify(extractedData, null, 2));
 
-    // OPSIONAL: Di sini nanti kamu bisa langsung menyimpan hasilnya ke database menggunakan:
-    // await prisma.nota.create({ ... })
+    // 🚨 TAMBAHAN: FILTER CERDAS DI BACKEND (DEFENSIVE PROGRAMMING)
+    // Intip isi data yang dikirim AI
+    const aiData = extractedData.data || extractedData;
+    const rawText = aiData.raw_text || '';
+    const parsedItems = aiData.parsed_items || [];
 
-    // 6. Kirim balik hasil pintarnya ke Frontend React
+    // Validasi: Apakah teksnya cukup panjang ATAU ada daftar barangnya?
+    const isNotaValid = rawText.trim().length > 15 || parsedItems.length > 0;
+
+    // Jika kosong / gagal deteksi, langsung tolak dari Backend (Status 400 Bad Request)
+    if (!isNotaValid) {
+      console.log("❌ AI menolak gambar: Bukan nota atau teks terlalu sedikit.");
+      return res.status(400).json({
+        status: 'error',
+        message: 'Gambar tidak memiliki teks nota yang cukup jelas. Silakan foto ulang.'
+      });
+    }
+
+    // 6. Jika lolos filter, baru kirim status Sukses ke React
     res.status(200).json({
       message: 'Nota berhasil diekstrak oleh AI!',
       data: extractedData
@@ -51,7 +64,7 @@ export const scanNota = async (req, res) => {
 
   } catch (error) {
     console.log("🚨 ERROR SAAT SCAN NOTA:", error);
-    res.status(500).json({ message: "Terjadi kesalahan saat menghubungi server AI." });
+    res.status(500).json({ status: 'error', message: "Terjadi kesalahan saat menghubungi server AI." });
   }
 };
 

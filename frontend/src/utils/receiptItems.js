@@ -162,97 +162,55 @@ export const createBlankReceiptItem = (overrides = {}) =>
     ...overrides,
   });
 
-export const normalizeExtractedItems = (aiResult) => {
-  const aiContent = unwrapAiResult(aiResult);
-  const receiptDate = getFirstValue(aiContent, ['tanggal', 'date', 'transaction_date', 'transactionDate']);
-  const itemCandidates = getCandidateItemArrays(aiContent);
+export const normalizeExtractedItems = (scanData) => {
+  if (!scanData) return [];
 
-  return itemCandidates
-    .filter((item) => item && typeof item === 'object')
-    .map((item) => {
-      const quantity = getFirstValue(item, [
-        'quantity',
-        'qty',
-        'jumlah',
-        'jumlah_barang',
-        'jumlahBarang',
-        'kuantitas',
-        'banyak',
-        'count',
-        'jumlah_item',
-      ]);
-      const unitPrice = getFirstValue(item, [
-        'unitPrice',
-        'unit_price',
-        'harga_satuan',
-        'hargaSatuan',
-        'harga_modal',
-        'harga_modal_satuan',
-        'unit_cost',
-        'unitCost',
-        'price',
-        'harga',
-      ]);
-      const totalItemCost = getFirstValue(item, [
-        'totalItemCost',
-        'total_item_cost',
-        'totalCost',
-        'total_cost',
-        'total_harga_item',
-        'totalHargaItem',
-        'total_harga_beli',
-        'totalHargaBeli',
-        'harga_beli_total',
-        'subtotal',
-        'total',
-        'amount',
-        'total_price',
-        'harga_total',
-        'line_total',
-      ]);
+  // 1. Tembus ke lapisan data AI
+  const aiData = scanData.data || scanData.result || scanData;
+  let rawItems = [];
 
-      return createBlankReceiptItem({
-        date: formatDateValue(getFirstValue(item, ['date', 'tanggal', 'tgl']) || receiptDate),
-        itemName: `${getFirstValue(item, [
-          'itemName',
-          'item_name',
-          'namaBarang',
-          'nama_barang',
-          'nama_item',
-          'namaItem',
-          'nama_produk',
-          'product_name',
-          'productName',
-          'item',
-          'barang',
-          'produk',
-          'product',
-          'name',
-          'nama',
-          'menu',
-          'description',
-          'deskripsi',
-        ]) || ''}`.trim(),
-        quantity: formatNumberInput(quantity),
-        unitPrice: formatNumberInput(unitPrice),
-        totalItemCost: formatNumberInput(totalItemCost),
-        marginPercent: formatNumberInput(getFirstValue(item, [
-          'marginPercent',
-          'margin_percent',
-          'profitMargin',
-          'profit_margin',
-          'profit_margin_percent',
-          'margin',
-        ])),
-        sellingPrice: formatNumberInput(getFirstValue(item, [
-          'sellingPrice',
-          'selling_price',
-          'hargaJual',
-          'harga_jual',
-          'sell_price',
-        ])),
-      });
-    });
+  // 2. Cari di mana array barangnya bersembunyi (mendukung format baru AI)
+  if (aiData.parsed_items && Array.isArray(aiData.parsed_items.items)) {
+    rawItems = aiData.parsed_items.items;
+  } else if (Array.isArray(aiData.items)) {
+    rawItems = aiData.items;
+  }
+
+  // Jika tetap tidak ketemu, kembalikan array kosong agar tabel tidak error
+  if (!rawItems || rawItems.length === 0) {
+    return [];
+  }
+
+  // 3. Fungsi pembersih angka (menghapus "Rp", ".", dan ",")
+  const cleanNumber = (val) => {
+    if (val === undefined || val === null) return '';
+    if (typeof val === 'number') return String(val);
+    
+    // Ambil hanya angka. Contoh: "Rp 155.000" -> "155000"
+    const cleaned = String(val).replace(/[^\d]/g, '');
+    return cleaned;
+  };
+
+  // 4. Ubah format dari AI menjadi format yang dimengerti oleh tabel React kita
+  return rawItems.map((item, index) => {
+    // AI sering kali memberikan nama kunci yang berbeda-beda, kita buatkan jaring penangkapnya
+    const itemName = item.nama_barang || item.name || item.item_name || item.deskripsi || item.product || '';
+    const quantity = item.kuantitas || item.qty || item.quantity || item.jumlah || '1';
+    const unitPrice = item.harga_satuan || item.price || item.unit_price || item.harga || '0';
+    const totalItemCost = item.harga_total || item.total || item.total_price || item.subtotal || '0';
+
+    return {
+      id: `item-${Date.now()}-${index}`, // Buat ID unik untuk setiap baris
+      itemName: String(itemName),
+      quantity: cleanNumber(quantity),
+      unitPrice: cleanNumber(unitPrice),
+      totalItemCost: cleanNumber(totalItemCost),
+      // Margin dan Harga Jual dibiarkan kosong agar user (pemilik warung) yang mengisi
+      marginPercent: '',
+      sellingPrice: '',
+      isEdited: false
+    };
+  });
 };
 
 export const calculateTotalItemCost = (unitPrice, quantity) => {
