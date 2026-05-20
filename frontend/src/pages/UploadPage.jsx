@@ -75,6 +75,21 @@ const UploadPage = () => {
         body: formData
       });
 
+      // 🚨 PERTAHANAN KEAMANAN: Tangkap usiran dari Backend (Token palsu/kadaluarsa)
+      if (res.status === 401) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sesi Berakhir',
+          text: 'Sesi Anda telah habis atau tidak valid. Silakan login kembali.',
+          confirmButtonColor: '#ea8327'
+        }).then(() => {
+          localStorage.removeItem('token'); // Buang token kadaluarsa
+          window.location.href = '/login'; // Tendang ke halaman login
+        });
+        setIsScanning(false);
+        return; // Hentikan proses agar kode di bawah tidak error
+      }
+
       const result = await res.json();
 
       if (res.ok) {
@@ -86,6 +101,8 @@ const UploadPage = () => {
             title: 'Scan Ditolak',
             text: getRejectedScanReason(result),
             confirmButtonColor: '#ea8327'
+          }).then(() => {
+            handleClearFile(); // Opsional: bersihkan layar jika ditolak
           });
           return;
         }
@@ -102,9 +119,7 @@ const UploadPage = () => {
           confirmButtonColor: '#35c759'
         });
       } else {
-        // 🚨 PERBAIKAN DI SINI: Tentukan pesan error yang tepat
-        // Jika statusnya bukan error dari backend (tapi digagalkan oleh filter kita), 
-        // jangan pakai pesan sukses dari backend.
+        // Tentukan pesan error yang tepat
         const errorMessage = (result.status === 'error' && result.message) 
           ? result.message 
           : 'Gambar tidak memiliki teks nota yang cukup jelas. Silakan foto ulang.';
@@ -113,7 +128,7 @@ const UploadPage = () => {
         Swal.fire({
           icon: 'error',
           title: 'Bukan Nota',
-          text: errorMessage, // <--- Menggunakan variabel di atas
+          text: errorMessage, 
           confirmButtonColor: '#ea8327'
         }).then(() => {
           // Bersihkan layar dari gambar yang salah setelah user klik OK

@@ -5,16 +5,15 @@ import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// Siapkan multer (penerjemah FormData)
+// Siapkan multer (penerjemah gambar yang dikirim dari Frontend via FormData)
 const upload = multer({ storage: multer.memoryStorage() });
 
+// 🚨 SEMUA RUTE DIAMANKAN OLEH authMiddleware
+// Urutan: Cek Token (Satpam) -> Terima Foto (Multer) -> Jalankan Fungsi Utama
 router.post('/scan', authMiddleware, upload.single('image'), scanNota);
-
-// V--- PERBAIKAN DI SINI ---V
-// Pastikan ada upload.single('image') di tengah-tengah!
 router.post('/save', authMiddleware, upload.single('image'), saveNota); 
-// ^-------------------------^
 
+// Rute history tidak butuh multer karena tidak menerima upload foto
 router.get('/history', authMiddleware, getHistory); 
 
 export default router;

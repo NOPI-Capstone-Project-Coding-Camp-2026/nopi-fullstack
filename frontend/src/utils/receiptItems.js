@@ -95,57 +95,6 @@ const unwrapAiResult = (aiResult) => {
   return aiResult;
 };
 
-const getCandidateItemArrays = (aiContent) => {
-  const directCandidates = [
-    aiContent.items,
-    aiContent.item_details,
-    aiContent.itemDetails,
-    aiContent.line_items,
-    aiContent.lineItems,
-    aiContent.details,
-    aiContent.detail,
-    aiContent.detail_items,
-    aiContent.detailItems,
-    aiContent.extracted_items,
-    aiContent.extractedItems,
-    aiContent.detected_items,
-    aiContent.detectedItems,
-    aiContent.ocr_items,
-    aiContent.ocrItems,
-    aiContent.products,
-    aiContent.produk,
-    aiContent.barang,
-    aiContent.daftar_barang,
-    aiContent.daftarBarang,
-    aiContent.detail_barang,
-    aiContent.detailBarang,
-    aiContent.transactions,
-    aiContent.transaksi,
-  ];
-
-  const nestedCandidates = [
-    aiContent.result?.items,
-    aiContent.result?.line_items,
-    aiContent.result?.extracted_items,
-    aiContent.result?.detected_items,
-    aiContent.receipt?.items,
-    aiContent.receipt?.line_items,
-    aiContent.receipt?.extracted_items,
-    aiContent.nota?.items,
-    aiContent.nota?.detail_items,
-  ];
-
-  return [...directCandidates, ...nestedCandidates].find(Array.isArray) || [];
-};
-
-const formatDateValue = (value) => {
-  if (!hasValue(value)) {
-    return EMPTY_VALUE;
-  }
-
-  return `${value}`.trim();
-};
-
 export const createBlankReceiptItem = (overrides = {}) =>
   calculateItemTotals({
     id: createItemId(),
@@ -162,50 +111,53 @@ export const createBlankReceiptItem = (overrides = {}) =>
     ...overrides,
   });
 
+// 🚨 FUNGSI YANG DIPERBAIKI: Logika Kalkulasi Otomatis (Auto-Fill)
 export const normalizeExtractedItems = (scanData) => {
   if (!scanData) return [];
 
-  // 1. Tembus ke lapisan data AI
   const aiData = scanData.data || scanData.result || scanData;
   let rawItems = [];
 
-  // 2. Cari di mana array barangnya bersembunyi (mendukung format baru AI)
   if (aiData.parsed_items && Array.isArray(aiData.parsed_items.items)) {
     rawItems = aiData.parsed_items.items;
   } else if (Array.isArray(aiData.items)) {
     rawItems = aiData.items;
   }
 
-  // Jika tetap tidak ketemu, kembalikan array kosong agar tabel tidak error
   if (!rawItems || rawItems.length === 0) {
     return [];
   }
 
-  // 3. Fungsi pembersih angka (menghapus "Rp", ".", dan ",")
   const cleanNumber = (val) => {
-    if (val === undefined || val === null) return '';
+    if (val === undefined || val === null || val === '') return '';
     if (typeof val === 'number') return String(val);
-    
-    // Ambil hanya angka. Contoh: "Rp 155.000" -> "155000"
-    const cleaned = String(val).replace(/[^\d]/g, '');
-    return cleaned;
+    return String(val).replace(/[^\d]/g, '');
   };
 
-  // 4. Ubah format dari AI menjadi format yang dimengerti oleh tabel React kita
   return rawItems.map((item, index) => {
-    // AI sering kali memberikan nama kunci yang berbeda-beda, kita buatkan jaring penangkapnya
     const itemName = item.nama_barang || item.name || item.item_name || item.deskripsi || item.product || '';
-    const quantity = item.kuantitas || item.qty || item.quantity || item.jumlah || '1';
-    const unitPrice = item.harga_satuan || item.price || item.unit_price || item.harga || '0';
-    const totalItemCost = item.harga_total || item.total || item.total_price || item.subtotal || '0';
+    
+    // Default Jumlah Barang adalah 1 jika kosong
+    let quantity = cleanNumber(item.jumlah_barang || item.kuantitas || item.qty || item.quantity || item.jumlah) || '1';
+    let unitPrice = cleanNumber(item.harga_satuan || item.price || item.unit_price || item.harga) || '';
+    let totalItemCost = cleanNumber(item.total_harga_item || item.harga_total || item.total || item.total_price || item.subtotal) || '';
+
+    // 🚨 LOGIKA MATEMATIKA: AUTO-FILL
+    // Jika Total Harga Item kosong, tapi Harga Satuan ada -> Kalikan!
+    if (!totalItemCost && unitPrice) {
+      totalItemCost = String(Number(unitPrice) * Number(quantity));
+    }
+    // Jika Harga Satuan kosong, tapi Total Harga Item ada -> Bagikan!
+    else if (!unitPrice && totalItemCost && Number(quantity) > 0) {
+      unitPrice = String(Number(totalItemCost) / Number(quantity));
+    }
 
     return {
-      id: `item-${Date.now()}-${index}`, // Buat ID unik untuk setiap baris
+      id: `item-${Date.now()}-${index}`,
       itemName: String(itemName),
-      quantity: cleanNumber(quantity),
-      unitPrice: cleanNumber(unitPrice),
-      totalItemCost: cleanNumber(totalItemCost),
-      // Margin dan Harga Jual dibiarkan kosong agar user (pemilik warung) yang mengisi
+      quantity: quantity,
+      unitPrice: unitPrice,
+      totalItemCost: totalItemCost,
       marginPercent: '',
       sellingPrice: '',
       isEdited: false

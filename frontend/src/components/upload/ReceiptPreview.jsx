@@ -26,7 +26,6 @@ const formatCurrency = (value, fallback = 'Belum diisi') => {
   if (!receiptItemHasValue(value)) {
     return fallback;
   }
-
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -38,7 +37,6 @@ const formatPercent = (value, fallback = 'Belum diisi') => {
   if (!receiptItemHasValue(value)) {
     return fallback;
   }
-
   return `${Number(value).toLocaleString('id-ID', {
     maximumFractionDigits: 2,
   })}%`;
@@ -57,13 +55,11 @@ const getFirstValue = (source, keys) => {
   if (!source || typeof source !== 'object') {
     return '';
   }
-
   for (const key of keys) {
     if (hasValue(source[key])) {
       return source[key];
     }
   }
-
   return '';
 };
 
@@ -71,7 +67,6 @@ const getNestedAiContent = (scanData) => {
   if (!scanData || typeof scanData !== 'object') {
     return {};
   }
-
   return scanData.data || scanData.result || scanData.receipt || scanData.nota || scanData;
 };
 
@@ -79,17 +74,13 @@ const normalizeNumberText = (value) => {
   if (!hasValue(value)) {
     return '';
   }
-
   if (typeof value === 'number') {
     return Number.isFinite(value) ? `${value}` : '';
   }
-
   const compactValue = `${value}`.trim().replace(/[^\d,.-]/g, '');
-
   if (!compactValue) {
     return '';
   }
-
   const lastComma = compactValue.lastIndexOf(',');
   const lastDot = compactValue.lastIndexOf('.');
   let normalizedValue = compactValue;
@@ -115,11 +106,9 @@ const normalizeNumberText = (value) => {
   }
 
   const numericValue = Number(normalizedValue);
-
   if (!Number.isFinite(numericValue)) {
     return '';
   }
-
   return Number.isInteger(numericValue)
     ? `${numericValue}`
     : `${Number(numericValue.toFixed(2))}`;
@@ -173,8 +162,6 @@ const buildScanPreviewState = (scanData) => {
   
   const aiContent = getNestedAiContent(scanData);
   const nestedReceipt = aiContent.receipt || aiContent.nota || aiContent.result || {};
-  
-  // 🚨 PERBAIKAN 1: Deteksi jika parsed_items berbentuk objek yang berisi metadata toko/tanggal
   const parsedItemsObj = aiContent.parsed_items && !Array.isArray(aiContent.parsed_items) 
     ? aiContent.parsed_items 
     : {};
@@ -182,59 +169,51 @@ const buildScanPreviewState = (scanData) => {
   const receiptItems = normalizeExtractedItems(scanData);
   const itemSummary = calculateReceiptSummary(receiptItems);
 
-  // Ambil Nama Toko (Cari di semua kemungkinan tempat, termasuk parsed_items)
-  extractedToko = getFirstValue(aiContent, [
-    'nama_toko', 'namaToko', 'nama_supplier', 'namaSupplier', 'supplier', 'vendor', 
-    'merchant', 'merchant_name', 'merchantName', 'store', 'store_name', 'storeName', 'toko', 'outlet'
-  ]) || getFirstValue(nestedReceipt, [
-    'nama_toko', 'namaToko', 'supplier', 'vendor', 'merchant', 'store_name', 'storeName', 'toko'
-  ]) || getFirstValue(parsedItemsObj, [
-    'nama_toko', 'namaToko', 'toko', 'merchant', 'merchantName'
-  ]);
+  extractedToko = String(
+    getFirstValue(aiContent, ['nama_toko', 'merchant']) || 
+    getFirstValue(nestedReceipt, ['nama_toko', 'merchant']) || 
+    getFirstValue(parsedItemsObj, ['nama_toko', 'merchant']) || 
+    ''
+  ).trim();
 
-  // Ambil Tanggal
-  extractedTanggal = getFirstValue(aiContent, [
-    'tanggal', 'tgl', 'date', 'transaction_date', 'transactionDate', 'receipt_date', 'receiptDate'
-  ]) || getFirstValue(nestedReceipt, [
-    'tanggal', 'tgl', 'date', 'transaction_date', 'transactionDate'
-  ]) || getFirstValue(parsedItemsObj, [
-    'tanggal', 'tgl', 'date'
-  ]);
+  extractedTanggal = getFirstValue(aiContent, ['tanggal', 'date']) || 
+                     getFirstValue(nestedReceipt, ['tanggal', 'date']) || 
+                     getFirstValue(parsedItemsObj, ['tanggal', 'date']);
 
-  // Ambil Total Harga
-  extractedTotal = getFirstValue(aiContent, [
-    'total_harga', 'totalHarga', 'total_transaksi', 'totalTransaksi', 'grand_total', 
-    'grandTotal', 'total_amount', 'totalAmount', 'total', 'amount', 'subtotal'
-  ]) || getFirstValue(nestedReceipt, [
-    'total_harga', 'totalHarga', 'total_transaksi', 'grand_total', 'grandTotal', 'total'
-  ]) || getFirstValue(parsedItemsObj, [
-    'total_harga', 'totalHarga', 'total', 'total_amount'
-  ]);
+  extractedTotal = getFirstValue(aiContent, ['total_harga', 'total']) || 
+                   getFirstValue(nestedReceipt, ['total_harga', 'total']) || 
+                   getFirstValue(parsedItemsObj, ['total_harga', 'total']);
 
-  // 🚨 PERBAIKAN 2: REGEX FALLBACK SUPER FLEKSIBEL (Jika data JSON dari AI masih kosong)
-  if ((!extractedToko || !extractedTanggal || !extractedTotal) && aiContent.raw_text) {
+  if (extractedToko) {
+    const isOnlyNumbers = /^\d+$/.test(extractedToko);
+    const isTooShort = extractedToko.length <= 2;
+    if (isOnlyNumbers || isTooShort) {
+      extractedToko = ''; 
+    }
+  }
+
+  if (aiContent.raw_text) {
     const text = aiContent.raw_text;
 
-    // Regex Tanggal: Mendukung format YYYY-MM-DD maupun DD.MM.YY (seperti 21.01.22)
     if (!extractedTanggal) {
-      const dateMatch = text.match(/(\d{2})[\.\/-](\d{2})[\.\/-](\d{2,4})/);
+      const dateMatch = text.match(/(\d{2,4})[\.\/-](\d{2})[\.\/-](\d{2,4})/);
       if (dateMatch) extractedTanggal = dateMatch[0];
     }
 
-    // Regex Total Harga: Mendukung format "TOTAL:" diikuti baris baru atau spasi, dengan/tanpa "Rp"
     if (!extractedTotal) {
-      const totalMatch = text.match(/TOTAL\s*[;:\n]*\s*(?:Rp\s*)?([\d,.]+)/i);
+      const totalMatch = text.match(/(?:TOTAL|TOTA'|SUB\s*TOTAL|TOT)\s*[;:\n]*\s*(?:Rp\s*)?([\d,.]+)/i);
       if (totalMatch) extractedTotal = totalMatch[1];
     }
 
-    // Regex Nama Toko: Mengambil baris pertama teks struk jika tidak ada kata kunci "KIOS"
     if (!extractedToko) {
-      const tokoMatch = text.match(/KIOS\s+[A-Z\s]+/i);
-      if (tokoMatch) {
-        extractedToko = tokoMatch[0].split(',')[0].trim();
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      const keywordLine = lines.find(l => /TOKO|WARUNG|KIOS|MART|MINIMARKET|GROSIR|APOTEK/i.test(l));
+
+      if (keywordLine) {
+        extractedToko = keywordLine; 
       } else {
-        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-        if (lines.length > 0) extractedToko = lines[0]; // Ambil baris teratas (contoh: TLOGOMAS 44 MALANG)
+        const validLine = lines.find(l => /[A-Za-z]/.test(l) && l.length > 3 && !/^\d+$/.test(l));
+        if (validLine) extractedToko = validLine;
       }
     }
   }
@@ -394,7 +373,6 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
       }
 
       const receiptItemsPayload = buildReceiptItemsPayload(receiptItems);
-      // TODO: Kirim receiptItemsPayload ke endpoint NotaItem saat backend sudah mendukung item detail.
       console.log('Draft payload item nota:', receiptItemsPayload);
 
       const res = await fetch(apiUrl('/api/nota/save'), {
@@ -404,6 +382,20 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
         },
         body: formDataToSend,
       });
+
+      // 🚨 PENGAMANAN FRONTEND SAAT SIMPAN: Tangkap jika token expired di tengah jalan
+      if (res.status === 401) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sesi Berakhir',
+          text: 'Sesi Anda telah habis atau tidak valid. Silakan login kembali.',
+          confirmButtonColor: '#ea8327'
+        }).then(() => {
+          localStorage.removeItem('token'); 
+          window.location.href = '/login'; 
+        });
+        return; 
+      }
 
       const result = await res.json();
 

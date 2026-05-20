@@ -1,21 +1,32 @@
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = (req, res, next) => {
-  // Ambil token dari header 'Authorization'
+  // 1. Ambil token dari header 'Authorization'
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer <token>"
 
+  // 2. Jika tidak ada token, langsung usir dengan status 401
   if (!token) {
-    return res.status(401).json({ message: "Akses ditolak, token tidak ada!" });
+    return res.status(401).json({ 
+      status: 'error', 
+      message: "Akses ditolak, token tidak ada!" 
+    });
   }
 
   try {
-    // Verifikasi token
+    // 3. Verifikasi keaslian token menggunakan kunci rahasia dari file .env
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Masukkan data user ke dalam request
-    next(); // Lanjut ke proses berikutnya
+    
+    // 4. Masukkan data user (termasuk userId) ke dalam objek request (req.user)
+    req.user = decoded; 
+    
+    // 5. Lanjut ke proses controller berikutnya (scanNota / saveNota / getHistory)
+    next(); 
   } catch (error) {
-    // Jika token expired atau salah, kirim error 401
-    return res.status(401).json({ message: "Token tidak valid atau sudah kedaluwarsa!" });
+    // 6. Jika token expired atau dimodifikasi hacker, kirim status 401
+    return res.status(401).json({ 
+      status: 'error', 
+      message: "Token tidak valid atau sudah kedaluwarsa! Silakan login ulang." 
+    });
   }
 };

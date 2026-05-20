@@ -6,6 +6,9 @@ const prisma = new PrismaClient();
 // Hubungkan ke Supabase Storage
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
+// ==========================================
+// 1. FUNGSI UNTUK SCAN NOTA VIA AI
+// ==========================================
 export const scanNota = async (req, res) => {
   console.log("➡️ Masuk ke rute SCAN NOTA AI");
 
@@ -38,14 +41,16 @@ export const scanNota = async (req, res) => {
     const extractedData = await aiResponse.json();
     console.log("✅ Hasil dari AI:", JSON.stringify(extractedData, null, 2));
 
-    // 🚨 TAMBAHAN: FILTER CERDAS DI BACKEND (DEFENSIVE PROGRAMMING)
-    // Intip isi data yang dikirim AI
-    const aiData = extractedData.data || extractedData;
+    // 🚨 FILTER CERDAS DI BACKEND (DEFENSIVE PROGRAMMING)
+    const aiData = extractedData.data || extractedData || {};
     const rawText = aiData.raw_text || '';
-    const parsedItems = aiData.parsed_items || [];
+    
+    // Sesuaikan dengan format JSON AI yang baru (dibungkus dalam parsed_items.items)
+    const parsedItemsObj = aiData.parsed_items || {};
+    const parsedItemsArray = parsedItemsObj.items || aiData.items || [];
 
     // Validasi: Apakah teksnya cukup panjang ATAU ada daftar barangnya?
-    const isNotaValid = rawText.trim().length > 15 || parsedItems.length > 0;
+    const isNotaValid = rawText.trim().length > 15 || parsedItemsArray.length > 0;
 
     // Jika kosong / gagal deteksi, langsung tolak dari Backend (Status 400 Bad Request)
     if (!isNotaValid) {
@@ -68,18 +73,22 @@ export const scanNota = async (req, res) => {
   }
 };
 
+// ==========================================
+// 2. FUNGSI UNTUK MENYIMPAN NOTA KE DATABASE
+// ==========================================
 export const saveNota = async (req, res) => {
   console.log("➡️ Masuk ke rute SAVE NOTA (Dengan Gambar)");
 
   try {
+    // 🚨 AMAN: Ambil ID user dari tiket (token) yang sudah digeledah oleh authMiddleware
     const userId = req.user.userId;
     const { toko, tanggal, totalHarga } = req.body;
     
     let imageUrl = null;
 
-    // 1. Jika ada file gambar yang dikirim, upload ke Supabase Storage
+    // Jika ada file gambar yang dikirim, upload ke Supabase Storage
     if (req.file) {
-      // Buat nama file unik (Contoh: 168231234-nota.jpg)
+      // Buat nama file unik
       const fileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`;
 
       // Upload ke bucket 'nota-images'
@@ -102,45 +111,47 @@ export const saveNota = async (req, res) => {
     const parsedTotalHarga = parseFloat(totalHarga) || 0;
     const parsedTanggal = tanggal ? new Date(tanggal) : new Date();
 
-    // 2. Simpan semua data ke Database via Prisma
     const newNota = await prisma.nota.create({
       data: {
         toko: toko || 'Tidak Diketahui',
         totalHarga: parsedTotalHarga,
         tanggal: parsedTanggal,
-        imageUrl: imageUrl, // <--- Link foto disimpan di sini!
-        userId: userId,
+        imageUrl: imageUrl, 
+        userId: userId, // 🚨 AMAN: Nota ini hanya akan dikaitkan dengan user yang login
       },
     });
 
     console.log("✅ Nota & Gambar berhasil disimpan!");
 
     res.status(201).json({
+      status: 'success',
       message: 'Nota berhasil disimpan!',
       data: newNota
     });
 
   } catch (error) {
     console.log("🚨 ERROR SAAT MENYIMPAN NOTA:", error);
-    res.status(500).json({ message: "Terjadi kesalahan saat menyimpan nota." });
+    res.status(500).json({ status: 'error', message: "Terjadi kesalahan saat menyimpan nota." });
   }
 };
 
-// FUNGSI UNTUK MENGAMBIL RIWAYAT NOTA
+// ==========================================
+// 3. FUNGSI UNTUK MENGAMBIL RIWAYAT NOTA
 // ==========================================
 export const getHistory = async (req, res) => {
   try {
-    const userId = req.user.userId; // Ambil ID user dari token JWT
+    // 🚨 AMAN: Ambil ID user dari tiket (token) yang sudah digeledah oleh authMiddleware
+    const userId = req.user.userId; 
     
-    // Cari semua nota milik user ini, urutkan dari yang paling baru
+    // Cari HANYA nota milik user ini, urutkan dari yang paling baru
     const history = await prisma.nota.findMany({
       where: { userId: userId },
       orderBy: { tanggal: 'desc' } 
     });
 
-    res.status(200).json({ data: history });
+    res.status(200).json({ status: 'success', data: history });
   } catch (error) {
     console.log("🚨 ERROR AMBIL HISTORY:", error);
-    res.status(500).json({ message: "Gagal mengambil riwayat transaksi." });
+    res.status(500).json({ status: 'error', message: "Gagal mengambil riwayat transaksi." });
   }
 };
