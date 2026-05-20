@@ -5,6 +5,17 @@ import ReceiptPreview from '../components/upload/ReceiptPreview';
 import { apiUrl } from '../utils/api';
 import Swal from 'sweetalert2';
 
+const isRejectedScanResult = (result) =>
+  result?.status === 'rejected' ||
+  result?.data?.status === 'rejected' ||
+  result?.result?.status === 'rejected';
+
+const getRejectedScanReason = (result) =>
+  result?.reason ||
+  result?.data?.reason ||
+  result?.result?.reason ||
+  'Gambar belum dikenali sebagai nota. Gunakan foto struk atau nota yang lebih jelas.';
+
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -66,22 +77,23 @@ const UploadPage = () => {
 
       const result = await res.json();
 
-      // 1. Bongkar isi laporan dari AI
-      console.log("🔍 Laporan Mentah AI:", result);
-      const aiData = result.data?.data || result.data || {};
-      const rawText = aiData.raw_text || '';
-      const parsedItems = aiData.parsed_items || [];
+      if (res.ok) {
+        if (isRejectedScanResult(result)) {
+          setScanResult(null);
 
-      // 2. FILTER CERDAS: Syarat disebut nota
-      // Teks harus lebih dari 15 karakter ATAU memiliki daftar barang
-      const isNotaValid = rawText.trim().length > 15 || parsedItems.length > 0;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Scan Ditolak',
+            text: getRejectedScanReason(result),
+            confirmButtonColor: '#ea8327'
+          });
+          return;
+        }
 
-      // 3. Gabungkan semua syarat kesuksesan
-      const isActuallySuccess = res.ok && result.status !== 'error' && isNotaValid;
-
-      if (isActuallySuccess) {
-        // JIKA BENAR-BENAR SUKSES DAN ITU ADALAH NOTA
-        setScanResult(result.data);
+        // 5. Jika sukses, simpan datanya dan beritahu user
+        const extractedData = result.data || result.result || result;
+        setScanResult(extractedData);
+        console.log("Data hasil ekstrak:", extractedData); // Bisa dicek di Inspect Element (Console)
         
         Swal.fire({
           icon: 'success',
