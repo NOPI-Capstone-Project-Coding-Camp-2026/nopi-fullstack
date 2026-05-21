@@ -65,36 +65,6 @@ const formatNumberInput = (value) => {
     : `${Number(numericValue.toFixed(2))}`;
 };
 
-const getFirstValue = (source, keys) => {
-  if (!source || typeof source !== 'object') {
-    return EMPTY_VALUE;
-  }
-
-  for (const key of keys) {
-    if (hasValue(source[key])) {
-      return source[key];
-    }
-  }
-
-  return EMPTY_VALUE;
-};
-
-const unwrapAiResult = (aiResult) => {
-  if (!aiResult || typeof aiResult !== 'object') {
-    return {};
-  }
-
-  if (Array.isArray(aiResult)) {
-    return { items: aiResult };
-  }
-
-  if (aiResult.data && typeof aiResult.data === 'object') {
-    return aiResult.data;
-  }
-
-  return aiResult;
-};
-
 export const createBlankReceiptItem = (overrides = {}) =>
   calculateItemTotals({
     id: createItemId(),

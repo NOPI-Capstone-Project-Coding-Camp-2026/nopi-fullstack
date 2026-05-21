@@ -1,14 +1,19 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = () => {
   const token = localStorage.getItem('token');
+  const location = useLocation();
 
-  // Jika tidak punya token, tendang ke halaman login
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/unauthorized"
+        replace
+        state={{ attemptedPath: location.pathname }}
+      />
+    );
   }
 
-  // Jika punya token, silakan lewat
   return <Outlet />;
 };
 
