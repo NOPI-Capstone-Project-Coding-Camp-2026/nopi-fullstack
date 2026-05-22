@@ -168,22 +168,6 @@ const buildScanPreviewState = (scanData) => {
     ''
   ).trim();
 
-  // const findTokoName = (text) => {
-  //   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    
-  //   // 1. Cari baris yang mengandung kata kunci toko (Paling Akurat)
-  //   const keywordLine = lines.find(l => /TOKO|WARUNG|KIOS|MART|MINIMARKET|GROSIR|APOTEK/i.test(l));
-  //   if (keywordLine) return keywordLine;
-
-  //   // 2. Jika tidak ada, ambil baris pertama yang bukan angka
-  //   const firstValidLine = lines.find(l => /[A-Za-z]/.test(l) && !/^\d+$/.test(l));
-  //   return firstValidLine || '';
-  // };
-
-  // // Gunakan fungsi pencari di atas
-  // const text = aiContent.raw_text || '';
-  // extractedToko = findTokoName(text);
-
   extractedTanggal = getFirstValue(aiContent, ['tanggal', 'date']) || 
                      getFirstValue(nestedReceipt, ['tanggal', 'date']) || 
                      getFirstValue(parsedItemsObj, ['tanggal', 'date']);
@@ -221,6 +205,7 @@ const buildScanPreviewState = (scanData) => {
     formData: {
       toko: extractedToko,
       tanggal: extractedTanggal,
+      // 🚨 PERBAIKAN: Gunakan totalModal sebagai fallback untuk totalHarga di form
       totalHarga: itemSummary.hasTotalModal ? normalizeNumberText(itemSummary.totalModal) : '',
     },
     receiptItems,
@@ -336,7 +321,9 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
   };
 
   const receiptSummary = calculateReceiptSummary(receiptItems);
-  const calculatedTotalHarga = receiptSummary.hasTotalModal ? receiptSummary.totalModal : 0;
+  // 🚨 PERBAIKAN: Gunakan nilai dari formData, bukan hasil kalkulasi item yang mungkin belum diisi
+  const calculatedTotalHarga = formData.totalHarga || (receiptSummary.hasTotalModal ? receiptSummary.totalModal : 0);
+  
   const invalidReceiptItems = receiptItems.filter((item) => {
     const validation = validateReceiptItem(item);
     return !validation.isValid;
@@ -365,7 +352,10 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
       formDataToSend.append('toko', formData.toko);
       formDataToSend.append('tanggal', formData.tanggal);
       formDataToSend.append('totalHarga', String(calculatedTotalHarga));
-      formDataToSend.append('items', JSON.stringify(buildReceiptItemsPayload(receiptItems)));
+      
+      // 🚨 PERBAIKAN: Siapkan JSON items menggunakan buildReceiptItemsPayload
+      const payloadItems = buildReceiptItemsPayload(receiptItems);
+      formDataToSend.append('items', JSON.stringify(payloadItems));
       
       if (file) {
         formDataToSend.append('image', file);
@@ -379,7 +369,6 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
         body: formDataToSend,
       });
 
-      // 🚨 PENGAMANAN FRONTEND SAAT SIMPAN: Tangkap jika token expired di tengah jalan
       if (res.status === 401) {
         Swal.fire({
           icon: 'warning',

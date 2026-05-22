@@ -106,7 +106,8 @@ const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null,
                     value={item.dateLabel || item.date || '-'}
                   />
                   <InfoRow label="Nama Toko" value={item.merchant} strong />
-                  <InfoRow label="Harga Beli" value={item.cost} strong />
+                  {/* 🚨 PERUBAHAN: Label diubah menjadi Total Modal */}
+                  <InfoRow label="Total Modal" value={item.cost} strong /> 
                 </div>
 
                 <div className="mt-4">
@@ -122,7 +123,8 @@ const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null,
                 <tr>
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Tanggal</th>
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Nama Toko</th>
-                  <th className="px-4 py-3 whitespace-nowrap sm:px-5">Harga Beli</th>
+                  {/* 🚨 PERUBAHAN: Header Tabel diubah menjadi Total Modal */}
+                  <th className="px-4 py-3 whitespace-nowrap sm:px-5">Total Modal</th>
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Edit Nota</th>
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Detail Nota</th>
                 </tr>

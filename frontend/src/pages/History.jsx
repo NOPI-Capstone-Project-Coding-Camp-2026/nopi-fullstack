@@ -5,6 +5,8 @@ import EditNotaModal from '../components/history/EditNotaModal';
 import HistoryTable from '../components/history/HistoryTable';
 import { CalendarIcon, SearchIcon } from '../components/ui/AppIcons';
 import { apiUrl } from '../utils/api';
+// 🚨 IMPOR FUNGSI KALKULASI DARI UTILITAS
+import { calculateReceiptSummary, mapDbItemsToState } from '../utils/receiptItems';
 
 const MONTH_OPTIONS = [
   { value: '1', label: 'Januari' },
@@ -113,7 +115,11 @@ const getNotaItemId = (nota) => nota?.id ?? nota?._id ?? nota?.rawNota?.id ?? no
 const formatHistoryItem = (nota) => {
   const dateObj = getValidDate(nota.tanggal) || getValidDate(nota.createdAt);
   const dateParts = dateObj ? getIndonesiaDateParts(dateObj) : null;
-  const rawCost = parseCurrencyValue(nota.totalHarga ?? nota.cost ?? 0);
+  
+  // 🚨 KUNCI KONSISTENSI: Hitung total dari detail barang
+  const stateItems = mapDbItemsToState(nota.items || []);
+  const summary = calculateReceiptSummary(stateItems);
+  const rawCost = summary.hasTotalModal ? summary.totalModal : parseCurrencyValue(nota.totalHarga ?? nota.cost ?? 0);
 
   return {
     id: nota.id ?? nota._id,
@@ -137,7 +143,6 @@ const formatHistoryItem = (nota) => {
 };
 
 const History = () => {
-  // STATE BARU: Untuk menyimpan data asli dari database
   const [historyData, setHistoryData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -151,7 +156,6 @@ const History = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSavingNota, setIsSavingNota] = useState(false);
 
-  // AMBIL DATA DARI BACKEND SAAT HALAMAN DIBUKA
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -337,7 +341,6 @@ const History = () => {
       </div>
 
       <div className="mt-7 grid gap-4 sm:mt-8 md:grid-cols-2 xl:grid-cols-4">
-        {/* DROPDOWN TAHUN */}
         <label className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3.5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-5">
           <CalendarIcon className="h-5 w-5 text-[#909090]" />
           <div className="flex-1">
@@ -357,7 +360,6 @@ const History = () => {
           </div>
         </label>
 
-        {/* DROPDOWN BULAN */}
         <label className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3.5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-5">
           <CalendarIcon className="h-5 w-5 text-[#909090]" />
           <div className="flex-1">
@@ -378,7 +380,6 @@ const History = () => {
           </div>
         </label>
 
-        {/* DROPDOWN TANGGAL */}
         <label className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3.5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-5">
           <CalendarIcon className="h-5 w-5 text-[#909090]" />
           <div className="flex-1">
@@ -399,7 +400,6 @@ const History = () => {
           </div>
         </label>
 
-        {/* INPUT PENCARIAN */}
         <label className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-3.5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] sm:px-5">
           <SearchIcon className="h-5 w-5 text-[#909090]" />
           <div className="flex-1">
