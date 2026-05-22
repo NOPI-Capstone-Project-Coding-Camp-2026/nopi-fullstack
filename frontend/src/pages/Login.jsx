@@ -134,7 +134,7 @@ const Login = () => {
       <div className="flex w-full items-center justify-center bg-[#E27C3E] p-4 sm:p-6 lg:w-1/2 lg:bg-transparent lg:p-10">
         <div className="w-full max-w-[25rem] rounded-[8px] bg-white p-5 shadow-2xl sm:p-7 lg:p-8">
           <div className="mb-5 sm:mb-6">
-            <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Selamat Datang Kembali</h2>
+            <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Selamat Datang</h2>
             <p className="text-[0.94rem] text-gray-500">Silakan masuk ke akun NOPI Anda</p>
           </div>
 
@@ -152,7 +152,7 @@ const Login = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Masukkan email bisnis Anda" 
+                placeholder="Masukkan email Anda" 
                 required 
               />
             </div>

@@ -110,7 +110,6 @@ const UploadPage = () => {
         // 5. Jika sukses, simpan datanya dan beritahu user
         const extractedData = result.data || result.result || result;
         setScanResult(extractedData);
-        console.log("Data hasil ekstrak:", extractedData); // Bisa dicek di Inspect Element (Console)
         
         Swal.fire({
           icon: 'success',

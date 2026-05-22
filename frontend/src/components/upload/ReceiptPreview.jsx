@@ -124,13 +124,6 @@ const EditableColumnLabel = ({ children }) => (
   <span>{children}</span>
 );
 
-const MoneyLabel = ({ children }) => (
-  <span className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#6d6258]">
-    <Banknote className="h-3.5 w-3.5 text-[#249a43]" aria-hidden="true" />
-    {children}
-  </span>
-);
-
 const SectionHeader = ({ icon: Icon, title, description, action }) => (
   <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div className="flex min-w-0 items-start gap-2.5">
@@ -158,7 +151,6 @@ const buildScanPreviewState = (scanData) => {
 
   let extractedToko = '';
   let extractedTanggal = '';
-  let extractedTotal = '';
   
   const aiContent = getNestedAiContent(scanData);
   const nestedReceipt = aiContent.receipt || aiContent.nota || aiContent.result || {};
@@ -196,10 +188,6 @@ const buildScanPreviewState = (scanData) => {
                      getFirstValue(nestedReceipt, ['tanggal', 'date']) || 
                      getFirstValue(parsedItemsObj, ['tanggal', 'date']);
 
-  extractedTotal = getFirstValue(aiContent, ['total_harga', 'total']) || 
-                   getFirstValue(nestedReceipt, ['total_harga', 'total']) || 
-                   getFirstValue(parsedItemsObj, ['total_harga', 'total']);
-
   if (extractedToko) {
     const isOnlyNumbers = /^\d+$/.test(extractedToko);
     const isTooShort = extractedToko.length <= 2;
@@ -212,13 +200,8 @@ const buildScanPreviewState = (scanData) => {
     const text = aiContent.raw_text;
 
     if (!extractedTanggal) {
-      const dateMatch = text.match(/(\d{2,4})[\.\/-](\d{2})[\.\/-](\d{2,4})/);
+      const dateMatch = text.match(/(\d{2,4})[./-](\d{2})[./-](\d{2,4})/);
       if (dateMatch) extractedTanggal = dateMatch[0];
-    }
-
-    if (!extractedTotal) {
-      const totalMatch = text.match(/(?:TOTAL|TOTA'|SUB\s*TOTAL|TOT)\s*[;:\n]*\s*(?:Rp\s*)?([\d,.]+)/i);
-      if (totalMatch) extractedTotal = totalMatch[1];
     }
 
     if (!extractedToko) {
@@ -234,13 +217,11 @@ const buildScanPreviewState = (scanData) => {
     }
   }
 
-  const fallbackTotal = itemSummary.hasTotalModal ? itemSummary.totalModal : '';
-
   return {
     formData: {
       toko: extractedToko,
       tanggal: extractedTanggal,
-      totalHarga: normalizeNumberText(extractedTotal || fallbackTotal),
+      totalHarga: itemSummary.hasTotalModal ? normalizeNumberText(itemSummary.totalModal) : '',
     },
     receiptItems,
   };
@@ -355,6 +336,7 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
   };
 
   const receiptSummary = calculateReceiptSummary(receiptItems);
+  const calculatedTotalHarga = receiptSummary.hasTotalModal ? receiptSummary.totalModal : 0;
   const invalidReceiptItems = receiptItems.filter((item) => {
     const validation = validateReceiptItem(item);
     return !validation.isValid;
@@ -382,14 +364,12 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
       const formDataToSend = new FormData();
       formDataToSend.append('toko', formData.toko);
       formDataToSend.append('tanggal', formData.tanggal);
-      formDataToSend.append('totalHarga', formData.totalHarga);
+      formDataToSend.append('totalHarga', String(calculatedTotalHarga));
+      formDataToSend.append('items', JSON.stringify(buildReceiptItemsPayload(receiptItems)));
       
       if (file) {
         formDataToSend.append('image', file);
       }
-
-      const receiptItemsPayload = buildReceiptItemsPayload(receiptItems);
-      console.log('Draft payload item nota:', receiptItemsPayload);
 
       const res = await fetch(apiUrl('/api/nota/save'), {
         method: 'POST',
@@ -498,7 +478,7 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
                 title="Informasi Nota"
                 description="Data utama nota akan terisi otomatis dari hasil scan AI dan tetap bisa dikoreksi."
               />
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(160px,0.8fr)_minmax(180px,0.9fr)]">
+              <div className="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(180px,0.8fr)]">
                 <label className="block">
                   <EditableLabel>Nama Toko Supplier</EditableLabel>
                   <input
@@ -519,19 +499,6 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
                     type="text"
                     name="tanggal"
                     value={formData.tanggal}
-                    onChange={handleChange}
-                    placeholder="Belum diisi"
-                    className={inputClassName()}
-                  />
-                </label>
-                <label className="block">
-                  <MoneyLabel>
-                    Total Transaksi
-                  </MoneyLabel>
-                  <input
-                    type="number"
-                    name="totalHarga"
-                    value={formData.totalHarga}
                     onChange={handleChange}
                     placeholder="Belum diisi"
                     className={inputClassName()}

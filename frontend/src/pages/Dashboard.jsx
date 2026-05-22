@@ -1,10 +1,124 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { BookmarkIcon, ChartIcon, PlusIcon } from '../components/ui/AppIcons';
+import { BookmarkIcon, CalendarIcon, ChartIcon, PlusIcon } from '../components/ui/AppIcons';
 import { AuthContext } from '../context/AuthContext';
 import { apiUrl } from '../utils/api';
 import { getBusinessProfile } from '../utils/businessProfile';
+
+const formatRupiah = (number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(number);
+};
+
+const parseCurrencyValue = (value) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  if (value === null || value === undefined) {
+    return 0;
+  }
+
+  const compactValue = `${value}`.trim().replace(/[^\d,.-]/g, '');
+
+  if (!compactValue) {
+    return 0;
+  }
+
+  const lastComma = compactValue.lastIndexOf(',');
+  const lastDot = compactValue.lastIndexOf('.');
+  let normalizedValue = compactValue;
+
+  if (lastComma > -1 && lastDot > -1) {
+    normalizedValue =
+      lastComma > lastDot
+        ? compactValue.replace(/\./g, '').replace(',', '.')
+        : compactValue.replace(/,/g, '');
+  } else if (lastComma > -1) {
+    const digitsAfterComma = compactValue.length - lastComma - 1;
+    normalizedValue =
+      digitsAfterComma === 3
+        ? compactValue.replace(/,/g, '')
+        : compactValue.replace(',', '.');
+  } else if (lastDot > -1) {
+    const dotParts = compactValue.split('.');
+    const digitsAfterDot = compactValue.length - lastDot - 1;
+    normalizedValue =
+      dotParts.length > 2 || digitsAfterDot === 3
+        ? compactValue.replace(/\./g, '')
+        : compactValue;
+  }
+
+  const parsedValue = Number(normalizedValue);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+
+const getValidDate = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const getIndonesiaDateParts = (date) => {
+  const parts = new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: 'numeric',
+  }).formatToParts(date);
+
+  return parts.reduce((dateParts, part) => {
+    if (part.type === 'year' || part.type === 'month') {
+      return { ...dateParts, [part.type]: Number(part.value) };
+    }
+
+    return dateParts;
+  }, {});
+};
+
+const getMonthKey = (dateParts) => {
+  if (!dateParts?.year || !dateParts?.month) {
+    return '';
+  }
+
+  return `${dateParts.year}-${String(dateParts.month).padStart(2, '0')}`;
+};
+
+const getMonthLabel = (dateParts) => {
+  if (!dateParts?.year || !dateParts?.month) {
+    return '';
+  }
+
+  return new Date(dateParts.year, dateParts.month - 1, 1).toLocaleDateString('id-ID', {
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
+const getDefaultTotalModalMonth = (items) => {
+  if (items.length === 0) {
+    return '';
+  }
+
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  if (items.some((item) => item.monthKey === currentMonthKey)) {
+    return currentMonthKey;
+  }
+
+  const sortedMonthKeys = [...new Set(items.map((item) => item.monthKey).filter(Boolean))].sort((a, b) =>
+    b.localeCompare(a),
+  );
+
+  return sortedMonthKeys[0] || '';
+};
 
 const Dashboard = () => {
   const { user, isProfileComplete } = useContext(AuthContext);
@@ -13,15 +127,7 @@ const Dashboard = () => {
   // State untuk menyimpan data asli dari database
   const [historyItems, setHistoryItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Fungsi formatter angka ke Rupiah
-  const formatRupiah = (number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0,
-    }).format(number);
-  };
+  const [selectedTotalModalMonth, setSelectedTotalModalMonth] = useState('');
 
   // Mengambil data dari Backend
   useEffect(() => {
@@ -35,63 +141,87 @@ const Dashboard = () => {
         const result = await res.json();
         
         if (res.ok) {
-          const formattedData = result.data.map(nota => {
-            const dateObj = new Date(nota.tanggal);
-            const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+          const historyData = Array.isArray(result.data) ? result.data : [];
+          const formattedData = historyData.map(nota => {
+            const dateObj = getValidDate(nota.tanggal) || getValidDate(nota.createdAt);
+            const dateParts = dateObj ? getIndonesiaDateParts(dateObj) : null;
+            const rawCost = parseCurrencyValue(nota.totalHarga ?? nota.cost);
             
             return {
-              id: nota.id,
-              merchant: nota.toko,
-              cost: formatRupiah(nota.totalHarga), // Untuk ditampilkan di teks (Rp 100.000)
-              costRaw: nota.totalHarga, // Untuk perhitungan matematika (100000)
-              sellPrice: "Rp 0",
-              dateLabel: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-              timeLabel: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-              monthKey: monthKey,
+              id: nota.id ?? nota._id,
+              merchant: nota.toko || nota.merchant || 'Tidak Diketahui',
+              cost: formatRupiah(rawCost),
+              costRaw: rawCost,
+              dateLabel: dateObj
+                ? dateObj.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    timeZone: 'Asia/Jakarta',
+                  })
+                : '-',
+              timeLabel: dateObj
+                ? dateObj.toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Asia/Jakarta',
+                  })
+                : '',
+              monthKey: getMonthKey(dateParts),
+              monthLabel: getMonthLabel(dateParts),
             };
           });
           
           setHistoryItems(formattedData);
+          setSelectedTotalModalMonth((currentValue) => currentValue || getDefaultTotalModalMonth(formattedData));
         }
-      } catch (error) {
-        console.error("Gagal menarik data dashboard:", error);
+      } catch {
+        // Dashboard tetap menampilkan state kosong yang aman jika data belum bisa dimuat.
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Hanya fetch data jika profile sudah lengkap (sesuai logika aplikasi kamu)
     if (isProfileComplete) {
       fetchDashboardData();
-    } else {
-      setIsLoading(false);
     }
   }, [isProfileComplete]);
 
-  // Hitung Metrik Dashboard secara dinamis untuk bulan ini
-  const { totalCapital, processedReceipts, activeMonthLabel } = useMemo(() => {
-    const currentDate = new Date();
-    const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-    const label = currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+  const totalModalMonthOptions = useMemo(() => {
+    const monthMap = new Map();
 
-    // Saring transaksi hanya untuk bulan ini
-    const currentMonthData = historyItems.filter(item => item.monthKey === currentMonthKey);
-    
-    // Jumlahkan semua harga beli
-    const total = currentMonthData.reduce((sum, item) => sum + item.costRaw, 0);
+    historyItems.forEach((item) => {
+      if (item.monthKey && item.monthLabel) {
+        monthMap.set(item.monthKey, item.monthLabel);
+      }
+    });
+
+    const monthOptions = [...monthMap.entries()]
+      .sort(([monthKeyA], [monthKeyB]) => monthKeyB.localeCompare(monthKeyA))
+      .map(([value, label]) => ({ value, label }));
+
+    return [{ value: '', label: 'Semua Bulan' }, ...monthOptions];
+  }, [historyItems]);
+
+  const { totalCapital, processedReceipts, activeMonthLabel } = useMemo(() => {
+    const selectedItems = selectedTotalModalMonth
+      ? historyItems.filter((item) => item.monthKey === selectedTotalModalMonth)
+      : historyItems;
+    const selectedOption = totalModalMonthOptions.find((option) => option.value === selectedTotalModalMonth);
 
     return {
-      totalCapital: total,
-      processedReceipts: currentMonthData.length,
-      activeMonthLabel: label
+      totalCapital: selectedItems.reduce((sum, item) => sum + item.costRaw, 0),
+      processedReceipts: selectedItems.length,
+      activeMonthLabel: selectedOption?.label?.toLowerCase() || 'semua bulan'
     };
-  }, [historyItems]);
+  }, [historyItems, selectedTotalModalMonth, totalModalMonthOptions]);
 
   // Ambil 5 transaksi terbaru untuk preview
   const recentItems = useMemo(() => historyItems.slice(0, 5), [historyItems]);
   
   const primaryActionPath = isProfileComplete ? '/upload' : '/profile';
   const historyPath = isProfileComplete ? '/history' : '/profile';
+  const isDashboardLoading = isProfileComplete && isLoading;
 
   return (
     <DashboardLayout>
@@ -131,21 +261,37 @@ const Dashboard = () => {
 
       <section className="mt-6 grid gap-4 lg:mt-7 xl:grid-cols-[1.55fr_0.85fr]">
         <div className="rounded-[8px] bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.07)] sm:p-6">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <ChartIcon className="h-5 w-5 text-[#d96f0a] sm:h-6 sm:w-6" />
-            <span className="rounded-[8px] bg-[#7e7e7e] px-3 py-1 text-[0.65rem] font-medium uppercase tracking-[0.12em] text-white sm:text-[0.68rem]">
-              {activeMonthLabel}
-            </span>
+            <label className="flex min-w-0 items-center gap-3 rounded-[8px] border border-[#f0e5d8] bg-[#fffdf9] px-4 py-3 sm:min-w-[230px]">
+              <CalendarIcon className="h-5 w-5 shrink-0 text-[#909090]" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-[#b0b0b0]">
+                  Periode modal
+                </p>
+                <select
+                  value={selectedTotalModalMonth}
+                  onChange={(event) => setSelectedTotalModalMonth(event.target.value)}
+                  className="mt-1.5 w-full border-0 bg-transparent p-0 text-[0.92rem] text-[#2d2d2d] outline-none"
+                >
+                  {totalModalMonthOptions.map((option) => (
+                    <option key={option.value || 'all'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </label>
           </div>
 
           <p className="mt-5 text-[0.8rem] uppercase tracking-[0.12em] text-[#8d8d8d] sm:text-[0.88rem]">
             Total Modal
           </p>
           <div className="mt-2 text-[2rem] font-semibold tracking-[-0.06em] text-[#3b9b52] sm:text-[2.8rem]">
-            {isLoading ? "Menghitung..." : formatRupiah(totalCapital)}
+            {isDashboardLoading ? "Menghitung..." : formatRupiah(totalCapital)}
           </div>
           <p className="mt-3 text-[0.88rem] leading-6 text-[#8d8d8d] sm:text-[0.94rem]">
-            Total modal dihitung dari penjumlahan seluruh harga beli dalam satu bulan.
+            Total modal dihitung dari penjumlahan seluruh harga beli pada periode yang dipilih.
           </p>
         </div>
 
@@ -155,10 +301,10 @@ const Dashboard = () => {
               Nota Terproses
           </p>
           <div className="mt-2 text-[1.9rem] font-semibold tracking-[-0.04em] text-[#222] sm:text-[2.5rem]">
-            {isLoading ? "..." : processedReceipts}
+            {isDashboardLoading ? "..." : processedReceipts}
           </div>
           <p className="mt-3 max-w-[18rem] text-[0.88rem] leading-6 text-[#8d8d8d] sm:text-[0.94rem]">
-            Jumlah nota yang tercatat pada bulan terpilih akan tampil di sini.
+            Jumlah nota yang tercatat pada periode terpilih akan tampil di sini.
           </p>
         </div>
       </section>
@@ -180,7 +326,7 @@ const Dashboard = () => {
           </div>
 
           <div className="rounded-[8px] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
-            {isLoading ? (
+            {isDashboardLoading ? (
                <div className="px-5 py-8 text-center sm:px-6 sm:py-9 text-[#8d8d8d]">Memuat aktivitas...</div>
             ) : recentItems.length === 0 ? (
               <div className="px-5 py-8 sm:px-6 sm:py-9">
@@ -206,12 +352,6 @@ const Dashboard = () => {
                         Harga Beli
                       </p>
                       <p className="mt-1 font-medium">{item.cost}</p>
-                    </div>
-                    <div>
-                      <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#b0b0b0]">
-                        Harga Jual
-                      </p>
-                      <p className="mt-1 font-medium">{item.sellPrice}</p>
                     </div>
                   </div>
                 ))}

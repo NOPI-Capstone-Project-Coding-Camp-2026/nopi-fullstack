@@ -171,7 +171,7 @@ const Register = () => {
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Enter your full name" 
+                placeholder="Masukan Nama Anda" 
                 required 
               />
             </div>
@@ -183,7 +183,7 @@ const Register = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Enter your business email" 
+                placeholder="Masukan Email Anda" 
                 required 
               />
             </div>
