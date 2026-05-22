@@ -16,7 +16,7 @@ export const updateProfile = async (req, res) => {
         businessName,
         businessCategory,
         businessAddress,
-        phoneNumber, // <--- Sekarang variabel ini sudah dikenal oleh sistem
+        phoneNumber, 
       },
     });
 

@@ -176,6 +176,22 @@ const buildScanPreviewState = (scanData) => {
     ''
   ).trim();
 
+  // const findTokoName = (text) => {
+  //   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    
+  //   // 1. Cari baris yang mengandung kata kunci toko (Paling Akurat)
+  //   const keywordLine = lines.find(l => /TOKO|WARUNG|KIOS|MART|MINIMARKET|GROSIR|APOTEK/i.test(l));
+  //   if (keywordLine) return keywordLine;
+
+  //   // 2. Jika tidak ada, ambil baris pertama yang bukan angka
+  //   const firstValidLine = lines.find(l => /[A-Za-z]/.test(l) && !/^\d+$/.test(l));
+  //   return firstValidLine || '';
+  // };
+
+  // // Gunakan fungsi pencari di atas
+  // const text = aiContent.raw_text || '';
+  // extractedToko = findTokoName(text);
+
   extractedTanggal = getFirstValue(aiContent, ['tanggal', 'date']) || 
                      getFirstValue(nestedReceipt, ['tanggal', 'date']) || 
                      getFirstValue(parsedItemsObj, ['tanggal', 'date']);
