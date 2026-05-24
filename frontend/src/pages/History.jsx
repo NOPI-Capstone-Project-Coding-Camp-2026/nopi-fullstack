@@ -1,7 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import EditNotaModal from '../components/history/EditNotaModal';
 import HistoryTable from '../components/history/HistoryTable';
 import { CalendarIcon, SearchIcon } from '../components/ui/AppIcons';
 import { apiUrl } from '../utils/api';
@@ -110,8 +108,6 @@ const getIndonesiaDateParts = (date) => {
 
 const getDaysInMonth = (year, month) => new Date(Number(year), Number(month), 0).getDate();
 
-const getNotaItemId = (nota) => nota?.id ?? nota?._id ?? nota?.rawNota?.id ?? nota?.rawNota?._id;
-
 const formatHistoryItem = (nota) => {
   const dateObj = getValidDate(nota.tanggal) || getValidDate(nota.createdAt);
   const dateParts = dateObj ? getIndonesiaDateParts(dateObj) : null;
@@ -152,9 +148,6 @@ const History = () => {
   const [selectedDay, setSelectedDay] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [fetchError, setFetchError] = useState(false);
-  const [selectedNota, setSelectedNota] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isSavingNota, setIsSavingNota] = useState(false);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -224,81 +217,6 @@ const History = () => {
     setCurrentPage(1);
   };
 
-  const handleEditNota = (nota) => {
-    setSelectedNota(nota);
-    setIsEditModalOpen(true);
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setSelectedNota(null);
-  };
-
-  const handleEditSaveAttempt = async (updatedNota) => {
-    if (!updatedNota.id) {
-      await Swal.fire({
-        icon: 'error',
-        title: 'Nota Tidak Valid',
-        text: 'ID nota tidak ditemukan.',
-        confirmButtonColor: '#ea8327',
-      });
-      throw new Error('ID nota tidak ditemukan.');
-    }
-
-    setIsSavingNota(true);
-
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(apiUrl(`/api/nota/${encodeURIComponent(updatedNota.id)}`), {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          toko: updatedNota.toko,
-          tanggal: updatedNota.tanggal,
-          totalHarga: updatedNota.totalHarga,
-        }),
-      });
-      let result = {};
-
-      try {
-        result = await res.json();
-      } catch {
-        result = {};
-      }
-
-      if (!res.ok) {
-        throw new Error(result.message || 'Nota gagal diperbarui.');
-      }
-
-      const formattedNota = formatHistoryItem(result.data);
-      setHistoryData((currentData) =>
-        currentData.map((item) =>
-          String(getNotaItemId(item)) === String(updatedNota.id) ? formattedNota : item,
-        ),
-      );
-
-      await Swal.fire({
-        icon: 'success',
-        title: 'Nota Diperbarui',
-        text: 'Perubahan berhasil disimpan ke database.',
-        confirmButtonColor: '#35c759',
-      });
-    } catch (error) {
-      await Swal.fire({
-        icon: 'error',
-        title: 'Gagal Menyimpan',
-        text: error.message || 'Perubahan nota belum berhasil disimpan.',
-        confirmButtonColor: '#ea8327',
-      });
-      throw error;
-    } finally {
-      setIsSavingNota(false);
-    }
-  };
-
   const filteredHistory = useMemo(() => {
     return historyData.filter((item) => {
       const normalizedKeyword = keyword.trim().toLowerCase();
@@ -326,9 +244,6 @@ const History = () => {
   const paginatedHistory = filteredHistory.slice(pageStartIndex, pageStartIndex + PAGE_SIZE);
   const displayStart = totalFilteredItems === 0 ? 0 : pageStartIndex + 1;
   const displayEnd = Math.min(pageStartIndex + paginatedHistory.length, totalFilteredItems);
-  const selectedNotaId =
-    selectedNota?.id || selectedNota?._id || selectedNota?.rawNota?.id || selectedNota?.rawNota?._id || 'edit-nota';
-
   return (
     <DashboardLayout>
       <div>
@@ -432,7 +347,6 @@ const History = () => {
           <HistoryTable
             items={paginatedHistory}
             hasActiveFilters={hasActiveFilters}
-            onEditNota={handleEditNota}
             pagination={{
               currentPage: safeCurrentPage,
               totalPages,
@@ -444,17 +358,6 @@ const History = () => {
           />
         )}
       </div>
-
-      {isEditModalOpen ? (
-        <EditNotaModal
-          key={selectedNotaId}
-          isOpen={isEditModalOpen}
-          nota={selectedNota}
-          onClose={handleCloseEditModal}
-          onSaveAttempt={handleEditSaveAttempt}
-          isSaving={isSavingNota}
-        />
-      ) : null}
     </DashboardLayout>
   );
 };

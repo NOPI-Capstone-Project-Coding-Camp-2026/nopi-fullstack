@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { apiUrl } from '../utils/api';
@@ -128,7 +128,6 @@ const DetailNotaPage = () => {
     };
 
     if (!hasStateNota) fetchNotaDetail();
-    else setReceiptItems(mapDbItemsToState(stateNota.items));
   }, [notaId, navigate, stateNota, hasStateNota]);
 
   const handleStartEdit = () => {
@@ -154,7 +153,12 @@ const DetailNotaPage = () => {
   const addManualItem = () => setReceiptItems((prev) => [...prev, createBlankReceiptItem({ date: formData.tanggal, quantity: '1', isEdited: true })]);
   const removeItem = (itemId) => setReceiptItems((prev) => prev.filter((item) => item.id !== itemId));
 
-  const receiptSummary = calculateReceiptSummary(receiptItems);
+  const visibleReceiptItems = useMemo(
+    () => (isEditing ? receiptItems : mapDbItemsToState(nota?.items)),
+    [isEditing, nota?.items, receiptItems],
+  );
+
+  const receiptSummary = calculateReceiptSummary(visibleReceiptItems);
 
   const handleSaveEdit = async () => {
     const invalidReceiptItems = receiptItems.filter((item) => !validateReceiptItem(item).isValid);
@@ -314,7 +318,7 @@ const DetailNotaPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {receiptItems.map((item) => (
+                    {visibleReceiptItems.map((item) => (
                       <tr key={item.id} className="border-t border-[#f4f0ea] hover:bg-[#fafafa]">
                         {isEditing ? (
                           <>

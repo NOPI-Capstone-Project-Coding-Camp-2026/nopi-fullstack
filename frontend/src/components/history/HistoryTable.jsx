@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 const actionButtonClassName =
   'inline-flex min-h-10 items-center justify-center rounded-[8px] px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45';
 
-const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null, onEditNota }) => {
+const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null }) => {
   const navigate = useNavigate();
   const isEmpty = items.length === 0;
   const totalItems = pagination?.totalItems ?? items.length;
@@ -21,12 +21,6 @@ const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null,
     }
 
     pagination.onPageChange(page);
-  };
-
-  const handleEditNota = (item) => {
-    if (onEditNota) {
-      onEditNota(item);
-    }
   };
 
   const handleDetailNota = (item) => {
@@ -60,13 +54,6 @@ const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null,
 
   const ActionButtons = ({ item }) => (
     <div className="flex flex-col gap-2 sm:flex-row lg:flex-col xl:flex-row">
-      <button
-        type="button"
-        onClick={() => handleEditNota(item)}
-        className={`${actionButtonClassName} border border-[#f0d8c1] bg-white text-[#b85f12] hover:bg-[#fff6ed]`}
-      >
-        Edit Nota
-      </button>
       <button
         type="button"
         onClick={() => handleDetailNota(item)}
@@ -118,14 +105,13 @@ const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null,
           </div>
 
           <div className="hidden overflow-x-auto lg:block">
-            <table className="min-w-[780px] w-full border-collapse text-left text-[0.9rem] text-[#2c2c2c]">
+            <table className="min-w-[640px] w-full border-collapse text-left text-[0.9rem] text-[#2c2c2c]">
               <thead className="bg-[#f7f7f7] text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-[#909090]">
                 <tr>
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Tanggal</th>
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Nama Toko</th>
                   {/* 🚨 PERUBAHAN: Header Tabel diubah menjadi Total Modal */}
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Total Modal</th>
-                  <th className="px-4 py-3 whitespace-nowrap sm:px-5">Edit Nota</th>
                   <th className="px-4 py-3 whitespace-nowrap sm:px-5">Detail Nota</th>
                 </tr>
               </thead>
@@ -139,15 +125,6 @@ const HistoryTable = ({ items = [], hasActiveFilters = false, pagination = null,
                       <div className="font-semibold">{item.merchant || '-'}</div>
                     </td>
                     <td className="px-4 py-3.5 whitespace-nowrap font-semibold sm:px-5">{item.cost || '-'}</td>
-                    <td className="px-4 py-3.5 whitespace-nowrap sm:px-5">
-                      <button
-                        type="button"
-                        onClick={() => handleEditNota(item)}
-                        className={`${actionButtonClassName} border border-[#f0d8c1] bg-white text-[#b85f12] hover:bg-[#fff6ed]`}
-                      >
-                        Edit Nota
-                      </button>
-                    </td>
                     <td className="px-4 py-3.5 whitespace-nowrap sm:px-5">
                       <button
                         type="button"

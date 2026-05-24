@@ -52,7 +52,7 @@ export const faqItems = [
   {
     question: 'Apakah fitur Edit Nota sudah tersedia?',
     answer:
-      'Fitur Edit Nota sedang disiapkan pada sisi frontend. Saat ini tombol Edit Nota sudah tersedia di halaman History, tetapi pengembangan alur edit penuh masih dilakukan secara bertahap tanpa mengubah backend terlebih dahulu.',
+      'Ya. Fitur Edit Nota tersedia melalui halaman Detail Nota, sehingga pengguna dapat membuka detail transaksi terlebih dahulu sebelum mengubah data nota dan item.',
   },
   {
     question: 'Apakah detail item nota sudah tersimpan ke backend?',
