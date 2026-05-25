@@ -246,7 +246,7 @@ const Dashboard = () => {
           }`}
         >
           <PlusIcon className="h-4 w-4" />
-          {isProfileComplete ? 'Tambah Nota' : 'Isi Profile Sekarang'}
+          {isProfileComplete ? 'Tambah Nota' : 'Isi Profil Sekarang'}
         </Link>
       </section>
 
@@ -321,7 +321,7 @@ const Dashboard = () => {
                 isProfileComplete ? 'text-[#262626]' : 'text-[#c07f47]'
               }`}
             >
-              {isProfileComplete ? 'Lihat Semua Riwayat' : 'Lengkapi Profile untuk Membuka Riwayat'}
+              {isProfileComplete ? 'Lihat Semua Riwayat' : 'Lengkapi Profil untuk Membuka Riwayat'}
             </Link>
           </div>
 

@@ -12,8 +12,8 @@ const awarenessStorageKey = 'nopi-profile-awareness-dismissed';
 const mobileMenuItems = [
   { name: 'Dashboard', path: '/dashboard', icon: GridIcon },
   { name: 'Upload', path: '/upload', icon: ReceiptIcon },
-  { name: 'History', path: '/history', icon: BarsIcon },
-  { name: 'Profile', path: '/profile', icon: UserIcon },
+  { name: 'Riwayat', path: '/history', icon: BarsIcon },
+  { name: 'Profil', path: '/profile', icon: UserIcon },
   { name: 'FAQ', path: '/faq', icon: InfoIcon },
 ];
 

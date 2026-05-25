@@ -4,7 +4,11 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { CloseIcon, UserIcon } from '../components/ui/AppIcons';
 import { AuthContext } from '../context/AuthContext';
 import { apiUrl } from '../utils/api';
-import { getBusinessProfile, getBusinessProfileCompleteness } from '../utils/businessProfile';
+import {
+  getBusinessProfile,
+  getBusinessProfileCompleteness,
+  isValidIndonesianPhoneNumber,
+} from '../utils/businessProfile';
 import Swal from 'sweetalert2'; // <--- IMPORT SWEETALERT DITAMBAHKAN DI SINI
 
 const businessCategoryOptions = [
@@ -87,6 +91,18 @@ const ProfilePage = () => {
       return;
     }
 
+    const normalizedPhoneNumber = phoneNumber?.toString().trim() || '';
+
+    if (!isValidIndonesianPhoneNumber(normalizedPhoneNumber)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nomor Telepon Belum Sesuai',
+        text: 'Nomor telepon wajib diisi dan harus diawali dengan 08.',
+        confirmButtonColor: '#ea8327'
+      });
+      return;
+    }
+
     setIsSavingProfile(true);
 
     // 1. Siapkan struktur data
@@ -101,9 +117,9 @@ const ProfilePage = () => {
       businessCategory,
       storeAddress: businessAddress,
       businessAddress,
-      storeContactNumber: phoneNumber,
-      storePhone: phoneNumber,
-      phoneNumber,
+      storeContactNumber: normalizedPhoneNumber,
+      storePhone: normalizedPhoneNumber,
+      phoneNumber: normalizedPhoneNumber,
     };
 
     // Tampilkan animasi loading
@@ -129,7 +145,7 @@ const ProfilePage = () => {
           businessName: storeName,
           businessCategory,
           businessAddress,
-          phoneNumber
+          phoneNumber: normalizedPhoneNumber
         }),
       });
 
@@ -317,16 +333,22 @@ const ProfilePage = () => {
 
             <div>
               <div className="mb-2 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-4">
-                <label className="block text-sm font-medium text-[#2c2c2c]">Nomor Telefon</label>
-                <StatusBadge filled={fieldStatus(phoneNumber)} />
+                <label className="block text-sm font-medium text-[#2c2c2c]">Nomor Telepon</label>
+                <StatusBadge filled={isValidIndonesianPhoneNumber(phoneNumber)} />
               </div>
               <input
                 type="tel"
+                inputMode="numeric"
+                pattern="08[0-9]*"
+                required
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Contoh: 0812xxxxxxx"
+                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                placeholder="Contoh: 081234567890"
                 className="w-full rounded-[8px] border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
               />
+              <p className="mt-2 text-[0.8rem] text-[#9d9d9d]">
+                Nomor telepon wajib diisi dan diawali dengan 08.
+              </p>
             </div>
 
             <div>

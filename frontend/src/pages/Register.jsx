@@ -18,9 +18,9 @@ const Register = () => {
     e.preventDefault();
     setError(''); 
     
-    // Validasi Password
+    // Validasi kata sandi
     if (password.length < 8) {
-      setError('Password harus memiliki minimal 8 karakter.');
+      setError('Kata sandi harus memiliki minimal 8 karakter.');
       return; 
     }
 
@@ -49,7 +49,7 @@ const Register = () => {
           icon: 'success',
           title: 'Pendaftaran Berhasil!',
           text: 'Silakan cek kotak masuk email Anda untuk melakukan verifikasi akun.',
-          confirmButtonText: 'Menuju Login',
+          confirmButtonText: 'Menuju Masuk',
           confirmButtonColor: '#3CC360', // Warna hijau NOPI
           iconColor: '#3CC360',
           backdrop: `rgba(0,0,0,0.4)`
@@ -104,7 +104,7 @@ const Register = () => {
           
           Swal.fire({
             icon: 'success',
-            title: 'Login Google Berhasil!',
+            title: 'Masuk Google Berhasil!',
             showConfirmButton: false,
             timer: 1500,
             iconColor: '#3CC360'
@@ -171,7 +171,7 @@ const Register = () => {
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Masukan Nama Anda" 
+                placeholder="Masukkan nama Anda" 
                 required 
               />
             </div>
@@ -183,13 +183,13 @@ const Register = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Masukan Email Anda" 
+                placeholder="Masukkan email Anda" 
                 required 
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Password</label>
+              <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Kata Sandi</label>
               <input 
                 type="password" 
                 value={password} 

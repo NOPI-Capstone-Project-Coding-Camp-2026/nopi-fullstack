@@ -1,10 +1,16 @@
 const isFilled = (value) => Boolean(value && value.toString().trim() !== '');
 
+export const isValidIndonesianPhoneNumber = (value) => {
+  const normalizedValue = value?.toString().trim() || '';
+
+  return normalizedValue.startsWith('08');
+};
+
 export const requiredBusinessProfileFields = [
   { key: 'storeName', label: 'Nama toko' },
   { key: 'businessCategory', label: 'Kategori bisnis' },
   { key: 'businessAddress', label: 'Lokasi/alamat' },
-  { key: 'phoneNumber', label: 'Nomor telefon' },
+  { key: 'phoneNumber', label: 'Nomor telepon', validate: isValidIndonesianPhoneNumber },
   { key: 'registeredEmail', label: 'Email terdaftar' },
 ];
 
@@ -31,7 +37,7 @@ export const getBusinessProfile = (user) => {
 export const getBusinessProfileCompleteness = (user) => {
   const profile = getBusinessProfile(user);
   const missingFields = requiredBusinessProfileFields.filter(
-    ({ key }) => !isFilled(profile[key])
+    ({ key, validate }) => !isFilled(profile[key]) || (validate && !validate(profile[key]))
   );
 
   return {

@@ -23,24 +23,6 @@ const Login = () => {
   const { setToken, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleDemoLogin = () => {
-    const demoUser = {
-      name: 'Toko Demo NOPI',
-      email: 'admin@nopi.demo',
-      storeName: 'Toko Demo NOPI',
-      businessName: 'Toko Demo NOPI',
-    };
-
-    const demoToken = 'demo-token-nopi';
-
-    localStorage.setItem('token', demoToken);
-    localStorage.setItem('user', JSON.stringify(demoUser));
-    sessionStorage.removeItem('nopi-profile-awareness-dismissed');
-    setToken(demoToken);
-    setUser(demoUser);
-    navigate('/dashboard');
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -84,7 +66,7 @@ const Login = () => {
         sessionStorage.removeItem('nopi-profile-awareness-dismissed');
         navigate('/dashboard'); 
       } else {
-        setError(data.message || 'Login gagal. Periksa kembali email dan password Anda.');
+        setError(data.message || 'Login gagal. Periksa kembali email dan kata sandi Anda.');
       }
     } catch {
       setError('Tidak dapat terhubung ke server. Pastikan backend menyala.');
@@ -117,7 +99,7 @@ const Login = () => {
         setError('Gagal terhubung ke server saat verifikasi Google.');
       }
     },
-    onError: () => setError('Login Google dibatalkan atau gagal.'),
+    onError: () => setError('Masuk Google dibatalkan atau gagal.'),
   });
 
   return (
@@ -174,7 +156,7 @@ const Login = () => {
                 to="/forgot-password"
                 className="text-[0.83rem] font-bold text-[#E27C3E] transition-colors hover:text-[#c7652c]"
               >
-                Lupa Password?
+                Lupa kata sandi?
               </Link>
             </div>
 
@@ -206,14 +188,6 @@ const Login = () => {
             className="mt-5 flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#9a9a9a] px-4 py-3.5 text-[0.96rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#888] active:scale-95"
           >
             Daftar akun baru
-          </button>
-
-          <button
-            onClick={handleDemoLogin}
-            type="button"
-            className="mt-3.5 flex w-full items-center justify-center gap-3 rounded-[8px] border border-[#35c759] bg-[#f3fff6] px-4 py-3 text-[0.96rem] font-bold text-[#28a745] shadow-sm transition-all duration-200 hover:bg-[#e8ffed] active:scale-95"
-          >
-            Masuk dengan akun demo
           </button>
 
           <button 

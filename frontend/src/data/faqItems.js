@@ -47,7 +47,7 @@ export const faqItems = [
   {
     question: 'Di mana pengguna bisa melihat transaksi yang sudah disimpan?',
     answer:
-      'Transaksi yang sudah disimpan dapat dilihat melalui halaman History. Halaman ini menampilkan daftar riwayat nota yang pernah dicatat oleh pengguna.',
+      'Transaksi yang sudah disimpan dapat dilihat melalui halaman Riwayat. Halaman ini menampilkan daftar riwayat nota yang pernah dicatat oleh pengguna.',
   },
   {
     question: 'Apakah fitur Edit Nota sudah tersedia?',
@@ -55,23 +55,13 @@ export const faqItems = [
       'Ya. Fitur Edit Nota tersedia melalui halaman Detail Nota, sehingga pengguna dapat membuka detail transaksi terlebih dahulu sebelum mengubah data nota dan item.',
   },
   {
-    question: 'Apakah detail item nota sudah tersimpan ke backend?',
+    question: 'Apakah fitur ini mendukung tampilan ponsel?',
     answer:
-      'Untuk tahap saat ini, frontend sudah menyiapkan tampilan dan struktur data item, termasuk harga jual dan profit margin. Namun, penyimpanan detail item ke backend masih membutuhkan integrasi lanjutan.',
-  },
-  {
-    question: 'Apakah fitur ini mendukung tampilan mobile?',
-    answer:
-      'Ya. Tampilan fitur NOPI sedang disesuaikan agar tetap nyaman digunakan di desktop maupun mobile, terutama pada halaman Upload, Validasi Hasil AI, History, Login, dan Profile.',
+      'Ya. Tampilan fitur NOPI sedang disesuaikan agar tetap nyaman digunakan di desktop maupun ponsel, terutama pada halaman Upload Nota, Validasi Hasil AI, Riwayat, Masuk, dan Profil.',
   },
   {
     question: 'Apa keunggulan fitur ini dibanding pencatatan manual?',
     answer:
       'Fitur ini membantu mempercepat pencatatan transaksi dari nota, mengurangi input manual, meminimalkan risiko data tercecer, dan membantu pengguna melihat estimasi keuntungan dari barang yang dibeli.',
-  },
-  {
-    question: 'Apakah NOPI sudah siap digunakan sepenuhnya?',
-    answer:
-      'NOPI saat ini berada pada tahap pengembangan dan integrasi beta. Beberapa fitur utama di frontend sudah berjalan, seperti upload nota, validasi hasil AI, edit item, perhitungan margin, dan tampilan history. Namun, integrasi backend untuk penyimpanan detail item masih perlu dikembangkan lebih lanjut.',
   },
 ];

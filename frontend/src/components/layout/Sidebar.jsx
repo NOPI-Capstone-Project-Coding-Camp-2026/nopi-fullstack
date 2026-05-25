@@ -7,8 +7,8 @@ import { AuthContext } from '../../context/AuthContext';
 const menuItems = [
   { name: 'Dashboard', path: '/dashboard', icon: House },
   { name: 'Upload Nota', path: '/upload', icon: Upload },
-  { name: 'History', path: '/history', icon: ReceiptText },
-  { name: 'Profile', path: '/profile', icon: UserRound },
+  { name: 'Riwayat', path: '/history', icon: ReceiptText },
+  { name: 'Profil', path: '/profile', icon: UserRound },
   { name: 'FAQ', path: '/faq', icon: CircleHelp },
 ];
 
