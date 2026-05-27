@@ -1,5 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { jwtDecode } from "jwt-decode"; 
+import Swal from 'sweetalert2'; // 🚨 Import SweetAlert di sini
 
 // 🚨 Import Komponen Penjaga Keamanan (Satpam)
 import ProtectedRoute from './components/Routes/ProtectedRoute';
@@ -19,10 +22,70 @@ import ResetPassword from './pages/ResetPassword';
 import Unauthorized from './pages/Unauthorized';
 import NotFound from './pages/NotFound';
 
+// =========================================================
+// Komponen Pelacak Sesi (Berjalan di latar belakang)
+// =========================================================
+function SessionTracker() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // Ubah ke detik
+
+        // Cek apakah token sudah expired saat aplikasi dimuat
+        if (decodedToken.exp < currentTime) {
+          handleLogout();
+        } else {
+          // Pasang timer (timeout) sisa waktu token
+          const timeLeft = (decodedToken.exp - currentTime) * 1000; // Ubah kembali ke milidetik
+          
+          const timer = setTimeout(() => {
+            handleLogout();
+          }, timeLeft);
+
+          // Bersihkan timer jika komponen dilepas
+          return () => clearTimeout(timer);
+        }
+      } catch (error) {
+        // Jika token tidak valid/rusak
+        handleLogout();
+      }
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    
+    // Ganti alert bawaan dengan SweetAlert
+    Swal.fire({
+      icon: 'warning',
+      title: 'Sesi Berakhir',
+      text: 'Waktu login Anda sudah habis. Silakan login kembali untuk melanjutkan.',
+      confirmButtonText: 'Oke, Login Ulang',
+      confirmButtonColor: '#3085d6', 
+      allowOutsideClick: false, // Memaksa user klik tombol
+    }).then(() => {
+      navigate('/login');
+    });
+  };
+
+  return null; // Tidak merender UI apa pun
+}
+
+// =========================================================
+// Komponen Utama App
+// =========================================================
 function App() {
   return (
     <AuthProvider>
       <Router>
+        {/* Jalankan pelacak sesi di dalam Router agar bisa memakai useNavigate */}
+        <SessionTracker /> 
+
         <Routes>
           {/* =========================================
               ZONA BEBAS (Bisa diakses siapa saja, login atau belum)

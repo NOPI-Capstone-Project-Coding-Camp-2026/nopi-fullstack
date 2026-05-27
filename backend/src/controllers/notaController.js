@@ -164,7 +164,6 @@ export const updateNota = async (req, res) => {
     
     const parsedTanggal = tanggal ? new Date(tanggal) : new Date();
 
-    // 🚨 KUNCI KONSISTENSI: Hitung ulang total saat di-edit
     const validItems = (items || []).map(item => ({
       namaBarang: item.namaBarang || 'Tanpa Nama',
       jumlahBarang: parseInt(item.jumlahBarang) || 1,
@@ -182,7 +181,7 @@ export const updateNota = async (req, res) => {
       data: { 
         toko, 
         tanggal: parsedTanggal, 
-        totalHarga: calculatedTotalHarga, // 🚨 Masukkan hasil hitungan terbaru
+        totalHarga: calculatedTotalHarga,
         items: {
           deleteMany: {}, 
           create: validItems

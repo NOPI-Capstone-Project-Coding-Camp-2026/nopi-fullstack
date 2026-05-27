@@ -45,7 +45,8 @@ export const signIn = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ message: 'Password salah!' });
 
-    const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    // UBAH DI SINI: expiresIn diubah menjadi '1h' (1 jam)
+    const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const { password: userPassword, ...safeUserData } = user;
     
     res.status(200).json({ message: 'Login berhasil!', token, data: safeUserData });
@@ -81,7 +82,8 @@ export const googleSignIn = async (req, res) => {
       });
     }
 
-    const jwtToken = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    // UBAH DI SINI: expiresIn diubah menjadi '1h' (1 jam)
+    const jwtToken = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const { password: userPassword, ...safeUserData } = user;
 
     res.status(200).json({ message: 'Google Login berhasil', token: jwtToken, data: safeUserData });
