@@ -3,6 +3,8 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import UploadBox from '../components/upload/UploadBox';
 import ReceiptPreview from '../components/upload/ReceiptPreview';
 import { apiUrl } from '../utils/api';
+import { canUseMockAuth } from '../utils/mockAuth';
+import { generateMockScanResult } from '../utils/mockData';
 import Swal from 'sweetalert2';
 
 const isRejectedScanResult = (result) =>
@@ -20,8 +22,8 @@ const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [isScanning, setIsScanning] = useState(false);
-  
-  const [scanResult, setScanResult] = useState(null); 
+
+  const [scanResult, setScanResult] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -39,7 +41,7 @@ const UploadPage = () => {
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     setIsScanning(false);
-    setScanResult(null); 
+    setScanResult(null);
   };
 
   const handleClearFile = () => {
@@ -61,9 +63,27 @@ const UploadPage = () => {
 
     setIsScanning(true);
 
+    // ─── MOCK MODE BYPASS ──────────────────────────────────────────────────────
+    // Jika mock auth aktif (mode dev tanpa backend), gunakan data scan palsu
+    // agar seluruh flow upload → preview → simpan dapat diuji offline.
+    if (canUseMockAuth()) {
+      await new Promise((resolve) => setTimeout(resolve, 1200)); // simulasi delay AI
+      const mockResult = generateMockScanResult();
+      setScanResult(mockResult.data);
+      setIsScanning(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Scan Selesai! (Mock)',
+        text: 'Mode demo: AI berhasil membaca nota simulasi.',
+        confirmButtonColor: '#35c759',
+      });
+      return;
+    }
+    // ──────────────────────────────────────────────────────────────────────────
+
     try {
       const formData = new FormData();
-      formData.append('image', selectedFile); 
+      formData.append('image', selectedFile);
 
       const token = localStorage.getItem('token');
 
@@ -110,7 +130,7 @@ const UploadPage = () => {
         // 5. Jika sukses, simpan datanya dan beritahu user
         const extractedData = result.data || result.result || result;
         setScanResult(extractedData);
-        
+
         Swal.fire({
           icon: 'success',
           title: 'Scan Selesai!',
@@ -119,15 +139,15 @@ const UploadPage = () => {
         });
       } else {
         // Tentukan pesan error yang tepat
-        const errorMessage = (result.status === 'error' && result.message) 
-          ? result.message 
+        const errorMessage = (result.status === 'error' && result.message)
+          ? result.message
           : 'Gambar tidak memiliki teks nota yang cukup jelas. Silakan foto ulang.';
 
         // JIKA GAGAL / BUKAN NOTA / TEKS KOSONG
         Swal.fire({
           icon: 'error',
           title: 'Bukan Nota',
-          text: errorMessage, 
+          text: errorMessage,
           confirmButtonColor: '#ea8327'
         }).then(() => {
           // Bersihkan layar dari gambar yang salah setelah user klik OK
@@ -169,10 +189,10 @@ const UploadPage = () => {
         <ReceiptPreview
           file={selectedFile}
           previewUrl={previewUrl}
-          isScanning={isScanning} 
-          onScan={handleScanReceipt} 
+          isScanning={isScanning}
+          onScan={handleScanReceipt}
           onClear={handleClearFile}
-          scanData={scanResult} 
+          scanData={scanResult}
         />
       </div>
     </DashboardLayout>

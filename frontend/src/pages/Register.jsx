@@ -3,7 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
 import { apiUrl } from '../utils/api';
-import Swal from 'sweetalert2'; // <-- IMPORT SWEETALERT DI SINI
+import Swal from 'sweetalert2';
+import { canUseMockAuth, registerMockUser, verifyMockUser } from '../utils/mockAuth';
+
+const isMockAuthEnabled = canUseMockAuth();
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -24,7 +27,39 @@ const Register = () => {
       return; 
     }
 
-    // Tampilkan animasi loading saat sedang mengirim data
+    // --- MODE TESTING (Mock Auth) ---
+    // Jika backend tidak tersedia, gunakan mock auth untuk menyimpan akun di localStorage
+    if (isMockAuthEnabled) {
+      const mockResult = registerMockUser({ storeName: name, email, password });
+
+      if (!mockResult.ok) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Pendaftaran Gagal',
+          text: mockResult.message,
+          confirmButtonText: 'Coba Lagi',
+          confirmButtonColor: '#E27C3E',
+        });
+        return;
+      }
+
+      // Auto-verifikasi akun mock agar langsung bisa login
+      verifyMockUser(email);
+
+      Swal.fire({
+        icon: 'success',
+        title: '✅ Akun Testing Berhasil Dibuat!',
+        html: `Akun <b>${email}</b> siap digunakan.<br/><br/><small style="color:#888">Mode testing aktif — tidak perlu verifikasi email.</small>`,
+        confirmButtonText: 'Login Sekarang',
+        confirmButtonColor: '#3CC360',
+        iconColor: '#3CC360',
+      }).then(() => {
+        navigate('/login');
+      });
+      return;
+    }
+
+    // --- MODE PRODUCTION (Backend nyata) ---
     Swal.fire({
       title: 'Memproses...',
       text: 'Mohon tunggu sebentar',
@@ -44,13 +79,12 @@ const Register = () => {
       const data = await res.json();
       
       if (res.ok) {
-        // Pop-up Sukses yang Cantik
         Swal.fire({
           icon: 'success',
           title: 'Pendaftaran Berhasil!',
           text: 'Silakan cek kotak masuk email Anda untuk melakukan verifikasi akun.',
           confirmButtonText: 'Menuju Masuk',
-          confirmButtonColor: '#3CC360', // Warna hijau NOPI
+          confirmButtonColor: '#3CC360',
           iconColor: '#3CC360',
           backdrop: `rgba(0,0,0,0.4)`
         }).then((result) => {
@@ -59,17 +93,15 @@ const Register = () => {
           }
         });
       } else {
-        // Pop-up Gagal dari Server
         Swal.fire({
           icon: 'error',
           title: 'Pendaftaran Gagal',
           text: data.message || 'Pastikan email belum terdaftar.',
           confirmButtonText: 'Coba Lagi',
-          confirmButtonColor: '#E27C3E', // Warna oranye NOPI
+          confirmButtonColor: '#E27C3E',
         });
       }
     } catch {
-      // Pop-up Gagal Koneksi
       Swal.fire({
         icon: 'error',
         title: 'Koneksi Terputus',
@@ -141,7 +173,7 @@ const Register = () => {
   return (
     <div className="flex min-h-screen overflow-x-hidden bg-gray-50">
       
-      <div className="hidden bg-[#E27C3E] lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-14 xl:px-20">
+      <div className="hidden bg-[#ff8c00] lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-14 xl:px-20">
         <h1 className="text-[3rem] font-bold leading-tight text-white xl:text-[3.6rem]">
           Kelola Keuangan <br />
           bisnis Anda dengan <br />
@@ -149,7 +181,7 @@ const Register = () => {
         </h1>
       </div>
 
-      <div className="flex w-full items-center justify-center bg-[#E27C3E] p-4 sm:p-6 lg:w-1/2 lg:bg-transparent lg:p-10">
+      <div className="flex w-full items-center justify-center bg-[#ff8c00] p-4 sm:p-6 lg:w-1/2 lg:bg-transparent lg:p-10">
         <div className="w-full max-w-[25rem] rounded-[8px] bg-white p-5 shadow-2xl sm:p-7 lg:p-8">
           <div className="mb-5 sm:mb-6">
             <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Buat Akun Baru</h2>

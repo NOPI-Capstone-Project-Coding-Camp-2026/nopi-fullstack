@@ -3,22 +3,17 @@ import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { apiUrl } from '../utils/api';
 import Swal from 'sweetalert2';
-// 🚨 Banknote ditambahkan di sini
 import { Trash2, Plus, Edit, Save, X, Banknote } from 'lucide-react';
 import {
   buildReceiptItemsPayload,
   calculateItemTotals,
   calculateReceiptSummary,
   createBlankReceiptItem,
-  validateReceiptItem
 } from '../utils/receiptItems';
+import { canUseMockAuth } from '../utils/mockAuth';
+import { getMockNotaById, updateMockNota, deleteMockNota } from '../utils/mockData';
+import { formatCurrency } from '../utils/formatCurrency';
 
-// --- FUNGSI FORMATTING ---
-const formatCurrency = (value) => {
-  const numericValue = Number(value);
-  if (!Number.isFinite(numericValue)) return '-';
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(numericValue);
-};
 
 const formatDate = (value) => {
   if (!value) return '-';
@@ -102,6 +97,20 @@ const DetailNotaPage = () => {
     const fetchNotaDetail = async () => {
       setIsLoading(true);
       try {
+        // ─── MOCK MODE BYPASS ────────────────────────────────────────────────────
+        if (canUseMockAuth()) {
+          const mockNota = getMockNotaById(notaId);
+          if (mockNota) {
+            setFetchedNota(mockNota);
+            setReceiptItems(mapDbItemsToState(mockNota.items));
+          } else {
+            setNotFound(true);
+          }
+          setIsLoading(false);
+          return;
+        }
+        // ──────────────────────────────────────────────────────────────────────────
+
         const token = localStorage.getItem('token');
         const res = await fetch(apiUrl(`/api/nota/${encodeURIComponent(notaId)}`), {
           headers: { Authorization: `Bearer ${token}` },
@@ -161,11 +170,95 @@ const DetailNotaPage = () => {
   const receiptSummary = calculateReceiptSummary(visibleReceiptItems);
 
   const handleSaveEdit = async () => {
-    const invalidReceiptItems = receiptItems.filter((item) => !validateReceiptItem(item).isValid);
-    if (invalidReceiptItems.length > 0) {
-      Swal.fire({ icon: 'warning', title: 'Lengkapi Item', text: 'Periksa form yang kosong.', confirmButtonColor: '#ea8327' });
+    // --- Validasi Nama Supplier ---
+    if (!formData.toko || !formData.toko.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Informasi Nota Belum Lengkap',
+        text: 'Silakan isi Nama Toko Supplier terlebih dahulu.',
+        confirmButtonColor: '#ea8327',
+      });
       return;
     }
+
+    // --- Validasi Items (setara dengan ReceiptPreview saat simpan nota baru) ---
+    if (receiptItems.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Item Kosong',
+        text: 'Minimal harus ada 1 item dalam nota.',
+        confirmButtonColor: '#ea8327',
+      });
+      return;
+    }
+
+    for (let i = 0; i < receiptItems.length; i++) {
+      const item = receiptItems[i];
+      const indexLabel = `Item ke-${i + 1}`;
+
+      if (!item.itemName || !item.itemName.trim()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Nama Barang pada ${indexLabel} tidak boleh kosong.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+
+      const quantityNum = Number(item.quantity);
+      if (!item.quantity || isNaN(quantityNum) || quantityNum < 1) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Jumlah Barang pada ${indexLabel} minimal adalah 1.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+
+      const unitPriceNum = Number(item.unitPrice);
+      if (item.unitPrice === '' || isNaN(unitPriceNum) || unitPriceNum < 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Harga Satuan pada ${indexLabel} tidak boleh kosong atau negatif.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+
+      const totalItemCostNum = Number(item.totalItemCost);
+      if (item.totalItemCost === '' || isNaN(totalItemCostNum) || totalItemCostNum < 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Total Harga pada ${indexLabel} tidak boleh kosong atau negatif.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+    }
+
+    // ─── MOCK MODE BYPASS ────────────────────────────────────────────────────
+    if (canUseMockAuth()) {
+      const payloadItems = buildReceiptItemsPayload(receiptItems);
+      const updatedNota = updateMockNota(notaId, {
+        toko: formData.toko,
+        tanggal: formData.tanggal,
+        items: payloadItems,
+      });
+      if (updatedNota) {
+        setFetchedNota(updatedNota);
+        setReceiptItems(mapDbItemsToState(updatedNota.items));
+        setIsEditing(false);
+        Swal.fire({ icon: 'success', title: 'Berhasil! (Mock)', text: 'Perubahan nota tersimpan di mode demo.', confirmButtonColor: '#35c759' });
+      } else {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Nota tidak ditemukan di mode demo.' });
+      }
+      return;
+    }
+    // ──────────────────────────────────────────────────────────────────────────
 
     Swal.fire({ title: 'Menyimpan Perubahan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
@@ -197,6 +290,7 @@ const DetailNotaPage = () => {
     }
   };
 
+
   const handleDeleteNota = async () => {
     const confirm = await Swal.fire({
       title: 'Hapus Nota?', text: "Data tidak dapat dikembalikan!", icon: 'warning',
@@ -205,6 +299,19 @@ const DetailNotaPage = () => {
 
     if (confirm.isConfirmed) {
       Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      // ─── MOCK MODE BYPASS ──────────────────────────────────────────────────
+      if (canUseMockAuth()) {
+        const deleted = deleteMockNota(notaId);
+        if (deleted) {
+          Swal.fire({ icon: 'success', title: 'Terhapus! (Mock)', confirmButtonColor: '#35c759' }).then(() => navigate('/history'));
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: 'Nota tidak ditemukan di mode demo.' });
+        }
+        return;
+      }
+      // ──────────────────────────────────────────────────────────────────────────
+
       try {
         const res = await fetch(apiUrl(`/api/nota/${notaId}`), {
           method: 'DELETE',

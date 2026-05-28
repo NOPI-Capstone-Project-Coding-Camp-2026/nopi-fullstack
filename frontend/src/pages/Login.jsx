@@ -19,7 +19,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  
+
   const { setToken, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -34,20 +34,31 @@ const Login = () => {
     setIsLoggingIn(true);
 
     try {
-      if (isMockAuthEnabled && findMockUserByEmail(email)) {
-        const mockLoginResult = loginMockUser({ email, password });
+      if (isMockAuthEnabled) {
+        const mockUser = findMockUserByEmail(email);
 
-        if (mockLoginResult.ok) {
-          setToken(mockLoginResult.token);
-          setUser(mockLoginResult.user);
-          localStorage.setItem('token', mockLoginResult.token);
-          localStorage.setItem('user', JSON.stringify(mockLoginResult.user));
-          sessionStorage.removeItem('nopi-profile-awareness-dismissed');
-          navigate('/dashboard');
+        if (mockUser) {
+          // Akun ada di localStorage → proses mock login
+          const mockLoginResult = loginMockUser({ email, password });
+
+          if (mockLoginResult.ok) {
+            setToken(mockLoginResult.token);
+            setUser(mockLoginResult.user);
+            localStorage.setItem('token', mockLoginResult.token);
+            localStorage.setItem('user', JSON.stringify(mockLoginResult.user));
+            sessionStorage.removeItem('nopi-profile-awareness-dismissed');
+            navigate('/dashboard');
+            return;
+          }
+
+          setError(mockLoginResult.message);
           return;
         }
 
-        setError(mockLoginResult.message);
+        // Akun tidak ada di localStorage → arahkan ke dev-setup
+        setError(
+          'Akun testing belum tersedia. Buka /dev-setup terlebih dahulu untuk menginjek akun demo.'
+        );
         return;
       }
 
@@ -57,14 +68,14 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      
+
       if (res.ok) {
         setToken(data.token);
         setUser(data.data);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.data));
         sessionStorage.removeItem('nopi-profile-awareness-dismissed');
-        navigate('/dashboard'); 
+        navigate('/dashboard');
       } else {
         setError(data.message || 'Login gagal. Periksa kembali email dan kata sandi Anda.');
       }
@@ -83,7 +94,7 @@ const Login = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),
         });
-        
+
         const data = await res.json();
         if (res.ok) {
           setToken(data.token);
@@ -104,8 +115,8 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen overflow-x-hidden bg-gray-50">
-      
-      <div className="hidden bg-[#E27C3E] lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-14 xl:px-20">
+
+      <div className="hidden bg-[#ff8c00] lg:flex lg:w-1/2 lg:flex-col lg:justify-center lg:px-14 xl:px-20">
         <h1 className="text-[3rem] font-bold leading-tight text-white xl:text-[3.6rem]">
           Kelola Keuangan <br />
           bisnis Anda dengan <br />
@@ -113,7 +124,7 @@ const Login = () => {
         </h1>
       </div>
 
-      <div className="flex w-full items-center justify-center bg-[#E27C3E] p-4 sm:p-6 lg:w-1/2 lg:bg-transparent lg:p-10">
+      <div className="flex w-full items-center justify-center bg-[#ff8c00] p-4 sm:p-6 lg:w-1/2 lg:bg-transparent lg:p-10">
         <div className="w-full max-w-[25rem] rounded-[8px] bg-white p-5 shadow-2xl sm:p-7 lg:p-8">
           <div className="mb-5 sm:mb-6">
             <h2 className="mb-2 text-[1.7rem] font-bold text-gray-900 sm:text-[2rem]">Selamat Datang</h2>
@@ -129,25 +140,25 @@ const Login = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Email</label>
-              <input 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Masukkan email Anda" 
-                required 
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]"
+                placeholder="Masukkan email Anda"
+                required
               />
             </div>
 
             <div>
               <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Kata Sandi</label>
-              <input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]" 
-                placeholder="Masukkan kata sandi Anda" 
-                required 
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E]"
+                placeholder="Masukkan kata sandi Anda"
+                required
               />
             </div>
 
@@ -160,7 +171,7 @@ const Login = () => {
               </Link>
             </div>
 
-            <button 
+            <button
               type="submit"
               disabled={isLoggingIn}
               className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#3CC360] px-4 py-3.5 text-[0.98rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#34AD54] active:scale-95 disabled:cursor-not-allowed disabled:opacity-75 disabled:active:scale-100"
@@ -182,17 +193,17 @@ const Login = () => {
             <span className="border-b w-1/3 lg:w-[38%]"></span>
           </div>
 
-          <button 
+          <button
             onClick={() => navigate('/register')}
-            type="button" 
+            type="button"
             className="mt-5 flex w-full items-center justify-center gap-3 rounded-[8px] bg-[#9a9a9a] px-4 py-3.5 text-[0.96rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#888] active:scale-95"
           >
             Daftar akun baru
           </button>
 
-          <button 
+          <button
             onClick={() => loginWithGoogle()}
-            type="button" 
+            type="button"
             className="mt-3.5 flex w-full items-center justify-center gap-3 rounded-[8px] border border-gray-300 bg-white px-4 py-3 text-[0.96rem] font-bold text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 active:scale-95"
           >
             <svg className="h-6 w-6" viewBox="0 0 24 24" aria-hidden="true">

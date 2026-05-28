@@ -182,3 +182,122 @@
     border-right-color: var(--border);
   }
 }
+
+/* ===================================================
+   NOPI SweetAlert2 — Custom Branding Override
+   =================================================== */
+
+/* Container popup */
+.swal2-popup {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  border-radius: 20px !important;
+  padding: 32px 28px !important;
+  box-shadow: 0 24px 64px rgba(226, 124, 62, 0.12), 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(226, 124, 62, 0.1) !important;
+}
+
+/* Title */
+.swal2-title {
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #1a1a1a !important;
+  letter-spacing: -0.02em !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* Content text */
+.swal2-html-container,
+.swal2-content {
+  font-size: 0.93rem !important;
+  color: #666 !important;
+  line-height: 1.65 !important;
+  margin-top: 6px !important;
+}
+
+/* Icon — slightly smaller & centered */
+.swal2-icon {
+  margin: 12px auto 16px !important;
+  width: 60px !important;
+  height: 60px !important;
+}
+.swal2-icon .swal2-icon-content {
+  font-size: 2rem !important;
+}
+
+/* Actions area */
+.swal2-actions {
+  margin-top: 24px !important;
+  gap: 10px !important;
+}
+
+/* Confirm button */
+.swal2-confirm {
+  border-radius: 12px !important;
+  padding: 12px 28px !important;
+  font-size: 0.93rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+  transition: opacity 0.2s, transform 0.15s !important;
+}
+.swal2-confirm:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Cancel button */
+.swal2-cancel {
+  border-radius: 12px !important;
+  padding: 12px 28px !important;
+  font-size: 0.93rem !important;
+  font-weight: 600 !important;
+  background: #f5f5f5 !important;
+  color: #666 !important;
+  border: 1.5px solid #e8e0d8 !important;
+  transition: background 0.2s !important;
+}
+.swal2-cancel:hover {
+  background: #ede8e2 !important;
+}
+
+/* Backdrop */
+.swal2-backdrop-show {
+  background: rgba(20, 15, 10, 0.5) !important;
+  backdrop-filter: blur(3px) !important;
+}
+
+/* Loading spinner — NOPI orange */
+.swal2-loader {
+  border-color: #E27C3E transparent #E27C3E transparent !important;
+}
+
+/* Success icon */
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(60, 195, 96, 0.3) !important;
+}
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: #3CC360 !important;
+}
+
+/* Warning icon — NOPI orange */
+.swal2-icon.swal2-warning {
+  border-color: #E27C3E !important;
+  color: #E27C3E !important;
+}
+
+/* Popup entrance animation */
+.swal2-show {
+  animation: swalNopiFadeIn 0.28s ease-out !important;
+}
+
+@keyframes swalNopiFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

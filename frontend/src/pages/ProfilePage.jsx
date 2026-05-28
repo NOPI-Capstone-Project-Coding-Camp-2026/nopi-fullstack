@@ -9,6 +9,7 @@ import {
   getBusinessProfileCompleteness,
   isValidIndonesianPhoneNumber,
 } from '../utils/businessProfile';
+import { canUseMockAuth } from '../utils/mockAuth';
 import Swal from 'sweetalert2'; // <--- IMPORT SWEETALERT DITAMBAHKAN DI SINI
 
 const businessCategoryOptions = [
@@ -28,9 +29,8 @@ const businessCategoryOptions = [
 
 const StatusBadge = ({ filled }) => (
   <span
-    className={`inline-flex items-center gap-2 rounded-[8px] px-3 py-1 text-xs font-semibold ${
-      filled ? 'bg-[#e9f9ee] text-[#249a43]' : 'bg-[#fff4e8] text-[#ea8327]'
-    }`}
+    className={`inline-flex items-center gap-2 rounded-[8px] px-3 py-1 text-xs font-semibold ${filled ? 'bg-[#e9f9ee] text-[#249a43]' : 'bg-[#fff4e8] text-[#ea8327]'
+      }`}
   >
     {filled ? <CircleCheckBig className="h-4 w-4" /> : <CircleAlert className="h-4 w-4" />}
     {filled ? 'Sudah diisi' : 'Belum terisi'}
@@ -54,7 +54,7 @@ const ProfilePage = () => {
   const [businessAddress, setBusinessAddress] = useState(businessProfile.businessAddress);
   const [phoneNumber, setPhoneNumber] = useState(businessProfile.phoneNumber);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  
+
   const profilePreview = getBusinessProfileCompleteness({
     ...currentUser,
     storeLogo,
@@ -97,7 +97,7 @@ const ProfilePage = () => {
       Swal.fire({
         icon: 'warning',
         title: 'Nomor Telepon Belum Sesuai',
-        text: 'Nomor telepon wajib diisi dan harus diawali dengan 08.',
+        text: 'Nomor telepon wajib diisi, diawali dengan 08, dan terdiri dari 10 digit hingga 13 digit.',
         confirmButtonColor: '#ea8327'
       });
       return;
@@ -129,18 +129,40 @@ const ProfilePage = () => {
       didOpen: () => Swal.showLoading()
     });
 
+    // ── MODE MOCK (testing tanpa backend) ──────────────────────────────
+    if (canUseMockAuth()) {
+      await new Promise((r) => setTimeout(r, 600)); // simulasi loading
+
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+
+      if (getBusinessProfileCompleteness(updatedUser).isComplete) {
+        sessionStorage.removeItem('nopi-profile-awareness-dismissed');
+      }
+
+      setIsSavingProfile(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil! (Mode Testing)',
+        text: 'Profil bisnis berhasil disimpan secara lokal.',
+        confirmButtonColor: '#35c759'
+      });
+      return;
+    }
+    // ──────────────────────────────────────────────────────────────────
+
     try {
       const token = localStorage.getItem('token');
 
       // 2. Tembak API ke backend
       const res = await fetch(apiUrl('/api/user/profile'), {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
         // Pastikan nama key sesuai dengan schema Prisma
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           profileImage: storeLogo,
           businessName: storeName,
           businessCategory,
@@ -206,18 +228,17 @@ const ProfilePage = () => {
           Profil Bisnis
         </h1>
         <p className="mt-3 text-base text-[#2d2d2d] sm:text-[1.05rem] lg:text-[1.15rem]">
-          Kelola identitas toko Anda tanpa mengubah data akun yang dipakai untuk autentikasi.
+          Kelola identitas profile toko Anda.
         </p>
       </div>
 
       <div className="mt-10">
         <div className="rounded-[8px] bg-white p-5 shadow-[0_12px_30px_rgba(15,23,42,0.07)] sm:p-8">
           <div
-            className={`mb-6 rounded-[8px] border px-4 py-4 ${
-              isProfileComplete
-                ? 'border-[#d9efdf] bg-[#f3fff6]'
-                : 'border-[#f2e4d7] bg-[#fff8f2]'
-            }`}
+            className={`mb-6 rounded-[8px] border px-4 py-4 ${isProfileComplete
+              ? 'border-[#d9efdf] bg-[#f3fff6]'
+              : 'border-[#f2e4d7] bg-[#fff8f2]'
+              }`}
           >
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#b68352]">
               Status kelengkapan
@@ -343,11 +364,11 @@ const ProfilePage = () => {
                 required
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                placeholder="Contoh: 081234567890"
+                placeholder="Contoh: 08***********"
                 className="w-full rounded-[8px] border border-transparent bg-[#fff1e1] px-5 py-4 text-[#2c2c2c] outline-none transition focus:border-[#f3c18d]"
               />
               <p className="mt-2 text-[0.8rem] text-[#9d9d9d]">
-                Nomor telepon wajib diisi dan diawali dengan 08.
+                Nomor telepon wajib diisi, diawali dengan 08, dan terdiri dari 10 digit hingga 13 digit.
               </p>
             </div>
 

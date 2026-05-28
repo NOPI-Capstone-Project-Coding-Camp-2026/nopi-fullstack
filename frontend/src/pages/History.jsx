@@ -2,8 +2,11 @@ import { useMemo, useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import HistoryTable from '../components/history/HistoryTable';
 import { CalendarIcon, SearchIcon } from '../components/ui/AppIcons';
+import { SkeletonTableRow } from '../components/ui/SkeletonLoader';
 import { apiUrl } from '../utils/api';
-// 🚨 IMPOR FUNGSI KALKULASI DARI UTILITAS
+import { canUseMockAuth } from '../utils/mockAuth';
+import { getMockNotas } from '../utils/mockData';
+import { formatCurrency, parseCurrencyValue } from '../utils/formatCurrency';
 import { calculateReceiptSummary, mapDbItemsToState } from '../utils/receiptItems';
 
 const MONTH_OPTIONS = [
@@ -23,62 +26,6 @@ const MONTH_OPTIONS = [
 
 const PAGE_SIZE = 10;
 
-const formatCurrency = (value) => {
-  const numericValue = Number(value);
-
-  if (!Number.isFinite(numericValue)) {
-    return '-';
-  }
-
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(numericValue);
-};
-
-const parseCurrencyValue = (value) => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : 0;
-  }
-
-  if (value === null || value === undefined) {
-    return 0;
-  }
-
-  const compactValue = `${value}`.trim().replace(/[^\d,.-]/g, '');
-
-  if (!compactValue) {
-    return 0;
-  }
-
-  const lastComma = compactValue.lastIndexOf(',');
-  const lastDot = compactValue.lastIndexOf('.');
-  let normalizedValue = compactValue;
-
-  if (lastComma > -1 && lastDot > -1) {
-    normalizedValue =
-      lastComma > lastDot
-        ? compactValue.replace(/\./g, '').replace(',', '.')
-        : compactValue.replace(/,/g, '');
-  } else if (lastComma > -1) {
-    const digitsAfterComma = compactValue.length - lastComma - 1;
-    normalizedValue =
-      digitsAfterComma === 3
-        ? compactValue.replace(/,/g, '')
-        : compactValue.replace(',', '.');
-  } else if (lastDot > -1) {
-    const dotParts = compactValue.split('.');
-    const digitsAfterDot = compactValue.length - lastDot - 1;
-    normalizedValue =
-      dotParts.length > 2 || digitsAfterDot === 3
-        ? compactValue.replace(/\./g, '')
-        : compactValue;
-  }
-
-  const parsedValue = Number(normalizedValue);
-  return Number.isFinite(parsedValue) ? parsedValue : 0;
-};
 
 const getValidDate = (value) => {
   if (!value) {
@@ -153,6 +100,16 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         setFetchError(false);
+
+        // ─── MOCK MODE BYPASS ────────────────────────────────────────────────────
+        if (canUseMockAuth()) {
+          const mockNotas = getMockNotas();
+          setHistoryData(mockNotas.map(formatHistoryItem));
+          setIsLoading(false);
+          return;
+        }
+        // ──────────────────────────────────────────────────────────────────────────
+
         const token = localStorage.getItem('token');
         const res = await fetch(apiUrl('/api/nota/history'), {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -332,8 +289,23 @@ const History = () => {
 
       <div className="mt-8">
         {isLoading ? (
-          <div className="flex h-40 items-center justify-center rounded-[8px] bg-white shadow-sm">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#ea8327]"></div>
+          <div className="overflow-hidden rounded-[8px] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
+            <table className="w-full" aria-busy="true" aria-label="Memuat riwayat transaksi...">
+              <thead>
+                <tr className="border-b border-[#f2e4d7]">
+                  {['Toko Supplier', 'Tanggal', 'Total Modal', 'Aksi'].map((col) => (
+                    <th key={col} className="px-4 py-3.5 text-left text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#9f9485]">
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f7f0ea]">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <SkeletonTableRow key={i} columns={4} />
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : fetchError ? (
           <div className="flex h-40 flex-col items-center justify-center rounded-[8px] bg-white px-5 text-center text-gray-500 shadow-sm">

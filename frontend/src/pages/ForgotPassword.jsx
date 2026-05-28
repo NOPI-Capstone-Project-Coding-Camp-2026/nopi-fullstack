@@ -71,42 +71,44 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#ee872d] px-6 py-10">
-      <div className="w-full max-w-xl rounded-[8px] bg-[#fffaf5] px-10 py-12 shadow-[0_26px_46px_rgba(128,72,20,0.18)]">
-        <h1 className="text-[2.8rem] font-semibold tracking-[-0.05em] text-[#2b2b2b]">
+    <div className="flex min-h-screen items-center justify-center bg-[#ff8c00] px-4 py-10 sm:px-6">
+      <div className="w-full max-w-[25rem] rounded-[8px] bg-white p-5 shadow-2xl sm:p-7 lg:p-8">
+        <h1 className="text-[1.7rem] font-bold text-gray-900 sm:text-[2rem] tracking-tight leading-tight">
           Lupa Kata Sandi
         </h1>
-        <p className="mt-4 max-w-lg text-[1.05rem] leading-9 text-[#8d8d8d]">
-          Jangan khawatir, masukan email terdaftar Anda dan kami akan mengirimkan tautan untuk
-          mengatur ulang kata sandi Anda
+        <p className="mt-2 text-[0.94rem] leading-relaxed text-gray-500">
+          Jangan khawatir, masukkan email terdaftar Anda dan kami akan mengirimkan tautan untuk
+          mengatur ulang kata sandi Anda.
         </p>
 
         {/* 3. Bungkus input dan tombol dengan form agar bisa di-submit pakai tombol Enter */}
-        <form onSubmit={handleForgotPassword} className="mt-10">
-          <label className="mb-3 block text-lg font-semibold text-[#2b2b2b]">Email</label>
-          <input
-            type="email"
-            value={email} // <-- Hubungkan value ke state
-            onChange={(e) => setEmail(e.target.value)} // <-- Update state saat mengetik
-            placeholder="Isi email yang digunakan"
-            className="w-full rounded-[8px] bg-[#ededed] px-6 py-6 text-lg text-[#2b2b2b] outline-none placeholder:text-[#9b9b9b]"
-            required
-          />
+        <form onSubmit={handleForgotPassword} className="mt-6 space-y-4">
+          <div>
+            <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Email</label>
+            <input
+              type="email"
+              value={email} // <-- Hubungkan value ke state
+              onChange={(e) => setEmail(e.target.value)} // <-- Update state saat mengetik
+              placeholder="Isi email yang digunakan"
+              className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E] placeholder:text-gray-400"
+              required
+            />
+          </div>
 
           <button
             type="submit" // <-- Ubah menjadi type="submit"
-            className="mt-10 w-full rounded-[8px] bg-[#4e82ee] px-6 py-6 text-[1.15rem] font-semibold text-white transition hover:bg-[#3f74e1]"
+            className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#E27C3E] px-4 py-3.5 text-[0.98rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#c7652c] active:scale-95"
           >
             Kirim Tautan Pemulihan →
           </button>
         </form>
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-6 flex justify-center border-t border-gray-100 pt-5">
           <Link
             to="/login"
-            className="inline-flex items-center gap-3 text-base font-medium text-[#8f8f8f] transition hover:text-[#6d6d6d]"
+            className="inline-flex items-center gap-2 text-[0.92rem] font-bold text-[#E27C3E] transition hover:text-[#c7652c]"
           >
-            <ArrowLeftIcon className="h-5 w-5" />
+            <ArrowLeftIcon className="h-4 w-4" />
             Kembali ke Halaman Masuk
           </Link>
         </div>

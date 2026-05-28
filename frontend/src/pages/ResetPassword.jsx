@@ -69,30 +69,32 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#ee872d] px-6 py-10">
-      <div className="w-full max-w-xl rounded-[8px] bg-[#fffaf5] px-10 py-12 shadow-[0_26px_46px_rgba(128,72,20,0.18)]">
-        <h1 className="text-[2.8rem] font-semibold tracking-[-0.05em] text-[#2b2b2b]">
+    <div className="flex min-h-screen items-center justify-center bg-[#ff8c00] px-4 py-10 sm:px-6">
+      <div className="w-full max-w-[25rem] rounded-[8px] bg-white p-5 shadow-2xl sm:p-7 lg:p-8">
+        <h1 className="text-[1.7rem] font-bold text-gray-900 sm:text-[2rem] tracking-tight leading-tight">
           Buat Kata Sandi Baru
         </h1>
-        <p className="mt-4 max-w-lg text-[1.05rem] leading-9 text-[#8d8d8d]">
+        <p className="mt-2 text-[0.94rem] leading-relaxed text-gray-500">
           Pastikan kata sandi baru Anda kuat dan mudah diingat. Minimal 8 karakter.
         </p>
 
-        <form onSubmit={handleResetPassword} className="mt-10">
-          <label className="mb-3 block text-lg font-semibold text-[#2b2b2b]">Kata Sandi Baru</label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Masukkan kata sandi baru"
-            className="w-full rounded-[8px] bg-[#ededed] px-6 py-6 text-lg text-[#2b2b2b] outline-none focus:ring-2 focus:ring-[#ee872d] placeholder:text-[#9b9b9b] transition-all"
-            required
-            minLength={8}
-          />
+        <form onSubmit={handleResetPassword} className="mt-6 space-y-4">
+          <div>
+            <label className="mb-2 block text-[0.86rem] font-bold text-gray-900">Kata Sandi Baru</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Masukkan kata sandi baru"
+              className="w-full rounded-[8px] border border-transparent bg-gray-100 px-4 py-3 text-[0.95rem] outline-none transition-all focus:border-[#E27C3E] focus:bg-white focus:ring-2 focus:ring-[#E27C3E] placeholder:text-gray-400"
+              required
+              minLength={8}
+            />
+          </div>
 
           <button
             type="submit"
-            className="mt-10 w-full rounded-[8px] bg-[#3CC360] px-6 py-6 text-[1.15rem] font-semibold text-white transition hover:bg-[#34AD54]"
+            className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#3CC360] px-4 py-3.5 text-[0.98rem] font-bold text-white shadow-sm transition-all duration-200 hover:bg-[#34AD54] active:scale-95"
           >
             Simpan Kata Sandi →
           </button>

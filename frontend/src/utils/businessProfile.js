@@ -1,9 +1,20 @@
 const isFilled = (value) => Boolean(value && value.toString().trim() !== '');
 
+/**
+ * Validasi nomor telepon seluler Indonesia.
+ *
+ * Root Cause Bug sebelumnya:
+ *   Hanya mengecek prefix '08' — input "08" (2 digit) dianggap valid,
+ *   sehingga profile completeness gate bisa dilewati dengan data palsu.
+ *
+ * Fix:
+ *   - Strip non-digit sebelum validasi (toleran terhadap strip/spasi)
+ *   - Minimal 10 digit (misal: 081234567 → 9 digit, tidak valid)
+ *   - Maksimal 13 digit (nomor ID terpanjang = 0811-xxxx-xxxx = 13 digit)
+ */
 export const isValidIndonesianPhoneNumber = (value) => {
-  const normalizedValue = value?.toString().trim() || '';
-
-  return normalizedValue.startsWith('08');
+  const digitsOnly = value?.toString().replace(/\D/g, '') || '';
+  return digitsOnly.startsWith('08') && digitsOnly.length >= 10 && digitsOnly.length <= 13;
 };
 
 export const requiredBusinessProfileFields = [

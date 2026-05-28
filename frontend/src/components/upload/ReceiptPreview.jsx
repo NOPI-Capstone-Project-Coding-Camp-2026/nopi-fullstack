@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Banknote,
   Calendar,
@@ -10,6 +10,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { apiUrl } from '../../utils/api';
+import { canUseMockAuth } from '../../utils/mockAuth';
+import { saveMockNota } from '../../utils/mockData';
 import {
   buildReceiptItemsPayload,
   calculateItemTotals,
@@ -141,6 +143,59 @@ const SectionHeader = ({ icon: Icon, title, description, action }) => (
   </div>
 );
 
+const formatToYyMmDd = (dateStr) => {
+  if (!dateStr) return '';
+  const cleanStr = String(dateStr).trim();
+  if (!cleanStr) return '';
+
+  const parts = cleanStr.match(/\d+/g);
+  if (parts && parts.length >= 3) {
+    let year = '';
+    let month = '';
+    let day = '';
+
+    const p0 = parts[0];
+    const p1 = parts[1];
+    const p2 = parts[2];
+
+    if (p0.length === 4) {
+      // YYYY-MM-DD
+      year = p0;
+      month = p1;
+      day = p2;
+    } else if (p2.length === 4) {
+      // DD-MM-YYYY
+      year = p2;
+      month = p1;
+      day = p0;
+    } else if (p0.length === 2 && p2.length === 2) {
+      const n0 = parseInt(p0, 10);
+      const n2 = parseInt(p2, 10);
+      if (n0 >= 20 && n0 <= 35 && n2 > 12 && n2 <= 31) {
+        year = '20' + p0;
+        month = p1;
+        day = p2;
+      } else {
+        year = '20' + p2;
+        month = p1;
+        day = p0;
+      }
+    } else {
+      year = p2.length === 2 ? '20' + p2 : p2;
+      month = p1;
+      day = p0;
+    }
+
+    const y = String(year).slice(-2);
+    const m = String(month).padStart(2, '0');
+    const d = String(day).padStart(2, '0');
+
+    return `${y}/${m}/${d}`;
+  }
+
+  return cleanStr;
+};
+
 const buildScanPreviewState = (scanData) => {
   if (!scanData) {
     return {
@@ -172,6 +227,10 @@ const buildScanPreviewState = (scanData) => {
                      getFirstValue(nestedReceipt, ['tanggal', 'date']) || 
                      getFirstValue(parsedItemsObj, ['tanggal', 'date']);
 
+  if (extractedTanggal) {
+    extractedTanggal = formatToYyMmDd(extractedTanggal);
+  }
+
   if (extractedToko) {
     const isOnlyNumbers = /^\d+$/.test(extractedToko);
     const isTooShort = extractedToko.length <= 2;
@@ -185,7 +244,7 @@ const buildScanPreviewState = (scanData) => {
 
     if (!extractedTanggal) {
       const dateMatch = text.match(/(\d{2,4})[./-](\d{2})[./-](\d{2,4})/);
-      if (dateMatch) extractedTanggal = dateMatch[0];
+      if (dateMatch) extractedTanggal = formatToYyMmDd(dateMatch[0]);
     }
 
     if (!extractedToko) {
@@ -281,6 +340,12 @@ const ReceiptItemFields = ({ item, validation, onChange }) => (
   </>
 );
 
+// ──────────────────────────────────────────────────────
+// Key sessionStorage untuk draft form (per sesi browser).
+// Draft otomatis disimpan setiap kali formData atau items berubah,
+// dan dipulihkan kembali saat scan baru dilakukan.
+const DRAFT_KEY = 'nopi-receipt-draft';
+
 const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanData }) => {
   const initialScanState = buildScanPreviewState(scanData);
   const [appliedScanData, setAppliedScanData] = useState(scanData);
@@ -289,10 +354,47 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
 
   if (scanData !== appliedScanData) {
     const nextScanState = buildScanPreviewState(scanData);
+    // Gabungkan dengan draft yang tersimpan (jika ada) agar tidak overwrite edit user
+    try {
+      const savedDraft = sessionStorage.getItem(DRAFT_KEY);
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Hanya pulihkan draft jika toko sudah pernah diisi (bukan default kosong)
+        nextScanState.formData = { ...nextScanState.formData, ...draft.formData };
+        if (draft.receiptItems && draft.receiptItems.length > 0) {
+          nextScanState.receiptItems = draft.receiptItems;
+        }
+      }
+    } catch {
+      // Jika draft rusak, abaikan saja
+    }
     setAppliedScanData(scanData);
     setFormData(nextScanState.formData);
     setReceiptItems(nextScanState.receiptItems);
   }
+
+  // ─── AUTO-SAVE DRAFT ke sessionStorage ─────────────────────────────────
+  // Simpan draft setiap kali form atau items berubah, sehingga data tidak hilang
+  // jika user tidak sengaja refresh halaman saat mengisi/mengedit nota scan.
+  useEffect(() => {
+    // Jangan simpan jika form masih kosong sepenuhnya
+    const hasContent =
+      (formData.toko && formData.toko.trim()) ||
+      (formData.tanggal && formData.tanggal.trim()) ||
+      receiptItems.length > 0;
+
+    if (!hasContent) return;
+
+    try {
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ formData, receiptItems, savedAt: new Date().toISOString() })
+      );
+    } catch {
+      // sessionStorage mungkin penuh — abaikan
+    }
+  }, [formData, receiptItems]);
+  // ──────────────────────────────────────────────────────────────────
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -324,21 +426,119 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
   // 🚨 PERBAIKAN: Gunakan nilai dari formData, bukan hasil kalkulasi item yang mungkin belum diisi
   const calculatedTotalHarga = formData.totalHarga || (receiptSummary.hasTotalModal ? receiptSummary.totalModal : 0);
   
-  const invalidReceiptItems = receiptItems.filter((item) => {
-    const validation = validateReceiptItem(item);
-    return !validation.isValid;
-  });
 
   const handleSaveToDatabase = async () => {
-    if (invalidReceiptItems.length > 0) {
+    // 1. Validasi Informasi Nota
+    if (!formData.toko || !formData.toko.trim()) {
       Swal.fire({
         icon: 'warning',
-        title: 'Lengkapi Item',
-        text: 'Periksa item yang ditandai sebelum menyimpan final.',
+        title: 'Informasi Nota Belum Lengkap',
+        text: 'Silakan isi Nama Toko Supplier terlebih dahulu.',
         confirmButtonColor: '#ea8327',
       });
       return;
     }
+
+    if (!formData.tanggal || !formData.tanggal.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Informasi Nota Belum Lengkap',
+        text: 'Silakan isi Tanggal nota terlebih dahulu.',
+        confirmButtonColor: '#ea8327',
+      });
+      return;
+    }
+
+    // 2. Validasi Item Hasil Scan
+    if (receiptItems.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Item Kosong',
+        text: 'Minimal harus ada 1 item hasil scan.',
+        confirmButtonColor: '#ea8327',
+      });
+      return;
+    }
+
+    for (let i = 0; i < receiptItems.length; i++) {
+      const item = receiptItems[i];
+      const indexLabel = `Item ke-${i + 1}`;
+
+      if (!item.itemName || !item.itemName.trim()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Nama Barang pada ${indexLabel} tidak boleh kosong.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+
+      if (!item.quantity || Number(item.quantity) < 1) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Jumlah Barang pada ${indexLabel} minimal adalah 1.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+
+      const unitPriceNum = Number(item.unitPrice);
+      if (item.unitPrice === '' || isNaN(unitPriceNum) || unitPriceNum < 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Harga Satuan pada ${indexLabel} tidak boleh kosong atau negatif.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+
+      const totalItemCostNum = Number(item.totalItemCost);
+      if (item.totalItemCost === '' || isNaN(totalItemCostNum) || totalItemCostNum < 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Item Belum Lengkap',
+          text: `Total Harga pada ${indexLabel} tidak boleh kosong atau negatif.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+
+      // Validasi Profit Margin / Harga Jual
+      if (!item.marginPercent || !item.sellingPrice) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Margin/Harga Jual Belum Lengkap',
+          text: `Silakan isi Profit Margin (%) atau Harga Jual pada ${indexLabel}.`,
+          confirmButtonColor: '#ea8327',
+        });
+        return;
+      }
+    }
+
+    // ─── MOCK MODE BYPASS ──────────────────────────────────────────────────────
+    if (canUseMockAuth()) {
+      const payloadItems = buildReceiptItemsPayload(receiptItems);
+      saveMockNota({
+        toko: formData.toko,
+        tanggal: formData.tanggal,
+        totalHarga: Number(calculatedTotalHarga) || 0,
+        imageUrl: null,
+        items: payloadItems,
+      });
+      // Bersihkan draft sesi setelah berhasil disimpan
+      sessionStorage.removeItem(DRAFT_KEY);
+      Swal.fire({
+        icon: 'success',
+        title: 'Nota Tersimpan! (Mock)',
+        text: 'Data tersimpan di mode demo. Cek halaman Riwayat.',
+        confirmButtonColor: '#35c759',
+      }).then(() => onClear());
+      return;
+    }
+    // ──────────────────────────────────────────────────────────────────────────
 
     Swal.fire({
       title: 'Menyimpan Nota...',
@@ -385,6 +585,8 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
       const result = await res.json();
 
       if (res.ok) {
+        // Bersihkan draft sesi setelah berhasil disimpan
+        sessionStorage.removeItem(DRAFT_KEY);
         Swal.fire({
           icon: 'success',
           title: 'Nota Tersimpan!',

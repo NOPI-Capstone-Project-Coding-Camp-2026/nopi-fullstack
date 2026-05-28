@@ -2,60 +2,14 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { BookmarkIcon, CalendarIcon, ChartIcon, PlusIcon } from '../components/ui/AppIcons';
+import { SkeletonText, SkeletonTableRow } from '../components/ui/SkeletonLoader';
 import { AuthContext } from '../context/AuthContext';
 import { apiUrl } from '../utils/api';
 import { getBusinessProfile } from '../utils/businessProfile';
+import { canUseMockAuth } from '../utils/mockAuth';
+import { getMockNotas } from '../utils/mockData';
+import { formatRupiah, parseCurrencyValue } from '../utils/formatCurrency';
 
-const formatRupiah = (number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(number);
-};
-
-const parseCurrencyValue = (value) => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : 0;
-  }
-
-  if (value === null || value === undefined) {
-    return 0;
-  }
-
-  const compactValue = `${value}`.trim().replace(/[^\d,.-]/g, '');
-
-  if (!compactValue) {
-    return 0;
-  }
-
-  const lastComma = compactValue.lastIndexOf(',');
-  const lastDot = compactValue.lastIndexOf('.');
-  let normalizedValue = compactValue;
-
-  if (lastComma > -1 && lastDot > -1) {
-    normalizedValue =
-      lastComma > lastDot
-        ? compactValue.replace(/\./g, '').replace(',', '.')
-        : compactValue.replace(/,/g, '');
-  } else if (lastComma > -1) {
-    const digitsAfterComma = compactValue.length - lastComma - 1;
-    normalizedValue =
-      digitsAfterComma === 3
-        ? compactValue.replace(/,/g, '')
-        : compactValue.replace(',', '.');
-  } else if (lastDot > -1) {
-    const dotParts = compactValue.split('.');
-    const digitsAfterDot = compactValue.length - lastDot - 1;
-    normalizedValue =
-      dotParts.length > 2 || digitsAfterDot === 3
-        ? compactValue.replace(/\./g, '')
-        : compactValue;
-  }
-
-  const parsedValue = Number(normalizedValue);
-  return Number.isFinite(parsedValue) ? parsedValue : 0;
-};
 
 const getValidDate = (value) => {
   if (!value) {
@@ -133,6 +87,31 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        // ─── MOCK MODE BYPASS ────────────────────────────────────────────────────
+        if (canUseMockAuth()) {
+          const mockNotas = getMockNotas();
+          const formattedData = mockNotas.map((nota) => {
+            const dateObj = getValidDate(nota.tanggal) || getValidDate(nota.createdAt);
+            const dateParts = dateObj ? getIndonesiaDateParts(dateObj) : null;
+            const rawCost = parseCurrencyValue(nota.totalHarga ?? nota.cost);
+            return {
+              id: nota.id ?? nota._id,
+              merchant: nota.toko || nota.merchant || 'Tidak Diketahui',
+              cost: formatRupiah(rawCost),
+              costRaw: rawCost,
+              dateLabel: dateObj ? dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta' }) : '-',
+              timeLabel: dateObj ? dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) : '',
+              monthKey: getMonthKey(dateParts),
+              monthLabel: getMonthLabel(dateParts),
+            };
+          });
+          setHistoryItems(formattedData);
+          setSelectedTotalModalMonth((currentValue) => currentValue || getDefaultTotalModalMonth(formattedData));
+          setIsLoading(false);
+          return;
+        }
+        // ──────────────────────────────────────────────────────────────────────────
+
         const token = localStorage.getItem('token');
         const res = await fetch(apiUrl('/api/nota/history'), {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -288,7 +267,11 @@ const Dashboard = () => {
             Total Modal
           </p>
           <div className="mt-2 text-[2rem] font-semibold tracking-[-0.06em] text-[#3b9b52] sm:text-[2.8rem]">
-            {isDashboardLoading ? "Menghitung..." : formatRupiah(totalCapital)}
+            {isDashboardLoading ? (
+              <SkeletonText className="h-10 w-48 rounded-[8px]" />
+            ) : (
+              formatRupiah(totalCapital)
+            )}
           </div>
           <p className="mt-3 text-[0.88rem] leading-6 text-[#8d8d8d] sm:text-[0.94rem]">
             Total modal dihitung dari penjumlahan seluruh harga beli pada periode yang dipilih.
