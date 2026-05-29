@@ -52,7 +52,6 @@ const Register = () => {
         html: `Akun <b>${email}</b> siap digunakan.<br/><br/><small style="color:#888">Mode testing aktif — tidak perlu verifikasi email.</small>`,
         confirmButtonText: 'Login Sekarang',
         confirmButtonColor: '#3CC360',
-        iconColor: '#3CC360',
       }).then(() => {
         navigate('/login');
       });
@@ -85,7 +84,6 @@ const Register = () => {
           text: 'Silakan cek kotak masuk email Anda untuk melakukan verifikasi akun.',
           confirmButtonText: 'Menuju Masuk',
           confirmButtonColor: '#3CC360',
-          iconColor: '#3CC360',
           backdrop: `rgba(0,0,0,0.4)`
         }).then((result) => {
           if (result.isConfirmed) {
@@ -139,7 +137,6 @@ const Register = () => {
             title: 'Masuk Google Berhasil!',
             showConfirmButton: false,
             timer: 1500,
-            iconColor: '#3CC360'
           }).then(() => {
             navigate('/dashboard');
           });

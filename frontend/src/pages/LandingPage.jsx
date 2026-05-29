@@ -34,7 +34,6 @@ const PROBLEMS = [
     Icon: FileX,
     title: 'Nota Hilang / Kebasahan',
     desc: 'Struk belanja sering hilang, buram, atau basah kena air. Akhirnya catatan keuangan toko jadi berantakan dan susah dilacak.',
-    tag: 'Warung & Toko Kelontong',
     iconColor: '#ef4444',
     iconBg: 'rgba(239,68,68,0.08)',
   },
@@ -42,7 +41,6 @@ const PROBLEMS = [
     Icon: Calculator,
     title: 'Salah Hitung Untung',
     desc: 'Hitung untung rugi manual bisa salah kapan saja. Sekali salah angka, bisa bikin keputusan bisnis yang keliru dan rugi besar.',
-    tag: 'Frozen Food & UMKM',
     iconColor: '#ef4444',
     iconBg: 'rgba(239,68,68,0.08)',
   },
@@ -50,7 +48,6 @@ const PROBLEMS = [
     Icon: ClipboardList,
     title: 'Capek Catat & Hitung Manual',
     desc: 'Tiap hari nulis ulang nota satu per satu itu buang waktu dan tenaga. Ada NOPI, semua beres dalam hitungan detik.',
-    tag: 'Semua Jenis Usaha',
     iconColor: '#ef4444',
     iconBg: 'rgba(239,68,68,0.08)',
   },
@@ -60,7 +57,7 @@ const FEATURES = [
   {
     Icon: ScanLine,
     title: 'Foto & Beres (OCR Pintar)',
-    desc: 'Cukup foto struk belanjaan, NOPI langsung baca dan ekstrak semua data otomatis. Tidak perlu ketik manual sama sekali.',
+    desc: 'Cukup foto struk belanjaan, NOPI langsung baca dan ekstrak semua data otomatis. Tidak perlu ketik manual.',
     cardBg: '#fff7ed',
     iconBg: '#fed7aa',
     iconColor: '#ea580c',
@@ -106,7 +103,7 @@ const STEPS = [
     Icon: Building2,
     number: '02',
     title: 'Isi Profil Bisnis',
-    desc: 'Lengkapi info toko kamu — nama, kategori, dan alamat usaha agar data lebih rapi.',
+    desc: 'Lengkapi info toko kamu mulai dari nama, kategori, hingga alamat usaha agar data pencatatan jadi lebih rapi.',
   },
   {
     Icon: Camera,
@@ -391,13 +388,7 @@ const LandingPage = () => {
                   <p.Icon size={22} color={p.iconColor} strokeWidth={2} />
                 </div>
                 <h3 className="text-[1.03rem] font-bold text-gray-900 mb-2">{p.title}</h3>
-                <p className="text-gray-500 text-[0.88rem] leading-relaxed mb-4">{p.desc}</p>
-                <span
-                  className="inline-block text-[0.75rem] font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}
-                >
-                  {p.tag}
-                </span>
+                <p className="text-gray-500 text-[0.88rem] leading-relaxed">{p.desc}</p>
               </div>
             ))}
           </div>
@@ -445,12 +436,6 @@ const LandingPage = () => {
                 </div>
                 <h3 className="text-[0.97rem] font-bold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-gray-500 text-[0.84rem] leading-relaxed">{f.desc}</p>
-                <div className="mt-4 flex items-center gap-1">
-                  <span className="text-[0.72rem] font-bold" style={{ color: f.accentColor }}>
-                    Pelajari lebih lanjut
-                  </span>
-                  <ArrowRight size={11} color={f.accentColor} />
-                </div>
               </div>
             ))}
           </div>
@@ -504,7 +489,7 @@ const LandingPage = () => {
               <Zap size={17} />
               Daftar Gratis Sekarang
             </Link>
-            <p className="mt-3 text-gray-400 text-sm">Gratis selamanya untuk memulai. Tidak ada syarat tersembunyi.</p>
+            <p className="mt-3 text-gray-400 text-sm">Mulai gratis sekarang dan rasakan catat nota otomatis 40% lebih cepat.</p>
           </div>
         </div>
       </section>

@@ -61,6 +61,10 @@ const UploadPage = () => {
       return;
     }
 
+    // Hapus draft lama sebelum scan baru dimulai, agar hasil AI tidak
+    // tertimpa data dari sesi scan sebelumnya.
+    sessionStorage.removeItem('nopi-receipt-draft');
+
     setIsScanning(true);
 
     // ─── MOCK MODE BYPASS ──────────────────────────────────────────────────────
@@ -76,6 +80,7 @@ const UploadPage = () => {
         title: 'Scan Selesai! (Mock)',
         text: 'Mode demo: AI berhasil membaca nota simulasi.',
         confirmButtonColor: '#35c759',
+        confirmButtonText: 'Lihat Hasil',
       });
       return;
     }
@@ -135,7 +140,8 @@ const UploadPage = () => {
           icon: 'success',
           title: 'Scan Selesai!',
           text: 'AI berhasil membaca nota Anda.',
-          confirmButtonColor: '#35c759'
+          confirmButtonColor: '#35c759',
+          confirmButtonText: 'Lihat Hasil',
         });
       } else {
         // Tentukan pesan error yang tepat

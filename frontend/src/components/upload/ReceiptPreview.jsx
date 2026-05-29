@@ -143,7 +143,9 @@ const SectionHeader = ({ icon: Icon, title, description, action }) => (
   </div>
 );
 
-const formatToYyMmDd = (dateStr) => {
+// Konversi berbagai format tanggal dari hasil scan AI → YYYY-MM-DD (ISO 8601)
+// Format ini wajib untuk input type="date" agar browser date picker bisa membacanya.
+const formatToIsoDate = (dateStr) => {
   if (!dateStr) return '';
   const cleanStr = String(dateStr).trim();
   if (!cleanStr) return '';
@@ -159,12 +161,12 @@ const formatToYyMmDd = (dateStr) => {
     const p2 = parts[2];
 
     if (p0.length === 4) {
-      // YYYY-MM-DD
+      // YYYY-MM-DD atau YYYY/MM/DD
       year = p0;
       month = p1;
       day = p2;
     } else if (p2.length === 4) {
-      // DD-MM-YYYY
+      // DD-MM-YYYY atau DD/MM/YYYY
       year = p2;
       month = p1;
       day = p0;
@@ -172,10 +174,12 @@ const formatToYyMmDd = (dateStr) => {
       const n0 = parseInt(p0, 10);
       const n2 = parseInt(p2, 10);
       if (n0 >= 20 && n0 <= 35 && n2 > 12 && n2 <= 31) {
+        // YY/MM/DD
         year = '20' + p0;
         month = p1;
         day = p2;
       } else {
+        // DD/MM/YY
         year = '20' + p2;
         month = p1;
         day = p0;
@@ -186,14 +190,20 @@ const formatToYyMmDd = (dateStr) => {
       day = p0;
     }
 
-    const y = String(year).slice(-2);
+    // Gunakan 4-digit year penuh + separator dash → YYYY-MM-DD
+    const y = String(year).length === 2 ? '20' + String(year) : String(year);
     const m = String(month).padStart(2, '0');
     const d = String(day).padStart(2, '0');
 
-    return `${y}/${m}/${d}`;
+    // Validasi dasar: bulan 01-12, hari 01-31
+    const mNum = parseInt(m, 10);
+    const dNum = parseInt(d, 10);
+    if (mNum < 1 || mNum > 12 || dNum < 1 || dNum > 31) return '';
+
+    return `${y}-${m}-${d}`;
   }
 
-  return cleanStr;
+  return '';
 };
 
 const buildScanPreviewState = (scanData) => {
@@ -228,7 +238,7 @@ const buildScanPreviewState = (scanData) => {
                      getFirstValue(parsedItemsObj, ['tanggal', 'date']);
 
   if (extractedTanggal) {
-    extractedTanggal = formatToYyMmDd(extractedTanggal);
+    extractedTanggal = formatToIsoDate(extractedTanggal);
   }
 
   if (extractedToko) {
@@ -244,7 +254,7 @@ const buildScanPreviewState = (scanData) => {
 
     if (!extractedTanggal) {
       const dateMatch = text.match(/(\d{2,4})[./-](\d{2})[./-](\d{2,4})/);
-      if (dateMatch) extractedTanggal = formatToYyMmDd(dateMatch[0]);
+      if (dateMatch) extractedTanggal = formatToIsoDate(dateMatch[0]);
     }
 
     if (!extractedToko) {
@@ -687,11 +697,11 @@ const ReceiptPreview = ({ file, previewUrl, isScanning, onScan, onClear, scanDat
                     Tanggal
                   </EditableLabel>
                   <input
-                    type="text"
+                    type="date"
                     name="tanggal"
                     value={formData.tanggal}
                     onChange={handleChange}
-                    placeholder="Belum diisi"
+                    max={new Date().toISOString().split('T')[0]}
                     className={inputClassName()}
                   />
                 </label>
