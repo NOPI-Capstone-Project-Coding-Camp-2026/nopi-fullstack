@@ -18,7 +18,7 @@ const mobileMenuItems = [
 ];
 
 const DashboardLayout = ({ children }) => {
-  const { isProfileComplete, missingProfileFields } = useContext(AuthContext);
+  const { isProfileComplete, missingProfileFields, token } = useContext(AuthContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAwarenessDismissed, setIsAwarenessDismissed] = useState(
     () => sessionStorage.getItem(awarenessStorageKey) === 'true'
@@ -36,7 +36,9 @@ const DashboardLayout = ({ children }) => {
   const isAwarenessOpen = isRestrictedMode && (!isAwarenessDismissed || Boolean(redirectedFrom));
 
   useEffect(() => {
-    if (blockedPath) {
+    // Guard: jangan redirect ke /profile jika tidak ada token
+    // (user sedang logout atau sesi expired — biarkan ProtectedRoute/SessionTracker yang handle)
+    if (blockedPath && token) {
       navigate('/profile', {
         replace: true,
         state: {
@@ -44,7 +46,7 @@ const DashboardLayout = ({ children }) => {
         },
       });
     }
-  }, [blockedPath, navigate]);
+  }, [blockedPath, navigate, token]);
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);

@@ -6,9 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import Swal from 'sweetalert2'; // 🚨 Import SweetAlert di sini
 import './App.css'; // 🎨 Import custom SweetAlert2 branding NOPI
 
-// 🚨 Import Komponen Penjaga Keamanan (Satpam)
 import ProtectedRoute from './components/Routes/ProtectedRoute';
-import PublicRoute from './components/Routes/PublicRoute';
 
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
@@ -125,17 +123,10 @@ function App() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-
-          {/* =========================================
-              ZONA PUBLIK (Hanya untuk yang BELUM login)
-              Jika sudah login, otomatis dilempar ke Dashboard
-              ========================================= */}
-          <Route element={<PublicRoute />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* =========================================
               ZONA RAHASIA / TERPROTEKSI (Wajib punya Token/Login)
