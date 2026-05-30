@@ -30,6 +30,7 @@ const normalizeUserIdentity = (savedUser) => {
 };
 
 export const AuthProvider = ({ children }) => {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [user, setUser] = useState(() => {
     const savedToken = localStorage.getItem('token');
@@ -49,6 +50,9 @@ export const AuthProvider = ({ children }) => {
   });
 
   const logout = () => {
+    // Set flag PERTAMA sebelum apapun — memicu DashboardLayout return null
+    // sehingga tidak ada UI (modal, banner, tombol) yang sempat flash saat logout.
+    setIsLoggingOut(true);
     // Revoke Google OAuth session agar akun Google tidak auto-restore setelah logout
     googleLogout();
     localStorage.removeItem('token');
@@ -69,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         setToken,
         setUser,
         logout,
+        isLoggingOut,
         isProfileComplete: profileCompleteness.isComplete,
         missingProfileFields: profileCompleteness.missingFields,
         businessProfile: profileCompleteness.profile,

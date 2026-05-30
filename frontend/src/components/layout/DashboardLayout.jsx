@@ -18,13 +18,18 @@ const mobileMenuItems = [
 ];
 
 const DashboardLayout = ({ children }) => {
-  const { isProfileComplete, missingProfileFields, token, logout } = useContext(AuthContext);
+  const { isProfileComplete, missingProfileFields, token, logout, isLoggingOut } = useContext(AuthContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAwarenessDismissed, setIsAwarenessDismissed] = useState(
     () => sessionStorage.getItem(awarenessStorageKey) === 'true'
   );
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Seluruh layout tidak dirender selama logout berlangsung.
+  // Ini mencegah semua sumber flash (modal, banner, tombol) sebelum
+  // browser selesai berpindah ke /login.
+  if (isLoggingOut) return null;
 
   const isRestrictedMode = !isProfileComplete;
   const isCurrentPathUnlocked = unlockedPaths.includes(location.pathname);
@@ -33,7 +38,7 @@ const DashboardLayout = ({ children }) => {
     [isCurrentPathUnlocked, isRestrictedMode, location.pathname]
   );
   const redirectedFrom = location.state?.redirectedFrom;
-  const isAwarenessOpen = isRestrictedMode && (!isAwarenessDismissed || Boolean(redirectedFrom));
+  const isAwarenessOpen = Boolean(token) && isRestrictedMode && (!isAwarenessDismissed || Boolean(redirectedFrom));
 
   useEffect(() => {
     // Guard: jangan redirect ke /profile jika tidak ada token
