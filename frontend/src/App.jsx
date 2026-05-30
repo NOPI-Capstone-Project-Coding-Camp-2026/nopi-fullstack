@@ -7,6 +7,7 @@ import Swal from 'sweetalert2'; // 🚨 Import SweetAlert di sini
 import './App.css'; // 🎨 Import custom SweetAlert2 branding NOPI
 
 import ProtectedRoute from './components/Routes/ProtectedRoute';
+import PublicRoute from './components/Routes/PublicRoute';
 
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
@@ -123,8 +124,14 @@ function App() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* =========================================
+              ZONA TAMU (Hanya bisa diakses jika BELUM login)
+              Jika sudah login, otomatis diarahkan ke /dashboard
+              ========================================= */}
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
 

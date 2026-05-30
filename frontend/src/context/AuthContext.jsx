@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { googleLogout } from '@react-oauth/google';
 import { AuthContext } from './AuthContext';
 import { getBusinessProfileCompleteness } from '../utils/businessProfile';
 
@@ -48,6 +49,8 @@ export const AuthProvider = ({ children }) => {
   });
 
   const logout = () => {
+    // Revoke Google OAuth session agar akun Google tidak auto-restore setelah logout
+    googleLogout();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     sessionStorage.removeItem('nopi-profile-awareness-dismissed');

@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { CircleHelp, House, ReceiptText, Upload, UserRound } from 'lucide-react';
 import NopiLogo from '../ui/NopiLogo';
 import { AuthContext } from '../../context/AuthContext';
@@ -15,15 +15,16 @@ const menuItems = [
 const unlockedPaths = ['/dashboard', '/profile'];
 
 const Sidebar = ({ onLockedNavigation }) => {
-  const { isProfileComplete } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const { isProfileComplete, logout } = useContext(AuthContext);
   const isRestrictedMode = !isProfileComplete;
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    sessionStorage.removeItem('nopi-profile-awareness-dismissed');
-    navigate('/login');
+    // Delegasi ke logout() AuthContext:
+    // - googleLogout() → revoke Google OAuth session
+    // - localStorage cleanup → hapus token & user
+    // - setToken/setUser → reset React Context
+    // - window.location.href → full page reload (state bersih)
+    logout();
   };
 
   return (

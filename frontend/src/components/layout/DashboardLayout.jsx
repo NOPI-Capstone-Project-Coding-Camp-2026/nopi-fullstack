@@ -18,7 +18,7 @@ const mobileMenuItems = [
 ];
 
 const DashboardLayout = ({ children }) => {
-  const { isProfileComplete, missingProfileFields, token } = useContext(AuthContext);
+  const { isProfileComplete, missingProfileFields, token, logout } = useContext(AuthContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAwarenessDismissed, setIsAwarenessDismissed] = useState(
     () => sessionStorage.getItem(awarenessStorageKey) === 'true'
@@ -73,11 +73,12 @@ const DashboardLayout = ({ children }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    sessionStorage.removeItem(awarenessStorageKey);
-    closeMobileMenu();
-    navigate('/login');
+    // Delegasi ke logout() AuthContext:
+    // - googleLogout() → revoke Google OAuth session
+    // - localStorage cleanup → hapus token & user
+    // - setToken/setUser → reset React Context
+    // - window.location.href → full page reload (state bersih)
+    logout();
   };
 
   return (

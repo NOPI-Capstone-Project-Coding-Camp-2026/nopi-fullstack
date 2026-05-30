@@ -215,6 +215,17 @@ const Login = () => {
             Masuk dengan Google
           </button>
 
+          <div className="mt-5 flex justify-start">
+            <Link
+              to="/"
+              id="login-back-home"
+              className="inline-flex items-center gap-1.5 text-[0.85rem] font-semibold text-gray-400 transition-colors duration-150 hover:text-[#ff8c00]"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              Kembali ke Beranda
+            </Link>
+          </div>
+
         </div>
       </div>
     </div>

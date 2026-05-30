@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import UploadBox from '../components/upload/UploadBox';
 import ReceiptPreview from '../components/upload/ReceiptPreview';
@@ -6,6 +6,7 @@ import { apiUrl } from '../utils/api';
 import { canUseMockAuth } from '../utils/mockAuth';
 import { generateMockScanResult } from '../utils/mockData';
 import Swal from 'sweetalert2';
+import { AuthContext } from '../context/AuthContext';
 
 const isRejectedScanResult = (result) =>
   result?.status === 'rejected' ||
@@ -19,6 +20,7 @@ const getRejectedScanReason = (result) =>
   'Gambar belum dikenali sebagai nota. Gunakan foto struk atau nota yang lebih jelas.';
 
 const UploadPage = () => {
+  const { logout } = useContext(AuthContext);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [isScanning, setIsScanning] = useState(false);
@@ -38,6 +40,9 @@ const UploadPage = () => {
       URL.revokeObjectURL(previewUrl);
     }
 
+    // FIX: Hapus draft sesi sebelumnya agar tidak mencemari hasil scan baru
+    sessionStorage.removeItem('nopi-receipt-draft');
+
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
     setIsScanning(false);
@@ -48,6 +53,9 @@ const UploadPage = () => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
+
+    // FIX: Hapus draft saat BATAL agar sesi berikutnya selalu mulai bersih
+    sessionStorage.removeItem('nopi-receipt-draft');
 
     setSelectedFile(null);
     setPreviewUrl('');
@@ -108,11 +116,12 @@ const UploadPage = () => {
           text: 'Sesi Anda telah habis atau tidak valid. Silakan login kembali.',
           confirmButtonColor: '#ea8327'
         }).then(() => {
-          localStorage.removeItem('token'); // Buang token kadaluarsa
-          window.location.href = '/login'; // Tendang ke halaman login
+          // Delegasi ke logout() AuthContext:
+          // googleLogout + hapus token & user + reset Context + full reload
+          logout();
         });
         setIsScanning(false);
-        return; // Hentikan proses agar kode di bawah tidak error
+        return;
       }
 
       const result = await res.json();
@@ -193,6 +202,7 @@ const UploadPage = () => {
           onClearFile={handleClearFile}
         />
         <ReceiptPreview
+          key={previewUrl}
           file={selectedFile}
           previewUrl={previewUrl}
           isScanning={isScanning}

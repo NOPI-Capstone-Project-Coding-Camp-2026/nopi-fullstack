@@ -478,19 +478,7 @@ const LandingPage = () => {
             ))}
           </div>
 
-          {/* CTA after steps */}
-          <div className="text-center mt-14">
-            <Link
-              to="/register"
-              id="how-cta-register"
-              className="inline-flex items-center gap-2 text-white font-bold px-8 py-3.5 rounded-lg text-[0.95rem] transition-all duration-200 hover:shadow-xl active:scale-95"
-              style={{ background: '#ff8c00', boxShadow: '0 4px 14px rgba(255,140,0,0.25)' }}
-            >
-              <Zap size={17} />
-              Daftar Gratis Sekarang
-            </Link>
-            <p className="mt-3 text-gray-400 text-sm">Mulai gratis sekarang dan rasakan catat nota otomatis 40% lebih cepat.</p>
-          </div>
+
         </div>
       </section>
 
@@ -560,17 +548,7 @@ const LandingPage = () => {
             })}
           </div>
 
-          {/* Link to full FAQ page */}
-          <div className="text-center mt-8">
-            <Link
-              to="/faq"
-              className="inline-flex items-center gap-2 font-semibold text-[0.92rem] transition-colors duration-150"
-              style={{ color: '#ff8c00' }}
-            >
-              Lihat Semua Pertanyaan
-              <ArrowRight size={15} />
-            </Link>
-          </div>
+
         </div>
       </section>
 
@@ -699,9 +677,12 @@ const LandingPage = () => {
                     </button>
                   </li>
                   <li>
-                    <Link to="/faq" className="hover:text-white transition-colors duration-150">
+                    <button
+                      onClick={() => scrollTo('faq')}
+                      className="hover:text-white transition-colors duration-150"
+                    >
                       FAQ
-                    </Link>
+                    </button>
                   </li>
                 </ul>
               </div>
