@@ -114,9 +114,11 @@ npm install
 npm run dev
 The frontend application will be accessible at http://localhost:5173
 
-7. Authors
-Full-Stack Learning Path Team:
+## 7. Authors
 
-Daniswara Rizky
+Dibalik pengembangan *Full-Stack* NOPI:
 
-Dewi Ainun A.
+| Avatar | Nama | Peran | Profil |
+| :---: | :--- | :--- | :--- |
+| 👨‍💻 | **Daniswara Rizky** | Full-Stack Developer | [GitHub](#) · [LinkedIn](#) |
+| 👩‍💻 | **Dewi Ainun A.** | Full-Stack Developer | [GitHub](#) · [LinkedIn](#) |
