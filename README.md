@@ -175,12 +175,12 @@ npm run dev
 
 The Full-Stack Team behind NOPI:
 
-**Daniswara Rizky** — *Full-Stack Developer*
+**Daniswara Rizky (CFCC009D6Y1543)** — *Full-Stack Web Developer*
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](https://github.com/daniswararzy)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/daniswararzy/)
 
-**Dewi Ainun Amaliah** — *Full-Stack Developer*
+**Dewi Ainun Amaliah (CFCC009D6X2334)** — *Full-Stack Web Developer*
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](https://github.com/dewiainun)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/dewi-ainun-amaliah/)
