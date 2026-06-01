@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") 
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                 String    @id @default(uuid())
+  name               String   
+  email              String    @unique
+  password           String   
+  isVerified         Boolean   @default(false)
+  verificationToken  String?
+  resetPasswordToken String?   
+  resetPasswordExpires DateTime? 
+  
+  // --- PROFIL BISNIS ---
+  profileImage       String?   // Tipe String karena kamu mengirimkan Base64 dari FileReader
+  businessName       String?
+  businessCategory   String?
+  businessAddress    String?
+  phoneNumber        String?
+  // -------------------------------------
+
+  createdAt          DateTime  @default(now())
+  notas              Nota[]
+}
+
+model Nota {
+  id          Int        @id @default(autoincrement())
+  toko        String
+  totalHarga  Float
+  tanggal     DateTime   @default(now())
+  imageUrl    String?    // Untuk menyimpan link foto nota di cloud (Supabase Storage dll)
+  
+  // Relasi ke User
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  
+  // Relasi ke Item Barang (Satu nota bisa punya banyak barang)
+  items       NotaItem[] 
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// TABEL BARU: Diselaraskan dengan penamaan variabel di Frontend & Backend
+model NotaItem {
+  id             Int      @id @default(autoincrement())
+  namaBarang     String
+  jumlahBarang   Int      @default(1)
+  hargaSatuan    Float?   // Opsional: Harga per 1 pcs
+  totalHargaItem Float    // Harga total untuk item ini
+  
+  // Fitur Perhitungan Margin Laba (Bisa kosong jika user belum mengisi)
+  profitMargin   Float?   // Persentase margin laba
+  hargaJual      Float?   // Harga rencana jual
+  totalProfit    Float?   // Total nominal keuntungan
+  
+  // Relasi balik ke Nota (Jika nota dihapus, barangnya ikut terhapus karena Cascade)
+  notaId         Int
+  nota           Nota     @relation(fields: [notaId], references: [id], onDelete: Cascade)
+}
