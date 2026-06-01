@@ -68,6 +68,7 @@ The system is built as a Single Page Application (SPA) utilizing React.js for a 
 - [x] Deploy Frontend to Vercel
 - [x] Create Documentation
 
+
 ## 6. Installation
 
 ### Run on Local Environment
@@ -113,6 +114,7 @@ npm install
 # Run the frontend development server
 npm run dev
 The frontend application will be accessible at http://localhost:5173
+
 
 ## 7. Authors
 
