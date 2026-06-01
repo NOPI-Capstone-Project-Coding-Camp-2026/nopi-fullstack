@@ -1,44 +1,70 @@
-# 🚀 NOPI (Nota Pintar) - Full-Stack Application
+# 🚀 NOPI (Nota Pintar)
+> AI-powered financial management web application for Indonesian MSMEs.
 
-## 1. Description
-**NOPI (Nota Pintar)** is an AI-powered financial management web application designed for Indonesian Micro, Small, and Medium Enterprises (MSMEs). This repository contains the Full-Stack implementation (Frontend and Backend) of the NOPI application. 
+---
 
-The system is built as a Single Page Application (SPA) utilizing React.js for a seamless user interface and an Express.js backend for robust API handling. The backend is responsible for secure user authentication (JWT & OAuth), database management via Prisma ORM, and acting as a bridge to consume the external Machine Learning API (Support Vector Machine based) for receipt OCR extraction. The architecture is optimized for serverless deployment to ensure high availability and low latency.
+## 📋 Table of Contents
+- [Description](#-description)
+- [Tech Stack](#-tech-stack)
+- [Tools](#-tools)
+- [Todos](#-todos)
+- [Installation](#-installation)
+- [Authors](#-authors)
 
-## 2. Table of Contents
-- [Description](#1-description)
-- [Table of Contents](#2-table-of-contents)
-- [Tech Stack](#3-tech-stack)
-- [Tools](#4-tools)
-- [Todos](#5-todos)
-- [Installation](#6-installation)
-- [Authors](#7-authors)
+---
 
-## 3. Tech Stack
-**Frontend Environment:**
-- React.js (built with Vite)
-- Tailwind CSS (Styling)
-- React Router DOM (Routing & Protection)
-- Context API (Global State Management)
-- Axios (HTTP Client)
-- SweetAlert2 (Interactive UI Alerts)
-- Google OAuth 2.0
+## 📖 Description
 
-**Backend Environment:**
-- Node.js & Express.js
-- Prisma ORM (Database Management)
-- PostgreSQL / MySQL (Relational Database)
-- JSON Web Token (JWT) & bcrypt (Security)
-- Nodemailer (SMTP Email Service)
+**NOPI (Nota Pintar)** is an AI-powered financial management web application designed for Indonesian Micro, Small, and Medium Enterprises (MSMEs). This repository contains the Full-Stack implementation (Frontend and Backend) of the NOPI application.
 
-## 4. Tools
-- **Version Control:** Git & GitHub
-- **API Client:** Postman
-- **Code Editor:** Visual Studio Code
-- **Package Manager:** npm / pnpm
-- **Deployment Platform:** Vercel
+The system is built as a Single Page Application (SPA) utilizing **React.js** for a seamless user interface and an **Express.js** backend for robust API handling. The backend is responsible for:
 
-## 5. Todos
+- 🔐 Secure user authentication (JWT & OAuth)
+- 🗄️ Database management via Prisma ORM
+- 🤖 Bridging to the external Machine Learning API (SVM-based) for receipt OCR extraction
+
+The architecture is optimized for **serverless deployment** to ensure high availability and low latency.
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+| Technology | Purpose |
+|---|---|
+| React.js (Vite) | UI Framework |
+| Tailwind CSS | Styling |
+| React Router DOM | Routing & Route Protection |
+| Context API | Global State Management |
+| Axios | HTTP Client |
+| SweetAlert2 | Interactive UI Alerts |
+| Google OAuth 2.0 | Social Authentication |
+
+### Backend
+| Technology | Purpose |
+|---|---|
+| Node.js & Express.js | Server & API Framework |
+| Prisma ORM | Database Management |
+| PostgreSQL / MySQL | Relational Database |
+| JWT & bcrypt | Authentication & Security |
+| Nodemailer | SMTP Email Service |
+
+---
+
+## ⚙️ Tools
+
+| Tool | Usage |
+|---|---|
+| Git & GitHub | Version Control |
+| Postman | API Testing |
+| Visual Studio Code | Code Editor |
+| npm / pnpm | Package Manager |
+| Vercel | Deployment Platform |
+
+---
+
+## ✅ Todos
+
 - [x] Initialize Project (Monorepo / Split Repo setup)
 - [x] Install Dependencies
 - [x] Create Express Server
@@ -68,60 +94,91 @@ The system is built as a Single Page Application (SPA) utilizing React.js for a 
 - [x] Deploy Frontend to Vercel
 - [x] Create Documentation
 
+---
 
-## 6. Installation
+## 🚀 Installation
 
-### Run on Local Environment
-Make sure you have **Node.js** (v18+) and a package manager (**npm** or **pnpm**) installed on your machine.
+> **Prerequisites:** Make sure you have **Node.js** (v18+) and a package manager (**npm** or **pnpm**) installed on your machine.
 
-**1. Clone this repository**
+### 1. Clone this repository
+
 ```bash
-git clone [https://github.com/your-username/nopi-fullstack.git](https://github.com/your-username/nopi-fullstack.git)
+git clone https://github.com/your-username/nopi-fullstack.git
 cd nopi-fullstack
-2. Setup Backend
-
-Bash
-cd backend
-npm install
-
-# Setup Environment Variables
-# Create a .env file in the backend folder and provide the following keys:
-# DATABASE_URL="your_database_connection_string"
-# JWT_SECRET="your_jwt_secret"
-# EMAIL_USER="your_smtp_email"
-# EMAIL_PASS="your_smtp_password"
-# FRONTEND_URL="http://localhost:5173"
-
-# Synchronize Prisma schema with your database
-npx prisma db push
-# or if using migrations: npx prisma migrate dev
-
-# Run the backend server
-npm run dev
-The backend server will run on http://localhost:5000
-
-3. Setup Frontend
-Open a new terminal window/tab:
-
-Bash
-cd frontend
-npm install
-
-# Setup Environment Variables
-# Create a .env file in the frontend folder:
-# VITE_API_URL="http://localhost:5000"
-
-# Run the frontend development server
-npm run dev
-The frontend application will be accessible at http://localhost:5173
 ```
 
-## 7. Authors
+### 2. Setup Backend
 
-> **The Full-Stack Team behind NOPI**
+```bash
+cd backend
+npm install
+```
 
-👤 **Daniswara Rizky** — *Full-Stack Developer*  
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](#) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](#)
+Create a `.env` file inside the `backend` folder and fill in the following variables:
 
-👤 **Dewi Ainun A.** — *Full-Stack Developer*  
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](#) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](#)
+```env
+DATABASE_URL="your_database_connection_string"
+JWT_SECRET="your_jwt_secret"
+EMAIL_USER="your_smtp_email"
+EMAIL_PASS="your_smtp_password"
+FRONTEND_URL="http://localhost:5173"
+```
+
+Synchronize Prisma schema with your database:
+
+```bash
+# Option 1 - Push schema directly
+npx prisma db push
+
+# Option 2 - Using migrations
+npx prisma migrate dev
+```
+
+Run the backend server:
+
+```bash
+npm run dev
+```
+
+> Backend will run on `http://localhost:5000`
+
+---
+
+### 3. Setup Frontend
+
+Open a **new terminal** window/tab:
+
+```bash
+cd frontend
+npm install
+```
+
+Create a `.env` file inside the `frontend` folder:
+
+```env
+VITE_API_URL="http://localhost:5000"
+```
+
+Run the frontend development server:
+
+```bash
+npm run dev
+```
+
+> Frontend will be accessible at `http://localhost:5173`
+
+---
+
+## 👥 Authors
+
+The Full-Stack Team behind NOPI:
+
+**Daniswara Rizky** — *Full-Stack Developer*
+
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](#)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](#)
+
+**Dewi Ainun A.** — *Full-Stack Developer*
+
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](https://github.com/dewiainun)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](#)
