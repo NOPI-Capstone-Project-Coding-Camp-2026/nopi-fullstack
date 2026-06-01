@@ -77,7 +77,7 @@ Make sure you have **Node.js** (v18+) and a package manager (**npm** or **pnpm**
 **1. Clone this repository**
 ```bash
 git clone [https://github.com/your-username/nopi-fullstack.git](https://github.com/your-username/nopi-fullstack.git)
-cd nopi-fullstack
+cd nopi-fullstack```
 2. Setup Backend
 
 Bash
