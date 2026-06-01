@@ -117,6 +117,8 @@ npm install
 Create a `.env` file inside the `backend` folder and fill in the following variables:
 
 ```env
+PORT=5000
+GOOGLE_CLIENT_ID="client_id"
 DATABASE_URL="your_database_connection_string"
 JWT_SECRET="your_jwt_secret"
 EMAIL_USER="your_smtp_email"
