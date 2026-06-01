@@ -116,9 +116,10 @@ The frontend application will be accessible at http://localhost:5173
 
 ## 7. Authors
 
-Dibalik pengembangan *Full-Stack* NOPI:
+> **The Full-Stack Team behind NOPI**
 
-| Avatar | Nama | Peran | Profil |
-| :---: | :--- | :--- | :--- |
-| 👨‍💻 | **Daniswara Rizky** | Full-Stack Developer | [GitHub](#) · [LinkedIn](#) |
-| 👩‍💻 | **Dewi Ainun A.** | Full-Stack Developer | [GitHub](#) · [LinkedIn](#) |
+👤 **Daniswara Rizky** — *Full-Stack Developer*  
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](#) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](#)
+
+👤 **Dewi Ainun A.** — *Full-Stack Developer*  
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white)](#) [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](#)
